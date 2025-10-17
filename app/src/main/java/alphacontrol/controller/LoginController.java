@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import alphacontrol.models.LoginService;
+import alphacontrol.view.TelaPrincipal;
 
 public class LoginController {
     private LoginService service;
@@ -12,10 +13,11 @@ public class LoginController {
         this.service = new LoginService();
     }
 
-    public void login(String usuario, String senha, JFrame tela) {
+    public void fazerLogin(String usuario, String senha, JFrame tela) {
         if (service.autenticar(usuario, senha)) {
             JOptionPane.showMessageDialog(tela, "Login realizado com sucesso!");
             tela.dispose();
+            new TelaPrincipal();
         } else {
             JOptionPane.showMessageDialog(tela, "Usuário ou senha incorretos.");
         }
