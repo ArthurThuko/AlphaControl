@@ -10,6 +10,7 @@ public class ModalEditarProduto extends JDialog {
 
     private Point mouseClickPoint;
     public JTextField[] campos;
+    public boolean salvarConfirmado = false;
 
     public ModalEditarProduto(JFrame parent) {
         super(parent, "Editar Produto", true);
@@ -36,9 +37,7 @@ public class ModalEditarProduto extends JDialog {
 
         // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                mouseClickPoint = e.getPoint();
-            }
+            public void mousePressed(MouseEvent e) { mouseClickPoint = e.getPoint(); }
         });
         painel.addMouseMotionListener(new MouseAdapter() {
             public void mouseDragged(MouseEvent e) {
@@ -58,7 +57,6 @@ public class ModalEditarProduto extends JDialog {
         JLabel titulo = new JLabel("Editar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
-
         gbc.gridwidth = 2;
         painel.add(titulo, gbc);
         gbc.gridwidth = 1;
@@ -102,6 +100,10 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botaoSalvar.addActionListener(e -> {
+            salvarConfirmado = true;  // sinaliza que o usuário confirmou a edição
+            dispose();
+        });
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -160,25 +162,5 @@ public class ModalEditarProduto extends JDialog {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-
-            ModalEditarProduto modal = new ModalEditarProduto(frame);
-
-            // Exemplo de valores
-            modal.campos[0].setText("Produto Exemplo");
-            modal.campos[1].setText("10");
-            modal.campos[2].setText("2");
-            modal.campos[3].setText("Categoria X");
-            modal.campos[4].setText("50,00");
-            modal.campos[5].setText("70,00");
-
-            modal.setVisible(true);
-        });
     }
 }
