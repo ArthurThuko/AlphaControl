@@ -10,6 +10,7 @@ public class ModalEditarProduto extends JDialog {
 
     private Point mouseClickPoint;
     public JTextField[] campos;
+    private JButton botaoSalvar;
 
     public ModalEditarProduto(JFrame parent) {
         super(parent, "Editar Produto", true);
@@ -86,7 +87,7 @@ public class ModalEditarProduto extends JDialog {
         }
 
         // Botão Salvar Alterações
-        JButton botaoSalvar = new JButton("Salvar Alterações") {
+        botaoSalvar = new JButton("Salvar Alterações") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -102,6 +103,12 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        // ActionListener do botão Salvar
+        botaoSalvar.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Alterações salvas com sucesso!");
+            dispose();
+        });
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
