@@ -8,6 +8,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class TelaEstoque extends JFrame {
@@ -77,24 +79,26 @@ public class TelaEstoque extends JFrame {
         gbc.insets = new Insets(0, 0, 20, 0);
         painelPrincipal.add(painelTopo, gbc);
 
-        String[] colunas = { "Nome", "Qtd.", "Categoria", "Valor Compra (R$)", "Valor Venda (R$)", "Ações" };
+        // --- Colunas e dados ---
+        String[] colunas = { "Nome", "Qtd.", "Categoria", "Valor Compra (R$)", "Valor Venda (R$)", "Editar",
+                "Excluir" };
         Object[][] dados = {
-                { "Produto A", "150", "Eletrônicos", "1250.00", "1899.90", "" },
-                { "Produto B", "80", "Acessórios", "45.50", "89.90", "" },
-                { "Produto C", "230", "Limpeza", "12.75", "22.00", "" },
-                { "Produto D", "50", "Decoração", "99.00", "179.99", "" },
-                { "Produto E", "300", "Escritório", "5.25", "11.50", "" }
+                { "Produto A", "150", "Eletrônicos", "1250.00", "1899.90", "Editar", "Excluir" },
+                { "Produto B", "80", "Acessórios", "45.50", "89.90", "Editar", "Excluir" },
+                { "Produto C", "230", "Limpeza", "12.75", "22.00", "Editar", "Excluir" },
+                { "Produto D", "50", "Decoração", "99.00", "179.99", "Editar", "Excluir" },
+                { "Produto E", "300", "Escritório", "5.25", "11.50", "Editar", "Excluir" }
         };
 
         DefaultTableModel modelo = new DefaultTableModel(dados, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5;
+                return false;
             }
         };
 
         JTable tabela = new JTable(modelo);
-        configurarTabela(tabela);
+        configurarTabela(tabela); // Configuração completa da tabela
 
         JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -137,12 +141,13 @@ public class TelaEstoque extends JFrame {
         header.setDefaultRenderer(new HeaderRenderer(tabela));
 
         PaddedCellRenderer paddedRenderer = new PaddedCellRenderer();
-        for (int i = 0; i < tabela.getColumnCount() - 1; i++) {
+        for (int i = 0; i < tabela.getColumnCount() - 2; i++) { // Padding em todas as colunas exceto ação
             tabela.getColumnModel().getColumn(i).setCellRenderer(paddedRenderer);
         }
 
-        tabela.getColumn("Ações").setCellRenderer(new AcoesCellRenderer());
-        tabela.getColumn("Ações").setCellEditor(new AcoesCellEditor(new JCheckBox()));
+        // Renderers para botões Editar/Excluir
+        tabela.getColumn("Editar").setCellRenderer(new ButtonRenderer(DOURADO_SUAVE, MARROM_ESCURO));
+        tabela.getColumn("Excluir").setCellRenderer(new ButtonRenderer(VERMELHO_TERROSO, Color.WHITE));
 
         TableColumnModel colModel = tabela.getColumnModel();
         colModel.getColumn(0).setPreferredWidth(350);
@@ -150,8 +155,56 @@ public class TelaEstoque extends JFrame {
         colModel.getColumn(2).setPreferredWidth(200);
         colModel.getColumn(3).setPreferredWidth(200);
         colModel.getColumn(4).setPreferredWidth(180);
-        colModel.getColumn(5).setMinWidth(280);
-        colModel.getColumn(5).setMaxWidth(300);
+        colModel.getColumn(5).setMinWidth(140);
+        colModel.getColumn(5).setMaxWidth(150);
+        colModel.getColumn(6).setMinWidth(140);
+        colModel.getColumn(6).setMaxWidth(150);
+
+        // ===== MouseListener para Editar/Excluir =====
+        tabela.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = tabela.rowAtPoint(e.getPoint());
+                int col = tabela.columnAtPoint(e.getPoint());
+
+                // Editar
+                if (col == tabela.getColumnModel().getColumnIndex("Editar")) {
+                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(tabela);
+                    ModalEditarProduto modal = new ModalEditarProduto(frame);
+
+                    modal.campos[0].setText(tabela.getValueAt(row, 0).toString());
+                    modal.campos[1].setText(tabela.getValueAt(row, 1).toString());
+                    modal.campos[2].setText("0");
+                    modal.campos[3].setText(tabela.getValueAt(row, 2).toString());
+                    modal.campos[4].setText(tabela.getValueAt(row, 3).toString());
+                    modal.campos[5].setText(tabela.getValueAt(row, 4).toString());
+
+                    modal.setVisible(true);
+
+                    if (modal.salvarConfirmado) {
+                        tabela.setValueAt(modal.campos[0].getText(), row, 0);
+                        tabela.setValueAt(modal.campos[1].getText(), row, 1);
+                        tabela.setValueAt(modal.campos[3].getText(), row, 2);
+                        tabela.setValueAt(modal.campos[4].getText(), row, 3);
+                        tabela.setValueAt(modal.campos[5].getText(), row, 4);
+                    }
+                }
+
+                // Excluir
+                if (col == tabela.getColumnModel().getColumnIndex("Excluir")) {
+                    int resposta = JOptionPane.showConfirmDialog(
+                            null,
+                            "Tem certeza que deseja excluir o produto '" + tabela.getValueAt(row, 0) + "'?",
+                            "Confirmar Exclusão",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+
+                    if (resposta == JOptionPane.YES_OPTION) {
+                        ((DefaultTableModel) tabela.getModel()).removeRow(row);
+                    }
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -160,23 +213,13 @@ public class TelaEstoque extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        SwingUtilities.invokeLater(() -> {
-            TelaEstoque tela = new TelaEstoque();
-            tela.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new TelaEstoque().setVisible(true));
     }
 
-    // =========================================================================
-    // Componentes Customizados (Inner Classes)
-    // =========================================================================
-
+    // ===== Componentes customizados =====
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
-            super();
-            // Define o padding: 5px em cima/baixo, 15px nas laterais
             setBorder(new EmptyBorder(5, 15, 5, 15));
-            // [AJUSTE 2]: Centralizando o conteúdo das células
             setHorizontalAlignment(SwingConstants.CENTER);
         }
 
@@ -193,7 +236,6 @@ public class TelaEstoque extends JFrame {
         private final int cornerRadius;
 
         public RoundedPanel(int radius) {
-            super();
             this.cornerRadius = radius;
             setOpaque(false);
         }
@@ -211,29 +253,19 @@ public class TelaEstoque extends JFrame {
     }
 
     static class RoundedButton extends JButton {
-        private final Color backgroundColor;
-        private final Color hoverColor;
+        private final Color backgroundColor, hoverColor;
 
-        public RoundedButton(String text, Color background, Color foreground, int width, int height) {
+        public RoundedButton(String text, Color bg, Color fg, int w, int h) {
             super(text);
-            this.backgroundColor = background;
-            this.hoverColor = background.brighter();
-            setForeground(foreground);
+            backgroundColor = bg;
+            hoverColor = bg.brighter();
+            setForeground(fg);
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
             setFont(new Font("Segoe UI", Font.BOLD, 16));
-            setPreferredSize(new Dimension(width, height));
+            setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    setBackground(hoverColor);
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    setBackground(backgroundColor);
-                }
-            });
         }
 
         @Override
@@ -255,7 +287,7 @@ public class TelaEstoque extends JFrame {
             super(placeholder);
             this.placeholder = placeholder;
             this.showingPlaceholder = true;
-            super.addFocusListener(this);
+            addFocusListener(this);
             setForeground(CINZA_PLACEHOLDER);
             setFont(new Font("Segoe UI", Font.PLAIN, 16));
             setOpaque(false);
@@ -276,19 +308,19 @@ public class TelaEstoque extends JFrame {
 
         @Override
         public void focusGained(FocusEvent e) {
-            if (this.showingPlaceholder) {
-                super.setText("");
+            if (showingPlaceholder) {
+                setText("");
                 setForeground(MARROM_ESCURO);
-                this.showingPlaceholder = false;
+                showingPlaceholder = false;
             }
         }
 
         @Override
         public void focusLost(FocusEvent e) {
-            if (super.getText().isEmpty()) {
-                super.setText(placeholder);
+            if (getText().isEmpty()) {
+                setText(placeholder);
                 setForeground(CINZA_PLACEHOLDER);
-                this.showingPlaceholder = true;
+                showingPlaceholder = true;
             }
         }
 
@@ -298,84 +330,46 @@ public class TelaEstoque extends JFrame {
         }
     }
 
-    static class AcoesCellRenderer extends JPanel implements TableCellRenderer {
-        private final JButton btnEditar = new RoundedButton("Editar", DOURADO_SUAVE, MARROM_ESCURO, 100, 35);
-        private final JButton btnExcluir = new RoundedButton("Excluir", VERMELHO_TERROSO, Color.WHITE, 100, 35);
+    static class ButtonRenderer extends DefaultTableCellRenderer {
+        private final Color background;
+        private final Color foreground;
 
-        public AcoesCellRenderer() {
-            setLayout(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(0, 5, 0, 5);
-            add(btnEditar, gbc);
-            add(btnExcluir, gbc);
+        public ButtonRenderer(Color background, Color foreground) {
+            this.background = background;
+            this.foreground = foreground;
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus,
                 int row, int column) {
-            setBackground(isSelected ? table.getSelectionBackground()
-                    : (row % 2 == 0 ? BEGE_CLARO : new Color(250, 245, 235)));
-            return this;
-        }
-    }
+            JButton button = new JButton((value == null) ? "" : value.toString());
+            button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            button.setForeground(foreground);
+            button.setBackground(background);
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(true);
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            button.setOpaque(true);
 
-    static class AcoesCellEditor extends DefaultCellEditor {
-        private final JPanel panel;
-        protected int currentRow;
-
-        public AcoesCellEditor(JCheckBox checkBox) {
-            super(checkBox);
-            panel = new JPanel(new GridBagLayout());
-            JButton btnEditar = new RoundedButton("Editar", DOURADO_SUAVE, MARROM_ESCURO, 100, 35);
-            JButton btnExcluir = new RoundedButton("Excluir", VERMELHO_TERROSO, Color.WHITE, 100, 35);
-
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(0, 5, 0, 5);
-            panel.add(btnEditar, gbc);
-            panel.add(btnExcluir, gbc);
-
-            btnEditar.addActionListener(e -> {
-                fireEditingStopped();
-
-                // Obtém os dados da linha selecionada
-                JTable tabela = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, panel);
-                if (tabela != null) {
-                    int row = currentRow;
-
-                    // Cria e mostra o modal
-                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(tabela);
-                    ModalEditarProduto modal = new ModalEditarProduto(frame);
-
-                    // Preenche os campos com os valores da linha
-                    modal.campos[0].setText(tabela.getValueAt(row, 0).toString()); // Nome
-                    modal.campos[1].setText(tabela.getValueAt(row, 1).toString()); // Quantidade
-                    modal.campos[2].setText("0"); // Alerta Estoque (ajuste se houver coluna)
-                    modal.campos[3].setText(tabela.getValueAt(row, 2).toString()); // Categoria
-                    modal.campos[4].setText(tabela.getValueAt(row, 3).toString()); // Valor Compra
-                    modal.campos[5].setText(tabela.getValueAt(row, 4).toString()); // Valor Venda
-
-                    modal.setVisible(true);
+            // Manter arredondamento igual ao RoundedButton
+            button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+                @Override
+                public void update(Graphics g, JComponent c) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(button.getBackground());
+                    g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 15, 15);
+                    g2.setColor(MARROM_CLARO);
+                    g2.drawRoundRect(0, 0, button.getWidth() - 1, button.getHeight() - 1, 15, 15);
+                    g2.dispose();
+                    super.update(g, c);
                 }
             });
 
-            btnExcluir.addActionListener(e -> {
-                fireEditingStopped();
-                JOptionPane.showMessageDialog(null, "Ação: Excluir linha " + (currentRow + 1));
-            });
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-                int column) {
-            this.currentRow = row;
-            panel.setBackground(
-                    table.getSelectionBackground() != null ? table.getSelectionBackground() : table.getBackground());
-            return panel;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return "";
+            return button;
         }
     }
 
@@ -384,7 +378,6 @@ public class TelaEstoque extends JFrame {
 
         public HeaderRenderer(JTable table) {
             renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
-            // [AJUSTE 1]: Centralizando o texto do header
             renderer.setHorizontalAlignment(SwingConstants.CENTER);
         }
 
