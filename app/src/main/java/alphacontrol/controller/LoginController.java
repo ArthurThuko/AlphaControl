@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import alphacontrol.models.LoginService;
-import alphacontrol.view.TelaPrincipal;
+import alphacontrol.views.TelaPrincipal;
 
 public class LoginController {
     private LoginService service;

@@ -1,9 +1,9 @@
-package alphacontrol.view;
+package alphacontrol.views;
 
 import javax.swing.*;
 import java.awt.*;
-import alphacontrol.view.components.BotaoEstilizado;
-import alphacontrol.view.components.PainelGradiente;
+import alphacontrol.views.components.BotaoEstilizado;
+import alphacontrol.views.components.PainelGradiente;
 
 public class TelaPrincipal extends JFrame {
 

@@ -1,4 +1,4 @@
-package alphacontrol.view.components;
+package alphacontrol.views.components;
 
 import javax.swing.*;
 import java.awt.*;

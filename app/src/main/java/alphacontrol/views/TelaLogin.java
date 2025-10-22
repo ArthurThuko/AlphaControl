@@ -1,13 +1,13 @@
-package alphacontrol.view;
+package alphacontrol.views;
 
 import javax.swing.*;
 
 import alphacontrol.controller.LoginController;
-import alphacontrol.view.components.BotaoEstilizado;
-import alphacontrol.view.components.CampoSenhaEstilizado;
-import alphacontrol.view.components.CampoTextoEstilizado;
-import alphacontrol.view.components.Estilos;
-import alphacontrol.view.components.PainelGradiente;
+import alphacontrol.views.components.BotaoEstilizado;
+import alphacontrol.views.components.CampoSenhaEstilizado;
+import alphacontrol.views.components.CampoTextoEstilizado;
+import alphacontrol.views.components.Estilos;
+import alphacontrol.views.components.PainelGradiente;
 
 import java.awt.*;
 
