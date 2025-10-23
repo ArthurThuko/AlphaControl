@@ -117,7 +117,7 @@ public class ModalAdcProduto extends JDialog {
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.setColor(marromEscuro);
                 g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
             }
@@ -163,12 +163,9 @@ public class ModalAdcProduto extends JDialog {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-
-            ModalAdcProduto modal = new ModalAdcProduto(frame);
+            ModalAdcProduto modal = new ModalAdcProduto(null);
             modal.setVisible(true);
         });
     }
+
 }
