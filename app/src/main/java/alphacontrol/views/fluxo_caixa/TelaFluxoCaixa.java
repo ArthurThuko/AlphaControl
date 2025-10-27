@@ -70,13 +70,8 @@ public class TelaFluxoCaixa extends JFrame {
 
         // Painel de Saldo (parte superior)
         gbcDir.gridy = 0;
-        gbcDir.weighty = 0.35;
+        gbcDir.weighty = 1;
         painelDireita.add(criarPainelSaldo(), gbcDir);
-
-        // Painel de Gráficos (parte inferior)
-        gbcDir.gridy = 1;
-        gbcDir.weighty = 0.65;
-        painelDireita.add(criarPainelGraficos(), gbcDir);
 
         // ---- Montagem do layout geral ----
         GridBagConstraints gbcPainel = new GridBagConstraints();
@@ -87,17 +82,17 @@ public class TelaFluxoCaixa extends JFrame {
 
         // Entradas (mais espaço)
         gbcPainel.gridx = 0;
-        gbcPainel.weightx = 0.4;
+        gbcPainel.weightx = 0.45;
         painelLateral.add(painelEntradas, gbcPainel);
 
         // Saídas (mais espaço)
         gbcPainel.gridx = 1;
-        gbcPainel.weightx = 0.4;
+        gbcPainel.weightx = 0.45;
         painelLateral.add(painelSaidas, gbcPainel);
 
         // Direita (Saldo + Gráficos)
         gbcPainel.gridx = 2;
-        gbcPainel.weightx = 0.2;
+        gbcPainel.weightx = 0.1;
         painelLateral.add(painelDireita, gbcPainel);
 
         // ---- Adiciona tudo ao painel principal ----
@@ -113,7 +108,7 @@ public class TelaFluxoCaixa extends JFrame {
     private JPanel criarPainelEntradas() {
         JPanel painel = new RoundedPanel(25, VERDE_CLARO, VERDE_BORDA);
         painel.setLayout(new GridBagLayout());
-        painel.setBorder(new EmptyBorder(30, 40, 30, 40));
+        painel.setBorder(new EmptyBorder(30, 10, 30, 10));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -176,7 +171,7 @@ public class TelaFluxoCaixa extends JFrame {
     private JPanel criarPainelSaidas() {
         JPanel painel = new RoundedPanel(25, new Color(236, 204, 200), new Color(178, 67, 62));
         painel.setLayout(new GridBagLayout());
-        painel.setBorder(new EmptyBorder(30, 40, 30, 40));
+        painel.setBorder(new EmptyBorder(30, 10, 30, 10));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -192,9 +187,9 @@ public class TelaFluxoCaixa extends JFrame {
 
         // === Dados da tabela (sem cabeçalho) ===
         Object[][] dados = {
-                { "Compra de Material", "120.00", "18/10/2025", "Editar", "Excluir" },
-                { "Conta de Luz", "340.00", "20/10/2025", "Editar", "Excluir" },
-                { "Pagamento Professor", "1500.00", "21/10/2025", "Editar", "Excluir" }
+                { "Compra de Material", "120.00", "18/10/2025", "E", "X" },
+                { "Conta de Luz", "340.00", "20/10/2025", "E", "X" },
+                { "Pagamento Professor", "1500.00", "21/10/2025", "E", "X" }
         };
 
         DefaultTableModel modelo = new DefaultTableModel(dados, new String[] { "", "", "", "", "" }) {
@@ -275,60 +270,6 @@ public class TelaFluxoCaixa extends JFrame {
         return painel;
     }
 
-    private JPanel criarPainelGraficos() {
-        JPanel painel = new RoundedPanel(25, new Color(245, 240, 225), MARROM_CLARO);
-        painel.setLayout(new GridLayout(3, 1, 10, 10));
-        painel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        // === Título ===
-        JLabel lblTitulo = new JLabel("Gráficos", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        lblTitulo.setForeground(MARROM_ESCURO);
-        painel.add(lblTitulo);
-
-        // === Gráficos (mock para exemplo) ===
-        painel.add(criarGraficoPizza("Entradas", new double[] { 50, 30, 20 }));
-        painel.add(criarGraficoPizza("Saídas", new double[] { 40, 25, 35 }));
-        painel.add(criarGraficoPizza("Comparativo", new double[] { 70, 30 }));
-
-        return painel;
-    }
-
-    private JPanel criarGraficoPizza(String titulo, double[] valores) {
-        JPanel painel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int size = Math.min(getWidth(), getHeight()) - 40;
-                int x = (getWidth() - size) / 2;
-                int y = (getHeight() - size) / 2;
-
-                Color[] cores = { new Color(119, 140, 85), new Color(178, 67, 62), new Color(226, 180, 90) };
-                double total = 0;
-                for (double v : valores)
-                    total += v;
-
-                double anguloInicio = 0;
-                for (int i = 0; i < valores.length; i++) {
-                    double angulo = 360 * (valores[i] / total);
-                    g2.setColor(cores[i % cores.length]);
-                    g2.fillArc(x, y, size, size, (int) anguloInicio, (int) angulo);
-                    anguloInicio += angulo;
-                }
-
-                g2.setColor(MARROM_ESCURO);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 16));
-                FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(titulo, (getWidth() - fm.stringWidth(titulo)) / 2, getHeight() - 10);
-            }
-        };
-        painel.setOpaque(false);
-        return painel;
-    }
-
     private void configurarTabela(JTable tabela) {
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         tabela.setRowHeight(50);
@@ -345,8 +286,20 @@ public class TelaFluxoCaixa extends JFrame {
             tabela.getColumnModel().getColumn(i).setCellRenderer(new PaddedCellRenderer());
         }
 
-        tabela.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer(DOURADO_SUAVE, MARROM_ESCURO));
-        tabela.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer(VERMELHO_TERROSO, Color.WHITE));
+        Icon iconeEditar = UIManager.getIcon("FileView.directoryIcon"); // ícone padrão de pasta (pode mudar)
+        Icon iconeExcluir = UIManager.getIcon("OptionPane.errorIcon"); // ícone vermelho padrão
+
+        // Botão Editar
+        tabela.getColumnModel().getColumn(3).setCellRenderer(
+                new ButtonRenderer("", DOURADO_SUAVE, MARROM_ESCURO, iconeEditar));
+        tabela.getColumnModel().getColumn(3).setCellEditor(
+                new ButtonEditor(new JCheckBox(), "", DOURADO_SUAVE, MARROM_ESCURO, iconeEditar));
+
+        // Botão Excluir
+        tabela.getColumnModel().getColumn(4).setCellRenderer(
+                new ButtonRenderer("", VERMELHO_TERROSO, Color.WHITE, iconeExcluir));
+        tabela.getColumnModel().getColumn(4).setCellEditor(
+                new ButtonEditor(new JCheckBox(), "", VERMELHO_TERROSO, Color.WHITE, iconeExcluir));
 
         tabela.addMouseListener(new MouseAdapter() {
             @Override
@@ -367,6 +320,14 @@ public class TelaFluxoCaixa extends JFrame {
                 }
             }
         });
+
+        tabela.setRowHeight(38); // dá mais espaço vertical às linhas
+
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(250); // Descrição
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(150); // Valor
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(150); // Data
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(50); // Editar
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(50); // Excluir
     }
 
     private String calcularTotal(DefaultTableModel modelo) {
@@ -431,40 +392,112 @@ public class TelaFluxoCaixa extends JFrame {
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
             setHorizontalAlignment(SwingConstants.CENTER);
-            setBorder(new EmptyBorder(5, 15, 5, 15));
-        }
-    }
-
-    static class ButtonRenderer extends DefaultTableCellRenderer {
-        private final Color bg, fg;
-
-        public ButtonRenderer(Color bg, Color fg) {
-            this.bg = bg;
-            this.fg = fg;
+            setBorder(new EmptyBorder(5, 20, 5, 20)); // ← aumente o segundo e quarto valor (esquerda/direita)
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus,
-                int row, int column) {
-            JButton btn = new JButton(value.toString());
-            btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            btn.setBackground(bg);
-            btn.setForeground(fg);
-            btn.setFocusPainted(false);
-            btn.setBorderPainted(false);
-            btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            btn.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-                @Override
-                public void update(Graphics g, JComponent c) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(bg);
-                    g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
-                    super.update(g, c);
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (isSelected) {
+                c.setBackground(table.getSelectionBackground());
+                c.setForeground(table.getSelectionForeground());
+            } else {
+                c.setBackground(table.getBackground());
+                c.setForeground(table.getForeground());
+            }
+            return c;
+        }
+    }
+
+    static class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer(String text, Color bg, Color fg, Icon icon) {
+            setText(text);
+            setBackground(bg);
+            setForeground(fg);
+            setFont(new Font("Segoe UI", Font.BOLD, 13));
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setMargin(new Insets(2, 6, 2, 6)); // diminui o tamanho
+            setIcon(icon);
+            setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    static class ButtonEditor extends DefaultCellEditor {
+        protected JButton button;
+        private String label;
+        private boolean clicked;
+        private Color bg, fg;
+        private Icon icon;
+
+        public ButtonEditor(JCheckBox checkBox, String label, Color bg, Color fg, Icon icon) {
+            super(checkBox);
+            this.label = label;
+            this.bg = bg;
+            this.fg = fg;
+            this.icon = icon;
+
+            button = new JButton(label, icon);
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setBackground(bg);
+            button.setForeground(fg);
+            button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            button.setMargin(new Insets(2, 6, 2, 6));
+
+            button.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            clicked = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (clicked) {
+                if (label.equals("Excluir")) {
+                    int resp = JOptionPane.showConfirmDialog(null,
+                            "Deseja excluir o item da linha " + (rowAtEditing + 1) + "?",
+                            "Confirmar exclusão", JOptionPane.YES_NO_OPTION);
+
+                    if (resp == JOptionPane.YES_OPTION) {
+                        ((DefaultTableModel) tabelaAtiva.getModel()).removeRow(rowAtEditing);
+                    }
+                } else if (label.equals("Editar")) {
+                    JOptionPane.showMessageDialog(null, "Editar linha " + (rowAtEditing + 1));
                 }
-            });
-            return btn;
+            }
+            clicked = false;
+            return label;
+        }
+
+        private JTable tabelaAtiva;
+        private int rowAtEditing;
+
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
+                int row, int column, int rowAtEditing) {
+            this.tabelaAtiva = table;
+            this.rowAtEditing = row;
+            return getTableCellEditorComponent(table, value, isSelected, row, column);
         }
     }
 

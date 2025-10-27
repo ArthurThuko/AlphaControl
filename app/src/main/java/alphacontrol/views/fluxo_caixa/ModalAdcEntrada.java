@@ -6,12 +6,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-public class ModalAdcProduto extends JDialog {
+public class ModalAdcEntrada extends JDialog {
 
     private Point mouseClickPoint;
 
-    public ModalAdcProduto(JFrame parent) {
-        super(parent, "Adicionar Produto", true);
+    public ModalAdcEntrada(JFrame parent) {
+        super(parent, "Adicionar Entrada", true);
 
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
@@ -65,8 +65,7 @@ public class ModalAdcProduto extends JDialog {
 
         // Campos
         String[] labels = {
-                "Nome:", "Quantidade:", "Alerta Estoque Min.:",
-                "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
+                "Nome:", "Data:", "Valor:"
         };
         JTextField[] campos = new JTextField[labels.length];
 
@@ -113,15 +112,27 @@ public class ModalAdcProduto extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? marromClaro.darker() : marromClaro);
+
+                // Fundo com cor adaptável ao hover/press
+                Color fundoAtual = getModel().isPressed()
+                        ? marromClaro.darker()
+                        : (getModel().isRollover() ? marromClaro.brighter() : marromClaro);
+
+                g2.setColor(fundoAtual);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+
+                // Borda
                 g2.setColor(marromEscuro);
                 g2.setStroke(new BasicStroke(2));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+
                 g2.dispose();
+
+                // Agora sim desenha o texto POR CIMA
                 super.paintComponent(g);
             }
         };
+
         botaoFechar.setForeground(begeClaro);
         botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
@@ -135,7 +146,7 @@ public class ModalAdcProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 600);
+        setSize(500, 400);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
@@ -163,9 +174,8 @@ public class ModalAdcProduto extends JDialog {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ModalAdcProduto modal = new ModalAdcProduto(null);
+            ModalAdcEntrada modal = new ModalAdcEntrada(null);
             modal.setVisible(true);
         });
     }
-
 }
