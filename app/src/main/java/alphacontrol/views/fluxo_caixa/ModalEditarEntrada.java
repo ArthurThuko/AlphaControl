@@ -6,12 +6,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-public class ModalAdcProduto extends JDialog {
+public class ModalEditarEntrada extends JDialog {
 
     private Point mouseClickPoint;
+    public JTextField[] campos;
+    public boolean salvarConfirmado = false;
 
-    public ModalAdcProduto(JFrame parent) {
-        super(parent, "Adicionar Produto", true);
+    public ModalEditarEntrada(JFrame parent) {
+        super(parent, "Editar Entrada", true);
 
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
@@ -19,7 +21,7 @@ public class ModalAdcProduto extends JDialog {
         Color marromClaro = new Color(184, 142, 106);
         Color begeClaro = new Color(255, 250, 240);
 
-        // Painel principal com cantos arredondados
+        // Painel principal
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -35,9 +37,7 @@ public class ModalAdcProduto extends JDialog {
 
         // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                mouseClickPoint = e.getPoint();
-            }
+            public void mousePressed(MouseEvent e) { mouseClickPoint = e.getPoint(); }
         });
         painel.addMouseMotionListener(new MouseAdapter() {
             public void mouseDragged(MouseEvent e) {
@@ -54,10 +54,9 @@ public class ModalAdcProduto extends JDialog {
         gbc.weightx = 1;
 
         // Título centralizado
-        JLabel titulo = new JLabel("Adicionar Produto", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("Editar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
-
         gbc.gridwidth = 2;
         painel.add(titulo, gbc);
         gbc.gridwidth = 1;
@@ -65,10 +64,9 @@ public class ModalAdcProduto extends JDialog {
 
         // Campos
         String[] labels = {
-                "Nome:", "Quantidade:", "Alerta Estoque Min.:",
-                "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
+                "Nome:", "Data:", "Valor:"
         };
-        JTextField[] campos = new JTextField[labels.length];
+        campos = new JTextField[labels.length];
 
         for (int i = 0; i < labels.length; i++) {
             gbc.gridx = 0;
@@ -84,8 +82,8 @@ public class ModalAdcProduto extends JDialog {
             gbc.gridy++;
         }
 
-        // Botão Adicionar
-        JButton botaoAdicionar = new JButton("Adicionar") {
+        // Botão Salvar Alterações
+        JButton botaoSalvar = new JButton("Salvar Alterações") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -96,15 +94,19 @@ public class ModalAdcProduto extends JDialog {
                 super.paintComponent(g);
             }
         };
-        botaoAdicionar.setForeground(begeClaro);
-        botaoAdicionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        botaoAdicionar.setFocusPainted(false);
-        botaoAdicionar.setContentAreaFilled(false);
-        botaoAdicionar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botaoSalvar.setForeground(begeClaro);
+        botaoSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botaoSalvar.setFocusPainted(false);
+        botaoSalvar.setContentAreaFilled(false);
+        botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botaoSalvar.addActionListener(e -> {
+            salvarConfirmado = true;  // sinaliza que o usuário confirmou a edição
+            dispose();
+        });
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        painel.add(botaoAdicionar, gbc);
+        painel.add(botaoSalvar, gbc);
         gbc.gridy++;
 
         // Botão Fechar estilizado
@@ -117,7 +119,7 @@ public class ModalAdcProduto extends JDialog {
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.setColor(marromEscuro);
                 g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
             }
@@ -135,7 +137,7 @@ public class ModalAdcProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 600);
+        setSize(500, 650);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
@@ -160,12 +162,4 @@ public class ModalAdcProduto extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ModalAdcProduto modal = new ModalAdcProduto(null);
-            modal.setVisible(true);
-        });
-    }
-
 }

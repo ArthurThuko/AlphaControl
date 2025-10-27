@@ -1,11 +1,11 @@
 package alphacontrol;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import javax.swing.SwingUtilities;
 
+import alphacontrol.views.TelaLogin;
+
+public class App {
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        SwingUtilities.invokeLater(TelaLogin::new);
     }
 }
