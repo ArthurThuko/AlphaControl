@@ -491,14 +491,6 @@ public class TelaFluxoCaixa extends JFrame {
             clicked = false;
             return super.stopCellEditing();
         }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
-                int row, int column, int rowAtEditing) {
-            this.tabelaAtiva = table;
-            this.rowAtEditing = row;
-            return getTableCellEditorComponent(table, value, isSelected, row, column);
-        }
     }
 
     public static void main(String[] args) {

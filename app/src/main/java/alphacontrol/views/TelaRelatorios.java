@@ -1,4 +1,4 @@
-package alphacontrol.views.relatorios;
+package alphacontrol.views;
 
 import javax.swing.*;
 import javax.swing.border.Border; // Importar a classe Border

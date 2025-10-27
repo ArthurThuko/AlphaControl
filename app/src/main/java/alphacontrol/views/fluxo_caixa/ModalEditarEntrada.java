@@ -1,4 +1,4 @@
-package alphacontrol.views.estoque;
+package alphacontrol.views.fluxo_caixa;
 
 import javax.swing.*;
 import java.awt.*;
