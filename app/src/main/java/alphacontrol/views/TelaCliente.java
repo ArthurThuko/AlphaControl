@@ -1,4 +1,4 @@
-package alphacontrol.views.estoque;
+package alphacontrol.views;
 
 
 import javax.swing.*;
