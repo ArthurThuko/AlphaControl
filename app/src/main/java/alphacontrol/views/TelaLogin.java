@@ -2,7 +2,10 @@ package alphacontrol.views;
 
 import javax.swing.*;
 
+//CONTROLLERS
 import alphacontrol.controllers.LoginController;
+
+//COMPONENTES
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.CampoSenhaEstilizado;
 import alphacontrol.views.components.CampoTextoEstilizado;
@@ -24,7 +27,7 @@ public class TelaLogin extends JFrame {
 
         setTitle("Login - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(450, 450);
+        setSize(550, 550);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -51,34 +54,41 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 12)));
 
         // ---------- CAMPOS ----------
+        // ---------- CAMPOS ----------
         JPanel painelCampos = new JPanel();
         painelCampos.setLayout(new GridBagLayout());
         painelCampos.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10); // mais espaçamento
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0; // permite expansão horizontal
+
+        Font fonteMaior = new Font("Georgia", Font.PLAIN, 18); // fonte maior
 
         JLabel lblUsuario = new JLabel("Usuário:");
-        lblUsuario.setFont(Estilos.FONTE_LABEL);
+        lblUsuario.setFont(fonteMaior);
         lblUsuario.setForeground(Estilos.COR_TEXTO);
         gbc.gridx = 0;
         gbc.gridy = 0;
         painelCampos.add(lblUsuario, gbc);
 
         txtUsuario = new CampoTextoEstilizado(15);
+        txtUsuario.setFont(fonteMaior);
+        txtUsuario.setPreferredSize(new Dimension(300, 40)); // aumenta o tamanho
         gbc.gridx = 1;
         painelCampos.add(txtUsuario, gbc);
 
         JLabel lblSenha = new JLabel("Senha:");
-        lblSenha.setFont(Estilos.FONTE_LABEL);
+        lblSenha.setFont(fonteMaior);
         lblSenha.setForeground(Estilos.COR_TEXTO);
         gbc.gridx = 0;
         gbc.gridy = 1;
         painelCampos.add(lblSenha, gbc);
 
         txtSenha = new CampoSenhaEstilizado(15);
-        txtSenha.setFont(Estilos.FONTE_PADRAO);
+        txtSenha.setFont(fonteMaior);
+        txtSenha.setPreferredSize(new Dimension(300, 40));
         gbc.gridx = 1;
         painelCampos.add(txtSenha, gbc);
 
@@ -86,16 +96,8 @@ public class TelaLogin extends JFrame {
         JCheckBox cbMostrarSenha = new JCheckBox("Mostrar senha");
         cbMostrarSenha.setOpaque(false);
         cbMostrarSenha.setForeground(new Color(70, 50, 30));
-        cbMostrarSenha.setFont(new Font("Georgia", Font.PLAIN, 12));
+        cbMostrarSenha.setFont(new Font("Georgia", Font.PLAIN, 16));
         cbMostrarSenha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        cbMostrarSenha.addActionListener(e -> {
-            if (cbMostrarSenha.isSelected()) {
-                txtSenha.setEchoChar((char) 0);
-            } else {
-                txtSenha.setEchoChar('•');
-            }
-        });
 
         gbc.gridx = 1;
         gbc.gridy = 2;
@@ -105,11 +107,19 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // ---------- BOTÕES ----------
-        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         painelBotoes.setOpaque(false);
 
         btnLimpar = new BotaoEstilizado("Limpar", new Color(220, 190, 160));
         btnLogin = new BotaoEstilizado("Entrar", new Color(195, 160, 130));
+
+        Font fonteBotao = new Font("Georgia", Font.BOLD, 16);
+        btnLogin.setFont(fonteBotao);
+        btnLimpar.setFont(fonteBotao);
+
+        Dimension tamanhoBotao = new Dimension(140, 45);
+        btnLogin.setPreferredSize(tamanhoBotao);
+        btnLimpar.setPreferredSize(tamanhoBotao);
 
         painelBotoes.add(btnLogin);
         painelBotoes.add(btnLimpar);
