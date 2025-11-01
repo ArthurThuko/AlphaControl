@@ -15,7 +15,6 @@ import javax.swing.JOptionPane;
 public class TelaPrincipalController {
 
     private JFrame telaPrincipal;
-    private JFrame telaLogin;
 
     public TelaPrincipalController(JFrame telaPrincipal) {
         this.telaPrincipal = telaPrincipal;
