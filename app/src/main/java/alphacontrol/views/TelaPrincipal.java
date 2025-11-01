@@ -1,114 +1,140 @@
 package alphacontrol.views;
 
-import javax.swing.*;
-import java.awt.*;
+//CONTROLLERS
+import alphacontrol.controllers.TelaPrincipalController;
+
+//COMPONENTES
 import alphacontrol.views.components.BotaoEstilizado;
-import alphacontrol.views.components.PainelGradiente;
 import alphacontrol.views.components.Estilos;
+import alphacontrol.views.components.PainelGradiente;
+
+import java.awt.*;
+import javax.swing.*;
 
 public class TelaPrincipal extends JFrame {
 
-    private JButton btnClientes;
-    private JButton btnVendas;
-    private JButton btnProdutos;
+    private JButton btnEstoque;
+    private JButton btnPdv;
+    private JButton btnFiados;
     private JButton btnRelatorios;
-    private JButton btnConfiguracoes;
+    private JButton btnFluxoCaixa;
     private JButton btnSair;
 
     public TelaPrincipal() {
+        TelaPrincipalController controller = new TelaPrincipalController(this);
+
         setTitle("AlphaControl - Tela Principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        // --- PALETA DE CORES MODERNA EM TONS DE MARROM ---
+        Color COR_BOTAO_FUNDO = new Color(205, 170, 125);
+        Color COR_BOTAO_SAIR_FUNDO = new Color(170, 125, 95);
+        Color COR_TEXTO_TITULO = new Color(85, 60, 40);
+
         PainelGradiente painelPrincipal = new PainelGradiente();
         painelPrincipal.setLayout(new GridBagLayout());
-        painelPrincipal.setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
+        painelPrincipal.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
-        gbc.weighty = 1;
 
+        // --- TÍTULO ---
         JLabel lblTitulo = new JLabel("Seja Bem-vindo ao AlphaControl", SwingConstants.CENTER);
-        lblTitulo.setFont(Estilos.FONTE_TITULO.deriveFont(Font.BOLD, 30));
-        lblTitulo.setForeground(Estilos.COR_TEXTO);
-
+        lblTitulo.setFont(Estilos.FONTE_TITULO.deriveFont(Font.BOLD, 32));
+        lblTitulo.setForeground(COR_TEXTO_TITULO);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.weighty = 0.1;
+        gbc.insets = new Insets(0, 0, 40, 0);
         painelPrincipal.add(lblTitulo, gbc);
 
-        btnClientes = new BotaoEstilizado("Estoque", new Color(70, 130, 180)); // azul
-        btnVendas = new BotaoEstilizado("PDV", new Color(46, 139, 87)); // verde
-        btnProdutos = new BotaoEstilizado("Fiados", new Color(218, 165, 32)); // dourado
-        btnRelatorios = new BotaoEstilizado("Relatórios", new Color(205, 92, 92)); // vermelho
-        btnConfiguracoes = new BotaoEstilizado("Fluxo de Caixa", new Color(123, 104, 238)); // roxo
+        // --- BOTÕES PRINCIPAIS ---
+        btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
+        btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
+        btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
+        btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
+        btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
 
-        for (JButton botao : new JButton[] { btnClientes, btnVendas, btnProdutos, btnRelatorios, btnConfiguracoes }) {
-            botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 18));
+        // ---------- AÇÕES DOS BOTÕES PRINCIPAIS ----------
+        btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
+        btnPdv.addActionListener(e -> controller.abrirTelaPDV());
+        btnFiados.addActionListener(e -> controller.abrirTelaFiados());
+        btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
+        btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
+
+        // Estiliza todos os botões de uma vez
+        for (JButton botao : new JButton[] { btnEstoque, btnPdv, btnFiados, btnRelatorios, btnFluxoCaixa }) {
+            botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 22)); // Aumentei um pouco a fonte também
         }
 
-        gbc.gridwidth = 1;
+        // --- PAINEL CENTRAL PARA OS BOTÕES ---
+        JPanel painelBotoes = new JPanel(new GridBagLayout());
+        painelBotoes.setOpaque(false); // Mantém o fundo gradiente visível
+        painelBotoes.setPreferredSize(new Dimension(800, 450));
+        // ------------------------------------------------
+
+        GridBagConstraints gbcBotoes = new GridBagConstraints();
+        gbcBotoes.fill = GridBagConstraints.BOTH;
+        gbcBotoes.weightx = 1;
+        gbcBotoes.weighty = 1;
+        gbcBotoes.insets = new Insets(20, 20, 20, 20); // Aumenta o espaçamento entre os botões
+        gbcBotoes.gridx = 0;
+        gbcBotoes.gridy = 0;
+        painelBotoes.add(btnEstoque, gbcBotoes);
+
+        gbcBotoes.gridx = 1;
+        gbcBotoes.gridy = 0;
+        painelBotoes.add(btnPdv, gbcBotoes);
+
+        gbcBotoes.gridx = 0;
+        gbcBotoes.gridy = 1;
+        painelBotoes.add(btnFiados, gbcBotoes);
+
+        gbcBotoes.gridx = 1;
+        gbcBotoes.gridy = 1;
+        painelBotoes.add(btnRelatorios, gbcBotoes);
+
+        gbcBotoes.gridx = 0;
+        gbcBotoes.gridy = 2;
+        gbcBotoes.gridwidth = 2;
+        painelBotoes.add(btnFluxoCaixa, gbcBotoes);
+
+        gbc.gridy = 1;
         gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        painelPrincipal.add(painelBotoes, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        painelPrincipal.add(btnClientes, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        painelPrincipal.add(btnVendas, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        painelPrincipal.add(btnProdutos, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        painelPrincipal.add(btnRelatorios, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        painelPrincipal.add(btnConfiguracoes, gbc);
-
-        JPanel painelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        // --- PAINEL INFERIOR COM BOTÃO SAIR ---
+        JPanel painelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         painelInferior.setOpaque(false);
 
-        btnSair = new BotaoEstilizado("Sair", new Color(178, 34, 34)); // vermelho escuro
-        btnSair.setPreferredSize(new Dimension(120, 40));
+        btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
+        btnSair.setPreferredSize(new Dimension(130, 45));
         btnSair.setFont(Estilos.FONTE_PADRAO.deriveFont(Font.BOLD, 14));
-
+        btnSair.addActionListener(e -> controller.logout());
         painelInferior.add(btnSair);
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        gbc.weighty = 0.1;
-        gbc.anchor = GridBagConstraints.SOUTHEAST;
+        gbc.gridy = 2;
+        gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.SOUTH;
         painelPrincipal.add(painelInferior, gbc);
 
-        // ---------- AÇÃO DO BOTÃO SAIR ----------
-        btnSair.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Deseja realmente sair?",
-                    "Confirmação",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            if (confirm == JOptionPane.YES_OPTION) {
-                this.dispose();
-                new TelaLogin();
-            }
-        });
-
         add(painelPrincipal);
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(TelaPrincipal::new);
     }
 }

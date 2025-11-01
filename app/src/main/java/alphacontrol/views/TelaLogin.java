@@ -54,7 +54,6 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 12)));
 
         // ---------- CAMPOS ----------
-        // ---------- CAMPOS ----------
         JPanel painelCampos = new JPanel();
         painelCampos.setLayout(new GridBagLayout());
         painelCampos.setOpaque(false);
@@ -99,6 +98,16 @@ public class TelaLogin extends JFrame {
         cbMostrarSenha.setFont(new Font("Georgia", Font.PLAIN, 16));
         cbMostrarSenha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        char defaultEcho = txtSenha.getEchoChar();
+        txtSenha.setEchoChar(defaultEcho);
+        cbMostrarSenha.addActionListener(e -> {
+            if (cbMostrarSenha.isSelected()) {
+                txtSenha.setEchoChar((char) 0);
+            } else {
+                txtSenha.setEchoChar(defaultEcho);
+            }
+        });
+
         gbc.gridx = 1;
         gbc.gridy = 2;
         painelCampos.add(cbMostrarSenha, gbc);
@@ -134,7 +143,7 @@ public class TelaLogin extends JFrame {
             txtUsuario.setText("");
             txtSenha.setText("");
             cbMostrarSenha.setSelected(false);
-            txtSenha.setEchoChar('•');
+            txtSenha.setEchoChar(defaultEcho);
         });
 
         add(painelPrincipal);
