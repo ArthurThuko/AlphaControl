@@ -1,4 +1,4 @@
-package alphacontrol.controller;
+package alphacontrol.controllers;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

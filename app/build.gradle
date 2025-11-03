@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    // (opcional) adicione libs extras se quiser, mas Swing já está no Java
+    implementation 'com.mysql:mysql-connector-j:9.5.0'
 }
 
 application {

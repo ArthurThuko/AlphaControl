@@ -6,11 +6,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-public class ModalAdcEntrada extends JDialog {
+public class ModalEntrada extends JDialog {
 
     private Point mouseClickPoint;
 
-    public ModalAdcEntrada(JFrame parent) {
+    public ModalEntrada(JFrame parent) {
         super(parent, "Adicionar Entrada", true);
 
         Color begeFundo = new Color(247, 239, 224);
@@ -83,7 +83,6 @@ public class ModalAdcEntrada extends JDialog {
             gbc.gridy++;
         }
 
-        // Botão Adicionar
         JButton botaoAdicionar = new JButton("Adicionar") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -100,6 +99,31 @@ public class ModalAdcEntrada extends JDialog {
         botaoAdicionar.setFocusPainted(false);
         botaoAdicionar.setContentAreaFilled(false);
         botaoAdicionar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        // Ação do botão "Adicionar"
+        botaoAdicionar.addActionListener(e -> {
+            String nome = campos[0].getText().trim();
+            String data = campos[1].getText().trim();
+            String valorStr = campos[2].getText().trim();
+
+            if (nome.isEmpty() || data.isEmpty() || valorStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            try {
+                double valor = Double.parseDouble(valorStr.replace(",", "."));
+
+                // Cria o controller e salva no banco
+                new alphacontrol.controllers.FluxoCaixaController().adicionarEntrada(nome, valor, data);
+
+                JOptionPane.showMessageDialog(this, "Entrada adicionada com sucesso!");
+                dispose(); // fecha o modal
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -170,12 +194,5 @@ public class ModalAdcEntrada extends JDialog {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ModalAdcEntrada modal = new ModalAdcEntrada(null);
-            modal.setVisible(true);
-        });
     }
 }
