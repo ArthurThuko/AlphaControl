@@ -3,6 +3,12 @@ package alphacontrol.views.fluxo_caixa;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
+
+import java.util.List;
+
+import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.models.MovimentacaoCaixa;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -10,24 +16,22 @@ import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
 
 public class TelaFluxoCaixa extends JFrame {
-
     // ==== Cores base ====
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
-    private static final Color MARROM_CLARO = new Color(184, 142, 106);
-
-    // ==== Verde para o painel ====
     private static final Color VERDE_CLARO = new Color(202, 219, 183);
     private static final Color VERDE_BORDA = new Color(139, 160, 118);
     private static final Color VERDE_BOTAO = new Color(101, 125, 64);
-    private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
 
     private JTable tabelaEntradas;
     private JLabel lblTotal;
 
+    private FluxoCaixaController controller;
+
     public TelaFluxoCaixa() {
-        setTitle("Fluxo de Caixa");
+        controller = new FluxoCaixaController();
+        setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
@@ -47,9 +51,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.weightx = 1;
         gbc.insets = new Insets(0, 0, 30, 0);
         painelPrincipal.add(titulo, gbc);
-
-        // === PAINÉIS LADO A LADO ===
-        // Agora teremos: ENTRADAS | SAÍDAS | (SALDO + GRÁFICOS)
 
         JPanel painelLateral = new JPanel(new GridBagLayout());
         painelLateral.setOpaque(false);
@@ -123,22 +124,19 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(lblTitulo, gbc);
 
-        // === Dados da tabela (sem cabeçalho) ===
-        Object[][] dados = {
-                { "Mensalidade João", "250.00", "20/10/2025", "Editar", "Excluir" },
-                { "Mensalidade Ana", "250.00", "20/10/2025", "Editar", "Excluir" },
-                { "Venda de Suplemento", "79.90", "21/10/2025", "Editar", "Excluir" }
-        };
-
-        DefaultTableModel modelo = new DefaultTableModel(dados, new String[] { "", "", "", "", "" }) {
+        // === Cabeçalho ===
+        DefaultTableModel modelo = new DefaultTableModel(new String[] {
+                "Nome", "Valor (R$)", "Data", "Editar", "Excluir"
+        }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-                return false;
+                return col >= 3; // só editar/excluir
             }
         };
 
         tabelaEntradas = new JTable(modelo);
         configurarTabela(tabelaEntradas);
+        recarregarTabelaEntradas();
 
         JScrollPane scroll = new JScrollPane(tabelaEntradas);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -161,6 +159,7 @@ public class TelaFluxoCaixa extends JFrame {
 
         // === Botão adicionar ===
         JButton btnAdd = new RoundedButton("Adicionar Entrada", VERDE_BOTAO, Color.WHITE, 220, 45);
+        btnAdd.addActionListener(e -> abrirModal(null)); // novo
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(btnAdd, gbc);
@@ -185,12 +184,18 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.gridy = 0;
         painel.add(lblTitulo, gbc);
 
-        // === Dados da tabela (sem cabeçalho) ===
-        Object[][] dados = {
-                { "Compra de Material", "120.00", "18/10/2025", "E", "X" },
-                { "Conta de Luz", "340.00", "20/10/2025", "E", "X" },
-                { "Pagamento Professor", "1500.00", "21/10/2025", "E", "X" }
-        };
+        // Saidas
+        List<MovimentacaoCaixa> saidas = controller.listarSaidas();
+        Object[][] dados = new Object[saidas.size()][5];
+
+        for (int i = 0; i < saidas.size(); i++) {
+            MovimentacaoCaixa m = saidas.get(i);
+            dados[i][0] = m.getNome();
+            dados[i][1] = String.format("%.2f", m.getValor());
+            dados[i][2] = m.getData();
+            dados[i][3] = "Editar";
+            dados[i][4] = "Excluir";
+        }
 
         DefaultTableModel modelo = new DefaultTableModel(dados, new String[] { "", "", "", "", "" }) {
             @Override
@@ -272,62 +277,42 @@ public class TelaFluxoCaixa extends JFrame {
 
     private void configurarTabela(JTable tabela) {
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        tabela.setRowHeight(50);
+        tabela.setRowHeight(45);
         tabela.setBackground(VERDE_CLARO);
         tabela.setForeground(MARROM_ESCURO);
         tabela.setGridColor(VERDE_BORDA);
         tabela.setShowGrid(false);
-        tabela.setTableHeader(null); // remove o cabeçalho
-        tabela.setIntercellSpacing(new Dimension(0, 8));
+        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 16));
+        tabela.getTableHeader().setBackground(VERDE_CLARO);
+        tabela.getTableHeader().setForeground(MARROM_ESCURO);
+        tabela.setIntercellSpacing(new Dimension(0, 5));
         tabela.setSelectionBackground(VERDE_BORDA.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
-
-        for (int i = 0; i < tabela.getColumnCount() - 2; i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(new PaddedCellRenderer());
-        }
-
-        Icon iconeEditar = UIManager.getIcon("FileView.directoryIcon"); // ícone padrão de pasta (pode mudar)
-        Icon iconeExcluir = UIManager.getIcon("OptionPane.errorIcon"); // ícone vermelho padrão
-
-        // Botão Editar
-        tabela.getColumnModel().getColumn(3).setCellRenderer(
-                new ButtonRenderer("", DOURADO_SUAVE, MARROM_ESCURO, iconeEditar));
-        tabela.getColumnModel().getColumn(3).setCellEditor(
-                new ButtonEditor(new JCheckBox(), "", DOURADO_SUAVE, MARROM_ESCURO, iconeEditar));
-
-        // Botão Excluir
-        tabela.getColumnModel().getColumn(4).setCellRenderer(
-                new ButtonRenderer("", VERMELHO_TERROSO, Color.WHITE, iconeExcluir));
-        tabela.getColumnModel().getColumn(4).setCellEditor(
-                new ButtonEditor(new JCheckBox(), "", VERMELHO_TERROSO, Color.WHITE, iconeExcluir));
 
         tabela.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = tabela.rowAtPoint(e.getPoint());
                 int col = tabela.columnAtPoint(e.getPoint());
+                if (row < 0)
+                    return;
+
                 DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
+                MovimentacaoCaixa mov = controller.listarEntradas().get(row);
 
-                if (col == 4) { // Excluir
+                if (col == 3) { // editar
+                    abrirModal(mov);
+                } else if (col == 4) { // excluir
                     int resp = JOptionPane.showConfirmDialog(null,
-                            "Excluir entrada \"" + tabela.getValueAt(row, 0) + "\"?",
-                            "Confirmar exclusão", JOptionPane.YES_NO_OPTION);
-
+                            "Excluir \"" + mov.getNome() + "\"?", "Confirmar exclusão",
+                            JOptionPane.YES_NO_OPTION);
                     if (resp == JOptionPane.YES_OPTION) {
-                        modelo.removeRow(row);
-                        lblTotal.setText("Total: R$ " + calcularTotal(modelo));
+                        controller.removerMovimentacao(mov.getId());
+                        recarregarTabelaEntradas();
                     }
                 }
             }
         });
-
-        tabela.setRowHeight(38); // dá mais espaço vertical às linhas
-
-        tabela.getColumnModel().getColumn(0).setPreferredWidth(250); // Descrição
-        tabela.getColumnModel().getColumn(1).setPreferredWidth(150); // Valor
-        tabela.getColumnModel().getColumn(2).setPreferredWidth(150); // Data
-        tabela.getColumnModel().getColumn(3).setPreferredWidth(50); // Editar
-        tabela.getColumnModel().getColumn(4).setPreferredWidth(50); // Excluir
     }
 
     private String calcularTotal(DefaultTableModel modelo) {
@@ -337,6 +322,71 @@ public class TelaFluxoCaixa extends JFrame {
         }
         return new DecimalFormat("#,##0.00").format(total);
     }
+
+    private void abrirModal(MovimentacaoCaixa mov) {
+        JDialog dialog = new JDialog(this, mov == null ? "Adicionar Entrada" : "Editar Entrada", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JTextField txtNome = new JTextField(mov != null ? mov.getNome() : "");
+        JTextField txtValor = new JTextField(mov != null ? String.valueOf(mov.getValor()) : "");
+        JTextField txtData = new JTextField(mov != null ? mov.getData().toString() : "");
+
+        gbc.gridy = 0;
+        dialog.add(new JLabel("Nome:"), gbc);
+        gbc.gridy = 1;
+        dialog.add(txtNome, gbc);
+        gbc.gridy = 2;
+        dialog.add(new JLabel("Valor (R$):"), gbc);
+        gbc.gridy = 3;
+        dialog.add(txtValor, gbc);
+        gbc.gridy = 4;
+        dialog.add(new JLabel("Data (yyyy-MM-dd HH:mm:ss):"), gbc);
+        gbc.gridy = 5;
+        dialog.add(txtData, gbc);
+
+        JButton btnSalvar = new JButton("Salvar");
+        gbc.gridy = 6;
+        dialog.add(btnSalvar, gbc);
+/*
+        btnSalvar.addActionListener(e -> {
+            try {
+                if (mov == null)
+                    controller.adicionarEntrada(txtNome.getText(), Double.parseDouble(txtValor.getText()), txtData.getText());
+                else
+                    controller.atualizar(nova);
+
+                recarregarTabelaEntradas();
+                dialog.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Erro ao salvar: " + ex.getMessage());
+            }
+        });
+*/
+        dialog.setVisible(true);
+    }
+
+    private void recarregarTabelaEntradas() {
+    DefaultTableModel modelo = (DefaultTableModel) tabelaEntradas.getModel();
+    modelo.setRowCount(0);
+    List<MovimentacaoCaixa> entradas = controller.listarEntradas();
+    for (MovimentacaoCaixa m : entradas) {
+        modelo.addRow(new Object[] {
+            m.getNome(),
+            String.format("%.2f", m.getValor()),
+            m.getData(),
+            "Editar",
+            "Excluir"
+        });
+    }
+    lblTotal.setText("Total: R$ " + calcularTotal(modelo));
+}
+
 
     // ==== Componentes reutilizados ====
 
@@ -435,15 +485,10 @@ public class TelaFluxoCaixa extends JFrame {
         protected JButton button;
         private String label;
         private boolean clicked;
-        private Color bg, fg;
-        private Icon icon;
 
         public ButtonEditor(JCheckBox checkBox, String label, Color bg, Color fg, Icon icon) {
             super(checkBox);
             this.label = label;
-            this.bg = bg;
-            this.fg = fg;
-            this.icon = icon;
 
             button = new JButton(label, icon);
             button.setFocusPainted(false);
