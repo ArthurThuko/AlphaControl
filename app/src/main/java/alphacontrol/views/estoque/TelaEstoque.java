@@ -4,10 +4,9 @@ import alphacontrol.controllers.ModalAdicionarProdutoController;
 import alphacontrol.controllers.ModalEditarProdutoController;
 import alphacontrol.controllers.ProdutoController;
 import alphacontrol.models.Produto;
-
+import alphacontrol.views.components.Navbar;
 import alphacontrol.dao.ProdutoDAO;
 import java.sql.Connection;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -44,6 +43,11 @@ public class TelaEstoque extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+        
+        JFrame estaTela = this;
+        Navbar navbar = new Navbar(estaTela, controller, "Estoque");
+        setJMenuBar(navbar);
+        
         getContentPane().setBackground(BEGE_FUNDO);
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());

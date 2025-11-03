@@ -12,8 +12,8 @@ public class ModalEditarProduto extends JDialog {
     private Point mouseClickPoint;
     public JTextField[] campos;
     
-    private final JButton botaoSalvar; // Botão Salvar agora é um campo
-    private int produtoId; // Guarda o ID do produto sendo editado
+    private final JButton botaoSalvar;
+    private int produtoId;
 
     public ModalEditarProduto(JFrame parent) {
         super(parent, "Editar Produto", true);
@@ -24,7 +24,6 @@ public class ModalEditarProduto extends JDialog {
         Color marromClaro = new Color(184, 142, 106);
         Color begeClaro = new Color(255, 250, 240);
 
-        // Painel principal
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -38,7 +37,6 @@ public class ModalEditarProduto extends JDialog {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { mouseClickPoint = e.getPoint(); }
         });
@@ -56,7 +54,6 @@ public class ModalEditarProduto extends JDialog {
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        // Título centralizado
         JLabel titulo = new JLabel("Editar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
@@ -65,7 +62,6 @@ public class ModalEditarProduto extends JDialog {
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // Campos
         String[] labels = {
                 "Nome:", "Quantidade:", "Alerta Estoque Min.:",
                 "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
@@ -86,7 +82,6 @@ public class ModalEditarProduto extends JDialog {
             gbc.gridy++;
         }
 
-        // Botão Salvar Alterações
         botaoSalvar = new JButton("Salvar Alterações") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -104,18 +99,27 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         
-        // O ActionListener foi REMOVIDO daqui
-
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(botaoSalvar, gbc);
         gbc.gridy++;
 
-        // Botão Fechar estilizado
         JButton botaoFechar = new JButton("Fechar") {
-             // ... (código de paintComponent do botão fechar) ...
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isPressed()) {
+                    g2.setColor(marromMedio);
+                } else {
+                    g2.setColor(marromClaro);
+                }
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                g2.dispose();
+                super.paintComponent(g);
+            }
         };
-        botaoFechar.setForeground(begeClaro);
+        botaoFechar.setForeground(marromEscuro);
         botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
@@ -124,7 +128,6 @@ public class ModalEditarProduto extends JDialog {
 
         painel.add(botaoFechar, gbc);
 
-        // Configurações do modal
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
@@ -154,38 +157,30 @@ public class ModalEditarProduto extends JDialog {
         return campo;
     }
     
-    // --- Métodos Getters/Setters para o Controller ---
-
     public JButton getBtnSalvar() {
         return botaoSalvar;
     }
 
-    /**
-     * Preenche os campos do modal com os dados de um produto existente.
-     */
     public void setProduto(Produto p) {
-        this.produtoId = p.getProdutoId(); // Guarda o ID
+        this.produtoId = p.getProdutoId(); 
         
         campos[0].setText(p.getNome());
         campos[1].setText(String.valueOf(p.getQntEstoque()));
-        campos[2].setText("0"); // Campo "Alerta Estoque Min."
+        campos[2].setText("0"); 
         campos[3].setText(p.getCategoria());
         campos[4].setText(String.valueOf(p.getValorCompra()));
         campos[5].setText(String.valueOf(p.getValorVenda()));
     }
 
-    /**
-     * Pega os dados dos campos e cria um objeto Produto.
-     */
     public Produto getProdutoFromFields() {
         Produto p = new Produto(
-            campos[0].getText(), // Nome
-            campos[3].getText(), // Categoria
-            Double.parseDouble(campos[4].getText()), // Compra
-            Double.parseDouble(campos[5].getText()), // Venda
-            Integer.parseInt(campos[1].getText())  // Qnt
+            campos[0].getText(), 
+            campos[3].getText(), 
+            Double.parseDouble(campos[4].getText()), 
+            Double.parseDouble(campos[5].getText()), 
+            Integer.parseInt(campos[1].getText())
         );
-        p.setProdutoId(this.produtoId); // Define o ID que guardamos
+        p.setProdutoId(this.produtoId); 
         return p;
     }
     
