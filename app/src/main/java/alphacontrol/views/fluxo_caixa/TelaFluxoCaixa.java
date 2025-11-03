@@ -25,8 +25,8 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
 
     private JTable tabelaEntradas;
-    private JLabel lblTotal;
-
+    private JTable tabelaSaidas;
+    private JLabel lblTotal = new JLabel("R$ 0,00");;
     private FluxoCaixaController controller;
 
     public TelaFluxoCaixa() {
@@ -42,7 +42,6 @@ public class TelaFluxoCaixa extends JFrame {
         painelPrincipal.setBorder(new EmptyBorder(30, 50, 30, 50));
         GridBagConstraints gbc = new GridBagConstraints();
 
-        // === Título principal ===
         JLabel titulo = new JLabel("Fluxo de Caixa", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
         titulo.setForeground(MARROM_ESCURO);
@@ -55,11 +54,9 @@ public class TelaFluxoCaixa extends JFrame {
         JPanel painelLateral = new JPanel(new GridBagLayout());
         painelLateral.setOpaque(false);
 
-        // ---- Painéis individuais ----
         JPanel painelEntradas = criarPainelEntradas();
         JPanel painelSaidas = criarPainelSaidas();
 
-        // ---- Coluna da direita: Saldo em cima e Gráficos embaixo ----
         JPanel painelDireita = new JPanel(new GridBagLayout());
         painelDireita.setOpaque(false);
 
@@ -69,34 +66,28 @@ public class TelaFluxoCaixa extends JFrame {
         gbcDir.weightx = 1;
         gbcDir.insets = new Insets(0, 0, 20, 0);
 
-        // Painel de Saldo (parte superior)
         gbcDir.gridy = 0;
         gbcDir.weighty = 1;
         painelDireita.add(criarPainelSaldo(), gbcDir);
 
-        // ---- Montagem do layout geral ----
         GridBagConstraints gbcPainel = new GridBagConstraints();
         gbcPainel.gridy = 0;
         gbcPainel.fill = GridBagConstraints.BOTH;
         gbcPainel.weighty = 1;
         gbcPainel.insets = new Insets(0, 15, 0, 15);
 
-        // Entradas (mais espaço)
         gbcPainel.gridx = 0;
         gbcPainel.weightx = 0.45;
         painelLateral.add(painelEntradas, gbcPainel);
 
-        // Saídas (mais espaço)
         gbcPainel.gridx = 1;
         gbcPainel.weightx = 0.45;
         painelLateral.add(painelSaidas, gbcPainel);
 
-        // Direita (Saldo + Gráficos)
         gbcPainel.gridx = 2;
         gbcPainel.weightx = 0.1;
         painelLateral.add(painelDireita, gbcPainel);
 
-        // ---- Adiciona tudo ao painel principal ----
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
@@ -116,7 +107,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // === Título centralizado dentro do quadro ===
         JLabel lblTitulo = new JLabel("Entradas", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
@@ -130,7 +120,7 @@ public class TelaFluxoCaixa extends JFrame {
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-                return col >= 3; // só editar/excluir
+                return col >= 3;
             }
         };
 
@@ -148,7 +138,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         painel.add(scroll, gbc);
 
-        // === Total ===
         lblTotal = new JLabel("Total: R$ " + calcularTotal(modelo));
         lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTotal.setForeground(MARROM_ESCURO);
@@ -157,9 +146,12 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         painel.add(lblTotal, gbc);
 
-        // === Botão adicionar ===
         JButton btnAdd = new RoundedButton("Adicionar Entrada", VERDE_BOTAO, Color.WHITE, 220, 45);
-        btnAdd.addActionListener(e -> abrirModal(null)); // novo
+        btnAdd.addActionListener(e -> {
+            ModalEntrada modal = new ModalEntrada(this);
+            modal.setVisible(true);
+            recarregarTabelaEntradas(); // Atualiza após fechar o modal
+        });
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(btnAdd, gbc);
@@ -177,14 +169,12 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // === Título centralizado ===
         JLabel lblTitulo = new JLabel("Saídas", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
         gbc.gridy = 0;
         painel.add(lblTitulo, gbc);
 
-        // Saidas
         List<MovimentacaoCaixa> saidas = controller.listarSaidas();
         Object[][] dados = new Object[saidas.size()][5];
 
@@ -261,9 +251,8 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.gridy = 0;
         painel.add(lblTitulo, gbc);
 
-        // Valor do saldo (entradas - saídas)
-        double entradas = 0; // você pode calcular com base nas tabelas
-        double saidas = 0; // depois conectar a base de dados
+        double entradas = 0;
+        double saidas = 0;
         double saldo = entradas - saidas;
 
         JLabel lblValor = new JLabel(String.format("R$ %.2f", saldo), SwingConstants.CENTER);
@@ -353,40 +342,40 @@ public class TelaFluxoCaixa extends JFrame {
         JButton btnSalvar = new JButton("Salvar");
         gbc.gridy = 6;
         dialog.add(btnSalvar, gbc);
-/*
-        btnSalvar.addActionListener(e -> {
-            try {
-                if (mov == null)
-                    controller.adicionarEntrada(txtNome.getText(), Double.parseDouble(txtValor.getText()), txtData.getText());
-                else
-                    controller.atualizar(nova);
-
-                recarregarTabelaEntradas();
-                dialog.dispose();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Erro ao salvar: " + ex.getMessage());
-            }
-        });
-*/
+        /*
+         * btnSalvar.addActionListener(e -> {
+         * try {
+         * if (mov == null)
+         * controller.adicionarEntrada(txtNome.getText(),
+         * Double.parseDouble(txtValor.getText()), txtData.getText());
+         * else
+         * controller.atualizar(nova);
+         * 
+         * recarregarTabelaEntradas();
+         * dialog.dispose();
+         * } catch (Exception ex) {
+         * JOptionPane.showMessageDialog(dialog, "Erro ao salvar: " + ex.getMessage());
+         * }
+         * });
+         */
         dialog.setVisible(true);
     }
 
     private void recarregarTabelaEntradas() {
-    DefaultTableModel modelo = (DefaultTableModel) tabelaEntradas.getModel();
-    modelo.setRowCount(0);
-    List<MovimentacaoCaixa> entradas = controller.listarEntradas();
-    for (MovimentacaoCaixa m : entradas) {
-        modelo.addRow(new Object[] {
-            m.getNome(),
-            String.format("%.2f", m.getValor()),
-            m.getData(),
-            "Editar",
-            "Excluir"
-        });
+        DefaultTableModel modelo = (DefaultTableModel) tabelaEntradas.getModel();
+        modelo.setRowCount(0);
+        List<MovimentacaoCaixa> entradas = controller.listarEntradas();
+        for (MovimentacaoCaixa m : entradas) {
+            modelo.addRow(new Object[] {
+                    m.getNome(),
+                    String.format("%.2f", m.getValor()),
+                    m.getData(),
+                    "Editar",
+                    "Excluir"
+            });
+        }
+        lblTotal.setText("Total: R$ " + calcularTotal(modelo));
     }
-    lblTotal.setText("Total: R$ " + calcularTotal(modelo));
-}
-
 
     // ==== Componentes reutilizados ====
 
