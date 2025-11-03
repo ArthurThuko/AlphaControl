@@ -61,15 +61,16 @@ public class ProdutoController {
     
     public void incrementarEstoque(Produto produto) throws SQLException {
         produto.incrementarEstoque(1); 
-        this.atualizar(produto);     
+        this.atualizar(produto);       
     }
 
-    public void decrementarEstoque(Produto produto) throws SQLException {
+    public boolean decrementarEstoque(Produto produto) throws SQLException {
         if (produto.getQntEstoque() <= 0) {
-            return; 
+            return false; 
         }
         produto.decrementarEstoque(1); 
-        this.atualizar(produto);     
+        this.atualizar(produto);
+        return true;
     }
     
     private void mostrarErro(String msg) {

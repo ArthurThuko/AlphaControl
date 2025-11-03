@@ -7,7 +7,6 @@ import alphacontrol.models.Produto;
 
 import alphacontrol.dao.ProdutoDAO;
 import java.sql.Connection;
-// import alphacontrol.util.ConexaoBanco; 
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -209,23 +208,28 @@ public class TelaEstoque extends JFrame {
         );
     }
     
-    private void incrementarEstoqueNaLinha(int row) {
+    private Integer incrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
         try {
             controller.incrementarEstoque(produto); 
-            atualizarTabela(); 
+            return produto.getQntEstoque();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao incrementar estoque: " + e.getMessage());
+            return null;
         }
     }
 
-    private void decrementarEstoqueNaLinha(int row) {
+    private Integer decrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
         try {
-            controller.decrementarEstoque(produto); 
-            atualizarTabela(); 
+            boolean atualizou = controller.decrementarEstoque(produto); 
+            if (atualizou) {
+                return produto.getQntEstoque();
+            }
+            return null;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao decrementar estoque: " + e.getMessage());
+            return null;
         }
     }
 
@@ -289,8 +293,6 @@ public class TelaEstoque extends JFrame {
         
         SwingUtilities.invokeLater(() -> {
             try {
-                // Connection connection = ConexaoBanco.getConexao(); 
-                
                 Connection connection = null; 
                 
                 ProdutoDAO dao = new ProdutoDAO(connection);
@@ -303,8 +305,6 @@ public class TelaEstoque extends JFrame {
             }
         });
     }
-
-    // ==== Classes internas auxiliares ====
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
@@ -518,19 +518,31 @@ public class TelaEstoque extends JFrame {
             this.telaEstoque = telaEstoque;
 
             panel.btnMinus.addActionListener(e -> {
-                fireEditingStopped(); 
-                telaEstoque.decrementarEstoqueNaLinha(row); 
+                Integer novaQtd = telaEstoque.decrementarEstoqueNaLinha(row);
+                
+                if (novaQtd != null) {
+                    panel.lblQuantity.setText(novaQtd.toString());
+                    fireEditingStopped(); 
+                }
             });
 
             panel.btnPlus.addActionListener(e -> {
-                fireEditingStopped();
-                telaEstoque.incrementarEstoqueNaLinha(row); 
+                Integer novaQtd = telaEstoque.incrementarEstoqueNaLinha(row);
+                
+                if (novaQtd != null) {
+                    panel.lblQuantity.setText(novaQtd.toString());
+                    fireEditingStopped();
+                }
             });
         }
         
         @Override
         public Object getCellEditorValue() {
-            return panel.lblQuantity.getText();
+            try {
+                return Integer.parseInt(panel.lblQuantity.getText());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
 
         @Override
