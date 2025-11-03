@@ -8,8 +8,8 @@ public class Produto {
     private double valorVenda;
     private int qntEstoque;
 
-    public Produto(int produtoId, String nome, String categoria, double valorCompra, double valorVenda, int qntEstoque) {
-        this.setProdutoId(produtoId);
+    // Construtor para produtos NOVOS (sem ID)
+    public Produto(String nome, String categoria, double valorCompra, double valorVenda, int qntEstoque) {
         this.setNome(nome);
         this.setCategoria(categoria);
         this.setValorCompra(valorCompra);
@@ -17,13 +17,19 @@ public class Produto {
         this.setQntEstoque(qntEstoque);
     }
 
+    // Construtor para produtos vindos do BANDO DE DADOS (com ID)
+    public Produto(int produtoId, String nome, String categoria, double valorCompra, double valorVenda, int qntEstoque) {
+        this(nome, categoria, valorCompra, valorVenda, qntEstoque); // Chama o construtor 1
+        this.setProdutoId(produtoId); // Define o ID
+    }
+
+    // --- Getters e Setters ---
+
     public int getProdutoId() {
         return produtoId;
     }
 
     public void setProdutoId(int produtoId) {
-        if (produtoId < 0)
-            throw new IllegalArgumentException("O ID do produto não pode ser negativo.");
         this.produtoId = produtoId;
     }
 
@@ -64,8 +70,6 @@ public class Produto {
     public void setValorVenda(double valorVenda) {
         if (valorVenda < 0)
             throw new IllegalArgumentException("O valor de venda não pode ser negativo.");
-        if (valorVenda < this.valorCompra)
-            System.out.println("⚠️ Atenção: o valor de venda está abaixo do valor de compra.");
         this.valorVenda = valorVenda;
     }
 
@@ -92,6 +96,4 @@ public class Produto {
             throw new IllegalStateException("Estoque insuficiente para realizar a operação.");
         this.qntEstoque -= quantidade;
     }
-
-
 }

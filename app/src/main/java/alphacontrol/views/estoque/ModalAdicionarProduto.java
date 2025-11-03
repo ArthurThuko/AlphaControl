@@ -1,25 +1,39 @@
 package alphacontrol.views.estoque;
 
+import alphacontrol.models.Produto;
 import javax.swing.*;
 import java.awt.*;
+// Imports necessários para o novo design
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-public class ModalAdcProduto extends JDialog {
+public class ModalAdicionarProduto extends JDialog {
+    
+    // Campos de texto do seu modal original
+    private final JTextField txtNome;
+    private final JTextField txtCategoria;
+    private final JTextField txtCompra;
+    private final JTextField txtVenda;
+    private final JTextField txtQnt;
+    
+    // Botão Salvar do seu modal original (precisa ser um campo da classe)
+    private final JButton btnSalvar;
 
+    // Campo para arrastar a tela (do novo design)
     private Point mouseClickPoint;
 
-    public ModalAdcProduto(JFrame parent) {
+    public ModalAdicionarProduto(JFrame parent) {
         super(parent, "Adicionar Produto", true);
 
+        // --- Paleta de Cores (do ModalAdcProduto) ---
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
         Color marromMedio = new Color(143, 97, 54);
         Color marromClaro = new Color(184, 142, 106);
         Color begeClaro = new Color(255, 250, 240);
 
-        // Painel principal com cantos arredondados
+        // --- Painel principal com cantos arredondados ---
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -33,7 +47,7 @@ public class ModalAdcProduto extends JDialog {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // Permitir arrastar
+        // --- Permitir arrastar a tela ---
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -53,39 +67,60 @@ public class ModalAdcProduto extends JDialog {
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        // Título centralizado
+        // --- Título centralizado ---
         JLabel titulo = new JLabel("Adicionar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
-
         gbc.gridwidth = 2;
         painel.add(titulo, gbc);
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // Campos
-        String[] labels = {
-                "Nome:", "Quantidade:", "Alerta Estoque Min.:",
-                "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
-        };
-        JTextField[] campos = new JTextField[labels.length];
+        // --- Campos (Usando os campos da sua classe original) ---
+        // (Removi o campo "Alerta Estoque Min." para ser compatível com seu 'getProdutoFromFields')
 
-        for (int i = 0; i < labels.length; i++) {
-            gbc.gridx = 0;
-            JLabel lbl = new JLabel(labels[i], SwingConstants.CENTER);
-            lbl.setForeground(marromEscuro);
-            lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
-            painel.add(lbl, gbc);
+        // 1. Nome
+        painel.add(criarLabel("Nome:", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtNome = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtNome, gbc);
+        gbc.gridy++;
 
-            gbc.gridx = 1;
-            campos[i] = criarCampo(begeClaro, marromClaro, marromEscuro);
-            gbc.weightx = 1;
-            painel.add(campos[i], gbc);
-            gbc.gridy++;
-        }
+        // 2. Categoria
+        gbc.gridx = 0;
+        painel.add(criarLabel("Categoria:", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtCategoria = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtCategoria, gbc);
+        gbc.gridy++;
+        
+        // 3. Valor Compra
+        gbc.gridx = 0;
+        painel.add(criarLabel("Valor Compra (R$):", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtCompra = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtCompra, gbc);
+        gbc.gridy++;
 
-        // Botão Adicionar
-        JButton botaoAdicionar = new JButton("Adicionar") {
+        // 4. Valor Venda
+        gbc.gridx = 0;
+        painel.add(criarLabel("Valor Venda (R$):", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtVenda = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtVenda, gbc);
+        gbc.gridy++;
+        
+        // 5. Quantidade
+        gbc.gridx = 0;
+        painel.add(criarLabel("Quantidade:", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtQnt = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtQnt, gbc);
+        gbc.gridy++;
+
+
+        // --- Botão Salvar (do design novo) ---
+        btnSalvar = new JButton("Salvar") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -96,18 +131,19 @@ public class ModalAdcProduto extends JDialog {
                 super.paintComponent(g);
             }
         };
-        botaoAdicionar.setForeground(begeClaro);
-        botaoAdicionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        botaoAdicionar.setFocusPainted(false);
-        botaoAdicionar.setContentAreaFilled(false);
-        botaoAdicionar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnSalvar.setForeground(begeClaro);
+        btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btnSalvar.setFocusPainted(false);
+        btnSalvar.setContentAreaFilled(false);
+        btnSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        // NÃO ADICIONE O addActionListener AQUI (o Controller faz isso)
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        painel.add(botaoAdicionar, gbc);
+        painel.add(btnSalvar, gbc);
         gbc.gridy++;
 
-        // Botão Fechar estilizado
+        // --- Botão Fechar (do design novo) ---
         JButton botaoFechar = new JButton("Fechar") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -127,19 +163,20 @@ public class ModalAdcProduto extends JDialog {
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
         botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        botaoFechar.addActionListener(e -> dispose());
+        botaoFechar.addActionListener(e -> dispose()); // Este botão pode fechar
 
         painel.add(botaoFechar, gbc);
 
-        // Configurações do modal
+        // --- Configurações do modal (do design novo) ---
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 600);
+        setSize(500, 600); // Tamanho do design novo
         setLocationRelativeTo(parent);
         setResizable(false);
     }
-
+    
+    // --- Método auxiliar para criar os campos (do design novo) ---
     private JTextField criarCampo(Color fundo, Color borda, Color texto) {
         JTextField campo = new JTextField() {
             @Override
@@ -160,12 +197,33 @@ public class ModalAdcProduto extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ModalAdcProduto modal = new ModalAdcProduto(null);
-            modal.setVisible(true);
-        });
+    
+    // --- Método auxiliar para criar os labels (do design novo) ---
+    private JLabel criarLabel(String texto, Color cor) {
+        JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
+        lbl.setForeground(cor);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        return lbl;
     }
 
+    // --- MÉTODOS MVC (do seu modal original, 100% mantidos) ---
+
+    public JButton getBtnSalvar() { 
+        return btnSalvar; 
+    }
+
+    public Produto getProdutoFromFields() {
+        // Este construtor agora existe em Produto.java
+        return new Produto(
+            txtNome.getText(),
+            txtCategoria.getText(),
+            Double.parseDouble(txtCompra.getText()),
+            Double.parseDouble(txtVenda.getText()),
+            Integer.parseInt(txtQnt.getText())
+        );
+    }
+
+    public void mostrarErro(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Erro", JOptionPane.ERROR_MESSAGE);
+    }
 }

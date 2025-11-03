@@ -7,8 +7,9 @@ import alphacontrol.views.fiado.TelaFiado;
 import alphacontrol.views.TelaRelatorios;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
 
-import java.awt.Frame;
+import alphacontrol.controllers.ProdutoController; 
 
+import java.awt.Frame;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -16,14 +17,19 @@ public class TelaPrincipalController {
 
     private JFrame telaPrincipal;
 
-    public TelaPrincipalController(JFrame telaPrincipal) {
+    private final ProdutoController produtoController;
+
+    // --- 3. Mudar o construtor para receber o ProdutoController ---
+    public TelaPrincipalController(JFrame telaPrincipal, ProdutoController produtoController) {
         this.telaPrincipal = telaPrincipal;
+        this.produtoController = produtoController; // Armazena o controller
     }
 
+    // --- 4. Corrigir o método para passar o controller ---
     public void abrirTelaEstoque() {
-        new TelaEstoque().setVisible(true);
+        new TelaEstoque(this.produtoController).setVisible(true); // (Linha corrigida)
     }
-
+    
     public void abrirTelaPDV() {
         new TelaPDV().setVisible(true);
     }
@@ -59,5 +65,4 @@ public class TelaPrincipalController {
             telaLogin.setVisible(true);
         }
     }
-
 }

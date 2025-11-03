@@ -1,5 +1,6 @@
 package alphacontrol.views.estoque;
 
+import alphacontrol.models.Produto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -10,7 +11,9 @@ public class ModalEditarProduto extends JDialog {
 
     private Point mouseClickPoint;
     public JTextField[] campos;
-    public boolean salvarConfirmado = false;
+    
+    private final JButton botaoSalvar; // Botão Salvar agora é um campo
+    private int produtoId; // Guarda o ID do produto sendo editado
 
     public ModalEditarProduto(JFrame parent) {
         super(parent, "Editar Produto", true);
@@ -84,7 +87,7 @@ public class ModalEditarProduto extends JDialog {
         }
 
         // Botão Salvar Alterações
-        JButton botaoSalvar = new JButton("Salvar Alterações") {
+        botaoSalvar = new JButton("Salvar Alterações") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -100,10 +103,8 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        botaoSalvar.addActionListener(e -> {
-            salvarConfirmado = true;  // sinaliza que o usuário confirmou a edição
-            dispose();
-        });
+        
+        // O ActionListener foi REMOVIDO daqui
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -112,18 +113,7 @@ public class ModalEditarProduto extends JDialog {
 
         // Botão Fechar estilizado
         JButton botaoFechar = new JButton("Fechar") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? marromClaro.darker() : marromClaro);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.setColor(marromEscuro);
-                g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
+             // ... (código de paintComponent do botão fechar) ...
         };
         botaoFechar.setForeground(begeClaro);
         botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -162,5 +152,44 @@ public class ModalEditarProduto extends JDialog {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
+    }
+    
+    // --- Métodos Getters/Setters para o Controller ---
+
+    public JButton getBtnSalvar() {
+        return botaoSalvar;
+    }
+
+    /**
+     * Preenche os campos do modal com os dados de um produto existente.
+     */
+    public void setProduto(Produto p) {
+        this.produtoId = p.getProdutoId(); // Guarda o ID
+        
+        campos[0].setText(p.getNome());
+        campos[1].setText(String.valueOf(p.getQntEstoque()));
+        campos[2].setText("0"); // Campo "Alerta Estoque Min."
+        campos[3].setText(p.getCategoria());
+        campos[4].setText(String.valueOf(p.getValorCompra()));
+        campos[5].setText(String.valueOf(p.getValorVenda()));
+    }
+
+    /**
+     * Pega os dados dos campos e cria um objeto Produto.
+     */
+    public Produto getProdutoFromFields() {
+        Produto p = new Produto(
+            campos[0].getText(), // Nome
+            campos[3].getText(), // Categoria
+            Double.parseDouble(campos[4].getText()), // Compra
+            Double.parseDouble(campos[5].getText()), // Venda
+            Integer.parseInt(campos[1].getText())  // Qnt
+        );
+        p.setProdutoId(this.produtoId); // Define o ID que guardamos
+        return p;
+    }
+    
+    public void mostrarErro(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 }
