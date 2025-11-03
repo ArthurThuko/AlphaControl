@@ -2,10 +2,8 @@ package alphacontrol.views;
 
 import javax.swing.*;
 
-//CONTROLLERS
 import alphacontrol.controllers.LoginController;
 
-//COMPONENTES
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.CampoSenhaEstilizado;
 import alphacontrol.views.components.CampoTextoEstilizado;
@@ -59,11 +57,11 @@ public class TelaLogin extends JFrame {
         painelCampos.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // mais espaçamento
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0; // permite expansão horizontal
+        gbc.weightx = 1.0; 
 
-        Font fonteMaior = new Font("Georgia", Font.PLAIN, 18); // fonte maior
+        Font fonteMaior = new Font("Georgia", Font.PLAIN, 18);
 
         JLabel lblUsuario = new JLabel("Usuário:");
         lblUsuario.setFont(fonteMaior);
@@ -74,7 +72,7 @@ public class TelaLogin extends JFrame {
 
         txtUsuario = new CampoTextoEstilizado(15);
         txtUsuario.setFont(fonteMaior);
-        txtUsuario.setPreferredSize(new Dimension(300, 40)); // aumenta o tamanho
+        txtUsuario.setPreferredSize(new Dimension(300, 40));
         gbc.gridx = 1;
         painelCampos.add(txtUsuario, gbc);
 

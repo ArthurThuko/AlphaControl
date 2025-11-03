@@ -16,7 +16,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
 
 public class TelaFluxoCaixa extends JFrame {
-    // ==== Cores base ====
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color VERDE_CLARO = new Color(202, 219, 183);

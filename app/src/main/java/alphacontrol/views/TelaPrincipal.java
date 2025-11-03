@@ -23,11 +23,10 @@ public class TelaPrincipal extends JFrame {
     public TelaPrincipal() {
         TelaPrincipalController controller = new TelaPrincipalController(this);
 
-        setTitle("AlphaControl - Tela Principal");
+        setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        // --- PALETA DE CORES MODERNA EM TONS DE MARROM ---
         Color COR_BOTAO_FUNDO = new Color(205, 170, 125);
         Color COR_BOTAO_SAIR_FUNDO = new Color(170, 125, 95);
         Color COR_TEXTO_TITULO = new Color(85, 60, 40);
@@ -63,22 +62,19 @@ public class TelaPrincipal extends JFrame {
         btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
         btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
 
-        // Estiliza todos os botões de uma vez
         for (JButton botao : new JButton[] { btnEstoque, btnPdv, btnFiados, btnRelatorios, btnFluxoCaixa }) {
             botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 22)); // Aumentei um pouco a fonte também
         }
 
-        // --- PAINEL CENTRAL PARA OS BOTÕES ---
         JPanel painelBotoes = new JPanel(new GridBagLayout());
-        painelBotoes.setOpaque(false); // Mantém o fundo gradiente visível
+        painelBotoes.setOpaque(false);
         painelBotoes.setPreferredSize(new Dimension(800, 450));
-        // ------------------------------------------------
 
         GridBagConstraints gbcBotoes = new GridBagConstraints();
         gbcBotoes.fill = GridBagConstraints.BOTH;
         gbcBotoes.weightx = 1;
         gbcBotoes.weighty = 1;
-        gbcBotoes.insets = new Insets(20, 20, 20, 20); // Aumenta o espaçamento entre os botões
+        gbcBotoes.insets = new Insets(20, 20, 20, 20); 
         gbcBotoes.gridx = 0;
         gbcBotoes.gridy = 0;
         painelBotoes.add(btnEstoque, gbcBotoes);
