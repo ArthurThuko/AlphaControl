@@ -10,28 +10,28 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-public class ModalEntrada extends JDialog {
+public class ModalSaida extends JDialog {
 
     private Point mouseClickPoint;
     private FluxoCaixaController controller = new FluxoCaixaController();
     private JTextField txtNome, txtData, txtValor;
 
     // Cores
-    private final Color begeFundo = new Color(242, 245, 233);
-    private final Color verdeEscuro = new Color(48, 94, 64);
-    private final Color verdeMedio = new Color(86, 130, 89);
-    private final Color verdeClaro = new Color(142, 181, 145);
+    private final Color begeFundo = new Color(246, 232, 232);
+    private final Color vermelhoEscuro = new Color(138, 41, 41);
+    private final Color vermelhoMedio = new Color(197, 80, 80);
+    private final Color vermelhoClaro = new Color(214, 160, 160);
     private final Color begeClaro = new Color(253, 250, 240);
 
     // ===== Construtor para adicionar =====
-    public ModalEntrada(JFrame parent) {
+    public ModalSaida(JFrame parent) {
         this(parent, null);
     }
 
     // ===== Construtor para editar =====
-    public ModalEntrada(JFrame parent, MovimentacaoCaixa mov) {
+    public ModalSaida(JFrame parent, MovimentacaoCaixa mov) {
         super(parent, true);
-        setTitle(mov == null ? "Adicionar Entrada" : "Editar Entrada");
+        setTitle(mov == null ? "Adicionar Saída" : "Editar Saída");
 
         JPanel painel = criarPainelPrincipal();
         add(painel);
@@ -41,7 +41,6 @@ public class ModalEntrada extends JDialog {
         setLocationRelativeTo(parent);
         setResizable(false);
 
-        // Preencher campos se estiver editando
         if (mov != null) {
             txtNome.setText(mov.getNome());
             txtData.setText(mov.getData());
@@ -54,7 +53,7 @@ public class ModalEntrada extends JDialog {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(begeFundo);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
             }
@@ -62,7 +61,6 @@ public class ModalEntrada extends JDialog {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -83,28 +81,25 @@ public class ModalEntrada extends JDialog {
         gbc.weightx = 1;
         gbc.gridwidth = 2;
 
-        JLabel titulo = new JLabel("Entrada", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("Saída", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
-        titulo.setForeground(verdeEscuro);
+        titulo.setForeground(vermelhoEscuro);
         painel.add(titulo, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // Campos
         txtNome = criarCampo("Nome:", painel, gbc);
         txtData = criarCampo("Data:", painel, gbc);
         txtValor = criarCampo("Valor:", painel, gbc);
 
-        // Botão Adicionar/Salvar
-        JButton btn = criarBotao("Salvar", verdeMedio, e -> salvarEntrada());
+        JButton btn = criarBotao("Salvar", vermelhoMedio, e -> salvarSaida());
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(btn, gbc);
         gbc.gridy++;
 
-        // Botão Fechar
-        JButton btnFechar = criarBotao("Fechar", verdeClaro, e -> dispose());
+        JButton btnFechar = criarBotao("Fechar", vermelhoClaro, e -> dispose());
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(btnFechar, gbc);
@@ -115,14 +110,14 @@ public class ModalEntrada extends JDialog {
     private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
         gbc.gridx = 0;
         JLabel lbl = new JLabel(label, SwingConstants.CENTER);
-        lbl.setForeground(verdeEscuro);
+        lbl.setForeground(vermelhoEscuro);
         lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
         painel.add(lbl, gbc);
 
         gbc.gridx = 1;
         JTextField campo = new JTextField();
         campo.setOpaque(false);
-        campo.setForeground(verdeEscuro);
+        campo.setForeground(vermelhoEscuro);
         campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
@@ -145,7 +140,7 @@ public class ModalEntrada extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? verdeEscuro : cor);
+                g2.setColor(getModel().isPressed() ? vermelhoEscuro : cor);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
@@ -155,11 +150,11 @@ public class ModalEntrada extends JDialog {
         btn.setFont(new Font("SansSerif", Font.BOLD, 16));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
-        btn.addActionListener(action);
+        btn.addActionListener(action); // <-- adiciona o ActionListener aqui também
         return btn;
     }
 
-    private void salvarEntrada() {
+    private void salvarSaida() {
         String nome = txtNome.getText().trim();
         String data = txtData.getText().trim();
         String valorStr = txtValor.getText().trim();
@@ -171,8 +166,8 @@ public class ModalEntrada extends JDialog {
 
         try {
             double valor = Double.parseDouble(valorStr.replace(",", "."));
-            controller.adicionarEntrada(nome, valor, data);
-            JOptionPane.showMessageDialog(this, "Entrada salva com sucesso!");
+            controller.adicionarSaida(nome, valor, data);
+            JOptionPane.showMessageDialog(this, "Saída salva com sucesso!");
             dispose();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
