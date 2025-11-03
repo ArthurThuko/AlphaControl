@@ -2,6 +2,8 @@ package alphacontrol.dao;
 
 import alphacontrol.models.Produto;
 import java.sql.*;
+// 1. Importar a classe Statement
+import java.sql.Statement; 
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +11,25 @@ public class ProdutoDAO {
 
     private final Connection connection;
 
+    // 2. O construtor agora cria a tabela
     public ProdutoDAO(Connection connection) {
         this.connection = connection;
+        
+        // Garante que a tabela exista ao criar o DAO
+        try (Statement stmt = connection.createStatement()) {
+            String sql = "CREATE TABLE IF NOT EXISTS produtos ("
+                       + "produto_id INT PRIMARY KEY AUTO_INCREMENT,"
+                       + "nome VARCHAR(255) NOT NULL,"
+                       + "categoria VARCHAR(100),"
+                       + "valor_compra DECIMAL(10, 2) NOT NULL," // DECIMAL é melhor para dinheiro
+                       + "valor_venda DECIMAL(10, 2) NOT NULL,"
+                       + "qnt_estoque INT DEFAULT 0"
+                       + ")";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            // Se não conseguir criar a tabela, o app não pode funcionar.
+            throw new RuntimeException("Erro ao criar a tabela 'produtos': " + e.getMessage(), e);
+        }
     }
 
     // CREATE
@@ -34,14 +53,37 @@ public class ProdutoDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Produto produto = new Produto(
-                    rs.getInt("produto_id"),
-                    rs.getString("nome"),
-                    rs.getString("categoria"),
-                    rs.getDouble("valor_compra"),
-                    rs.getDouble("valor_venda"),
-                    rs.getInt("qnt_estoque")
+                        rs.getInt("produto_id"),
+                        rs.getString("nome"),
+                        rs.getString("categoria"),
+                        rs.getDouble("valor_compra"),
+                        rs.getDouble("valor_venda"),
+                        rs.getInt("qnt_estoque")
                 );
                 produtos.add(produto);
+            }
+        }
+        return produtos;
+    }
+    
+    // READ (Pesquisa)
+    public List<Produto> pesquisarProdutos(String nome) throws SQLException {
+        List<Produto> produtos = new ArrayList<>();
+        String sql = "SELECT * FROM produtos WHERE nome LIKE ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, "%" + nome + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Produto produto = new Produto(
+                            rs.getInt("produto_id"),
+                            rs.getString("nome"),
+                            rs.getString("categoria"),
+                            rs.getDouble("valor_compra"),
+                            rs.getDouble("valor_venda"),
+                            rs.getInt("qnt_estoque")
+                    );
+                    produtos.add(produto);
+                }
             }
         }
         return produtos;
