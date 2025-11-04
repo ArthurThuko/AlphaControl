@@ -19,31 +19,34 @@ public class TelaPrincipalController {
 
     private final ProdutoController produtoController;
 
-    // --- 3. Mudar o construtor para receber o ProdutoController ---
     public TelaPrincipalController(JFrame telaPrincipal, ProdutoController produtoController) {
         this.telaPrincipal = telaPrincipal;
-        this.produtoController = produtoController; // Armazena o controller
+        this.produtoController = produtoController;
     }
 
-    // --- 4. Corrigir o método para passar o controller ---
     public void abrirTelaEstoque() {
-        new TelaEstoque(this.produtoController).setVisible(true); // (Linha corrigida)
+        new TelaEstoque(this.produtoController).setVisible(true);
+        telaPrincipal.dispose();
     }
     
     public void abrirTelaPDV() {
-        new TelaPDV().setVisible(true);
+        new TelaPDV(this.produtoController).setVisible(true);
+        telaPrincipal.dispose();
     }
 
     public void abrirTelaFiados() {
-        new TelaFiado().setVisible(true);
+        new TelaFiado(this.produtoController).setVisible(true);
+        telaPrincipal.dispose();
     }
 
     public void abrirTelaRelatorios() {
-        new TelaRelatorios().setVisible(true);
+        new TelaRelatorios(this.produtoController).setVisible(true);
+        telaPrincipal.dispose();
     }
 
     public void abrirTelaFluxoCaixa() {
-        new TelaFluxoCaixa().setVisible(true);
+        new TelaFluxoCaixa(this.produtoController).setVisible(true);
+        telaPrincipal.dispose();
     }
 
     public void logout() {
@@ -55,12 +58,8 @@ public class TelaPrincipalController {
                 JOptionPane.QUESTION_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            for (Frame frame : Frame.getFrames()) {
-                if (frame instanceof JFrame) {
-                    frame.dispose();
-                }
-            }
-
+            telaPrincipal.dispose();
+            
             TelaLogin telaLogin = new TelaLogin();
             telaLogin.setVisible(true);
         }
