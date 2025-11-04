@@ -1,6 +1,6 @@
 package alphacontrol.views.components;
 
-import alphacontrol.controllers.ProdutoController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.views.estoque.TelaEstoque;
 import alphacontrol.views.TelaPDV; 
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
@@ -21,7 +21,7 @@ public class Navbar extends JMenuBar {
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
 
-    public Navbar(JFrame currentScreen, ProdutoController controller, String activeItem) {
+    public Navbar(JFrame currentScreen, TelaPrincipalController mainController, String activeItem) {
         setBackground(MARROM_MEDIO);
         setBorder(new EmptyBorder(0, 5, 0, 5));
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -34,35 +34,35 @@ public class Navbar extends JMenuBar {
 
         navEstoque.addActionListener(e -> {
             if (!"Estoque".equals(activeItem)) {
-                new TelaEstoque(controller).setVisible(true);
+                new TelaEstoque(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
 
         navPDV.addActionListener(e -> {
             if (!"PDV".equals(activeItem)) {
-                new TelaPDV(controller).setVisible(true);
+                new TelaPDV(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
 
         navFluxoCaixa.addActionListener(e -> {
             if (!"Fluxo de Caixa".equals(activeItem)) {
-                new TelaFluxoCaixa(controller).setVisible(true);
+                new TelaFluxoCaixa(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
 
         navRelatorio.addActionListener(e -> {
             if (!"Relatório".equals(activeItem)) {
-                new TelaRelatorios(controller).setVisible(true);
+                new TelaRelatorios(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
 
         navFiado.addActionListener(e -> {
             if (!"Fiado".equals(activeItem)) {
-                new TelaFiado(controller).setVisible(true);
+                new TelaFiado(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });

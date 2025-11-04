@@ -3,6 +3,7 @@ package alphacontrol.views.estoque;
 import alphacontrol.controllers.ModalAdicionarProdutoController;
 import alphacontrol.controllers.ModalEditarProdutoController;
 import alphacontrol.controllers.ProdutoController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
 import alphacontrol.dao.ProdutoDAO;
@@ -31,13 +32,15 @@ public class TelaEstoque extends JFrame {
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90); 
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); 
 
+    private final TelaPrincipalController mainController;
     private final ProdutoController controller;
     private final JTable tabela;
     private final DefaultTableModel modelo;
     private final JTextField txtPesquisa;
 
-    public TelaEstoque(ProdutoController controller) {
-        this.controller = controller; 
+    public TelaEstoque(TelaPrincipalController mainController) {
+        this.mainController = mainController;
+        this.controller = mainController.getProdutoController(); 
 
         setTitle("Estoque");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +48,7 @@ public class TelaEstoque extends JFrame {
         setLocationRelativeTo(null);
         
         JFrame estaTela = this;
-        Navbar navbar = new Navbar(estaTela, controller, "Estoque");
+        Navbar navbar = new Navbar(estaTela, this.mainController, "Estoque");
         setJMenuBar(navbar);
         
         getContentPane().setBackground(BEGE_FUNDO);
@@ -143,12 +146,12 @@ public class TelaEstoque extends JFrame {
         for (Produto p : produtos) {
             modelo.addRow(new Object[]{
                 p.getProdutoId(),  
-                p.getNome(),       
+                p.getNome(),     
                 p.getQntEstoque(), 
                 p.getCategoria(),  
                 p.getValorCompra(),
                 p.getValorVenda(), 
-                ""                 
+                ""               
             });
         }
     }
@@ -298,7 +301,7 @@ public class TelaEstoque extends JFrame {
                 
                 ProdutoDAO dao = new ProdutoDAO(connection);
                 ProdutoController controller = new ProdutoController(dao);
-                new TelaEstoque(controller).setVisible(true);
+                new TelaEstoque(null).setVisible(true);
 
             } catch (Exception e) {
                 e.printStackTrace();

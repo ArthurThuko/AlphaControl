@@ -6,9 +6,10 @@ import javax.swing.table.*;
 import java.util.List;
 
 import alphacontrol.controllers.FluxoCaixaController;
-import alphacontrol.controllers.ProdutoController; // Importado
+import alphacontrol.controllers.ProdutoController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
-import alphacontrol.views.components.Navbar; // Importado
+import alphacontrol.views.components.Navbar;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -17,7 +18,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
 
 public class TelaFluxoCaixa extends JFrame {
-    // ==== Cores base ====
+
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color VERDE_CLARO = new Color(202, 219, 183);
@@ -29,17 +30,19 @@ public class TelaFluxoCaixa extends JFrame {
     private JTable tabelaSaidas;
     private JLabel lblTotal = new JLabel("R$ 0,00");;
     private FluxoCaixaController controller;
+    private TelaPrincipalController mainController;
 
-    public TelaFluxoCaixa(ProdutoController pController) { // Construtor modificado
+    public TelaFluxoCaixa(TelaPrincipalController mainController) {
+        this.mainController = mainController;
         controller = new FluxoCaixaController();
+        
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
 
-        // --- Navbar Adicionada ---
-        setJMenuBar(new Navbar(this, pController, "Fluxo de Caixa"));
+        setJMenuBar(new Navbar(this, this.mainController, "Fluxo de Caixa"));
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
@@ -342,21 +345,7 @@ public class TelaFluxoCaixa extends JFrame {
         JButton btnSalvar = new JButton("Salvar");
         gbc.gridy = 6;
         dialog.add(btnSalvar, gbc);
-        /*
-         * btnSalvar.addActionListener(e -> {
-         * try {
-         * if (mov == null)
-         * controller.adicionarEntrada(txtNome.getText(),
-         * Double.parseDouble(txtValor.getText()), txtData.getText());
-         * else
-         * controller.atualizar(nova);
-         * * recarregarTabelaEntradas();
-         * dialog.dispose();
-         * } catch (Exception ex) {
-         * JOptionPane.showMessageDialog(dialog, "Erro ao salvar: " + ex.getMessage());
-         * }
-         * });
-         */
+        
         dialog.setVisible(true);
     }
 
@@ -375,8 +364,6 @@ public class TelaFluxoCaixa extends JFrame {
         }
         lblTotal.setText("Total: R$ " + calcularTotal(modelo));
     }
-
-    // ==== Componentes reutilizados ====
 
     static class RoundedPanel extends JPanel {
         private final int radius;
@@ -528,8 +515,7 @@ public class TelaFluxoCaixa extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ProdutoController controller = null; // Para a Navbar
-            new TelaFluxoCaixa(controller).setVisible(true);
+            new TelaFluxoCaixa(null).setVisible(true);
         });
     }
 }

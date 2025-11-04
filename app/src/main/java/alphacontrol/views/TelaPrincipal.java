@@ -1,9 +1,14 @@
 package alphacontrol.views;
 
+import alphacontrol.controllers.ClienteController;
+import alphacontrol.controllers.FiadoController;
+import alphacontrol.controllers.PdvController;
 import alphacontrol.controllers.ProdutoController;
 import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.dao.ClienteDAO;
+import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
-// import alphacontrol.util.ConexaoBanco; // (Importe sua conexão aqui)
+import alphacontrol.Conexao;
 
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.Estilos;
@@ -24,7 +29,6 @@ public class TelaPrincipal extends JFrame {
     
     private TelaPrincipalController controller;
 
-    // O construtor agora recebe o controller
     public TelaPrincipal(TelaPrincipalController controller) {
         this.controller = controller;
 
@@ -44,7 +48,6 @@ public class TelaPrincipal extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
-        // --- TÍTULO ---
         JLabel lblTitulo = new JLabel("Seja Bem-vindo ao AlphaControl", SwingConstants.CENTER);
         lblTitulo.setFont(Estilos.FONTE_TITULO.deriveFont(Font.BOLD, 32));
         lblTitulo.setForeground(COR_TEXTO_TITULO);
@@ -53,18 +56,16 @@ public class TelaPrincipal extends JFrame {
         gbc.insets = new Insets(0, 0, 40, 0);
         painelPrincipal.add(lblTitulo, gbc);
 
-        // --- BOTÕES PRINCIPAIS ---
         btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
         btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
         btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
         btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
         btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
 
-        // --- AÇÕES DOS BOTÕES ---
-        if (controller != null) { // Evita erro se o controller for injetado depois
+        if (controller != null) {
             btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
             btnPdv.addActionListener(e -> controller.abrirTelaPDV());
-            btnFiados.addActionListener(e -> controller.abrirTelaFiados());
+            btnFiados.addActionListener(e -> controller.abrirTelaFiado());
             btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
             btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
         }
@@ -73,7 +74,6 @@ public class TelaPrincipal extends JFrame {
             botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 22));
         }
 
-        // --- PAINEL CENTRAL PARA OS BOTÕES ---
         JPanel painelBotoes = new JPanel(new GridBagLayout());
         painelBotoes.setOpaque(false);
         painelBotoes.setPreferredSize(new Dimension(800, 450));
@@ -111,7 +111,6 @@ public class TelaPrincipal extends JFrame {
         gbc.insets = new Insets(0, 0, 0, 0);
         painelPrincipal.add(painelBotoes, gbc);
 
-        // --- PAINEL INFERIOR COM BOTÃO SAIR ---
         JPanel painelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         painelInferior.setOpaque(false);
 
@@ -133,21 +132,17 @@ public class TelaPrincipal extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    // Método para injetar o controller APÓS a criação da tela
     public void setController(TelaPrincipalController controller) {
         this.controller = controller;
         
-        // Atribui os listeners que podem ter ficado pendentes
         btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
         btnPdv.addActionListener(e -> controller.abrirTelaPDV());
-        btnFiados.addActionListener(e -> controller.abrirTelaFiados());
+        btnFiados.addActionListener(e -> controller.abrirTelaFiado());
         btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
         btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
         btnSair.addActionListener(e -> controller.logout());
     }
 
-
-    // O main deve ficar na TelaLogin, mas este serve para testes
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -157,26 +152,26 @@ public class TelaPrincipal extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
             try {
-                // 1. Conexão
-                // Connection conexao = ConexaoBanco.getConexao();
-                Connection conexao = null; // Temporário
+                Connection conexao = Conexao.getConexao();
 
-                // 2. DAO
                 ProdutoDAO produtoDAO = new ProdutoDAO(conexao);
+                ClienteDAO clienteDAO = new ClienteDAO(conexao);
+                FiadoDAO fiadoDAO = new FiadoDAO(conexao);
 
-                // 3. Controllers
                 ProdutoController produtoController = new ProdutoController(produtoDAO);
-                
-                // 4. View
-                TelaPrincipal tela = new TelaPrincipal(null); // Cria a tela
+                ClienteController clienteController = new ClienteController(clienteDAO);
+                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO);
+                PdvController pdvController = new PdvController(produtoController, clienteController);
 
-                // 5. Controller Principal (Injetando a View e o Controller de Produto)
-                TelaPrincipalController principalController = new TelaPrincipalController(tela, produtoController);
+                TelaPrincipalController principalController = new TelaPrincipalController(
+                    produtoController, 
+                    clienteController, 
+                    pdvController, 
+                    fiadoController
+                );
                 
-                // 6. Injeta o controller principal na View
-                tela.setController(principalController); 
-
-                // 7. Visibilidade
+                TelaPrincipal tela = new TelaPrincipal(principalController);
+                principalController.setView(tela); 
                 tela.setVisible(true);
 
             } catch (Exception e) {
