@@ -10,8 +10,6 @@ import alphacontrol.controllers.FluxoCaixaController;
 import alphacontrol.models.MovimentacaoCaixa;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
 
@@ -21,16 +19,12 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color VERDE_CLARO = new Color(202, 219, 183);
     private static final Color VERDE_BORDA = new Color(139, 160, 118);
     private static final Color VERDE_BOTAO = new Color(101, 125, 64);
-    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
-    private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
 
     private JTable tabelaEntradas;
     private JTable tabelaSaidas;
     private JLabel lblTotalEntradas = new JLabel("R$ 0,00");
     private JLabel lblTotalSaidas = new JLabel("R$ 0,00");
     private JLabel lblSaldo = new JLabel("R$ 0,00");
-    public JButton btnEdit = new CellButton("E", DOURADO_SUAVE, MARROM_ESCURO);
-    public JButton btnDelete = new CellButton("X", VERMELHO_TERROSO, Color.WHITE);
     private FluxoCaixaController controller;
 
     public TelaFluxoCaixa() {
@@ -128,6 +122,39 @@ public class TelaFluxoCaixa extends JFrame {
         };
 
         tabelaEntradas = new JTable(modelo);
+
+        // ==== TABELA DE ENTRADAS ====
+        tabelaEntradas.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int linha = tabelaEntradas.rowAtPoint(evt.getPoint());
+                int coluna = tabelaEntradas.columnAtPoint(evt.getPoint());
+
+                // Coluna 3 = Editar, Coluna 4 = Excluir
+                if (coluna == 3) {
+                    MovimentacaoCaixa mov = controller.listarEntradas().get(linha);
+
+                    // Abre modal de edição
+                    ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov);
+                    modal.setVisible(true);
+
+                    recarregarTabelaEntradas(); // Atualiza lista
+                } else if (coluna == 4) {
+                    int confirm = JOptionPane.showConfirmDialog(
+                            TelaFluxoCaixa.this,
+                            "Tem certeza que deseja excluir esta entrada?",
+                            "Confirmação",
+                            JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        MovimentacaoCaixa mov = controller.listarEntradas().get(linha);
+                        controller.removerMovimentacao(mov.getId());
+                        recarregarTabelaEntradas();
+                    }
+                }
+            }
+        });
+
         configurarTabela(tabelaEntradas);
         recarregarTabelaEntradas();
 
@@ -179,7 +206,6 @@ public class TelaFluxoCaixa extends JFrame {
     private JPanel criarPainelSaidas() {
         Color VERMELHO_CLARO = new Color(236, 204, 200);
         Color VERMELHO_BORDA = new Color(178, 67, 62);
-        Color VERMELHO_TEXTO = new Color(77, 30, 30);
         Color VERMELHO_BOTAO = new Color(178, 67, 62);
 
         JPanel painel = new RoundedPanel(25, VERMELHO_CLARO, VERMELHO_BORDA);
@@ -208,6 +234,38 @@ public class TelaFluxoCaixa extends JFrame {
         };
 
         tabelaSaidas = new JTable(modelo);
+
+        // ==== TABELA DE SAÍDAS ====
+        tabelaSaidas.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int linha = tabelaSaidas.rowAtPoint(evt.getPoint());
+                int coluna = tabelaSaidas.columnAtPoint(evt.getPoint());
+
+                if (coluna == 3) {
+                    MovimentacaoCaixa mov = controller.listarSaidas().get(linha);
+
+                    // Abre modal de edição
+                    ModalSaida modal = new ModalSaida(TelaFluxoCaixa.this, mov);
+                    modal.setVisible(true);
+
+                    recarregarTabelaSaidas();
+                } else if (coluna == 4) {
+                    int confirm = JOptionPane.showConfirmDialog(
+                            TelaFluxoCaixa.this,
+                            "Tem certeza que deseja excluir esta saída?",
+                            "Confirmação",
+                            JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        MovimentacaoCaixa mov = controller.listarSaidas().get(linha);
+                        controller.removerMovimentacao(mov.getId());
+                        recarregarTabelaSaidas();
+                    }
+                }
+            }
+        });
+
         configurarTabelaSaidas(tabelaSaidas); // usamos um método separado, só para diferenciar cores
         recarregarTabelaSaidas();
 
@@ -293,38 +351,12 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.setIntercellSpacing(new Dimension(0, 5));
         tabela.setSelectionBackground(VERDE_BORDA.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
-
-        tabelaEntradas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = tabelaEntradas.rowAtPoint(e.getPoint());
-                int col = tabelaEntradas.columnAtPoint(e.getPoint());
-                if (row < 0)
-                    return;
-
-                MovimentacaoCaixa mov = controller.listarEntradas().get(row);
-
-                if (col == 3) { // coluna Editar
-                    ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov);
-                    modal.setVisible(true);
-                    recarregarTabelaEntradas();
-                } else if (col == 4) { // coluna Excluir
-                    int resp = JOptionPane.showConfirmDialog(null,
-                            "Excluir \"" + mov.getNome() + "\"?", "Confirmar exclusão",
-                            JOptionPane.YES_NO_OPTION);
-                    if (resp == JOptionPane.YES_OPTION) {
-                        controller.removerMovimentacao(mov.getId());
-                        recarregarTabelaEntradas();
-                    }
-                }
-            }
-        });
     }
 
     private void configurarTabelaSaidas(JTable tabela) {
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         tabela.setRowHeight(45);
-        tabela.setBackground(new Color(236, 204, 200)); // vermelho claro
+        tabela.setBackground(new Color(236, 204, 200));
         tabela.setForeground(MARROM_ESCURO);
         tabela.setGridColor(new Color(178, 67, 62));
         tabela.setShowGrid(false);
@@ -334,33 +366,6 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.setIntercellSpacing(new Dimension(0, 5));
         tabela.setSelectionBackground(new Color(214, 160, 160));
         tabela.setSelectionForeground(MARROM_ESCURO);
-
-        tabelaSaidas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = tabelaSaidas.rowAtPoint(e.getPoint());
-                int col = tabelaSaidas.columnAtPoint(e.getPoint());
-                if (row < 0)
-                    return;
-
-                MovimentacaoCaixa mov = controller.listarSaidas().get(row);
-
-                if (col == 3) { // Editar
-                    ModalSaida modal = new ModalSaida(TelaFluxoCaixa.this, mov);
-                    modal.setVisible(true);
-                    recarregarTabelaSaidas();
-                } else if (col == 4) { // Excluir
-                    int resp = JOptionPane.showConfirmDialog(null,
-                            "Excluir \"" + mov.getNome() + "\"?", "Confirmar exclusão",
-                            JOptionPane.YES_NO_OPTION);
-                    if (resp == JOptionPane.YES_OPTION) {
-                        controller.removerMovimentacao(mov.getId());
-                        recarregarTabelaSaidas();
-                    }
-                }
-            }
-        });
-
     }
 
     private String calcularTotal(DefaultTableModel modelo) {
@@ -409,15 +414,10 @@ public class TelaFluxoCaixa extends JFrame {
                     m.getNome(),
                     String.format("%.2f", m.getValor()),
                     m.getData(),
-                    new CellButton("Editar", new Color(143, 97, 54), Color.WHITE),
-                    new CellButton("Excluir", new Color(178, 67, 62), Color.WHITE)
+                    "Editar",
+                    "Excluir"
             });
         }
-
-        tabelaEntradas.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer(new JButton("Editar")));
-        tabelaEntradas.getColumnModel().getColumn(3).setCellEditor(new ButtonEditor(new JButton("Editar")));
-        tabelaEntradas.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer(new JButton("Excluir")));
-        tabelaEntradas.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JButton("Excluir")));
 
         lblTotalEntradas.setText("Total: R$ " + calcularTotal(modelo));
         atualizarSaldo();
@@ -433,15 +433,10 @@ public class TelaFluxoCaixa extends JFrame {
                     m.getNome(),
                     String.format("%.2f", m.getValor()),
                     m.getData(),
-                    new CellButton("Editar", new Color(193, 95, 83), Color.WHITE),
-                    new CellButton("Excluir", new Color(214, 77, 61), Color.WHITE)
+                    "Editar",
+                    "Excluir"
             });
         }
-
-        tabelaSaidas.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer(new JButton("Editar")));
-        tabelaSaidas.getColumnModel().getColumn(3).setCellEditor(new ButtonEditor(new JButton("Editar")));
-        tabelaSaidas.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer(new JButton("Excluir")));
-        tabelaSaidas.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JButton("Excluir")));
 
         lblTotalSaidas.setText("Total: R$ " + calcularTotal(modelo));
         atualizarSaldo();
@@ -469,112 +464,6 @@ public class TelaFluxoCaixa extends JFrame {
             g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
             g2.setColor(borderColor);
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
-        }
-    }
-
-    // Renderer para exibir o botão
-    class ButtonRenderer extends JButton implements TableCellRenderer {
-        public ButtonRenderer(JButton button) {
-            setText(button.getText());
-            setBackground(button.getBackground());
-            setForeground(button.getForeground());
-            setFont(button.getFont());
-            setFocusPainted(false);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            setText(value != null ? value.toString() : "");
-            return this;
-        }
-    }
-
-    // Editor para clicar no botão
-    class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
-        private boolean clicked;
-
-        public ButtonEditor(JButton button) {
-            super(new JCheckBox()); // só pra compatibilidade
-            this.button = button;
-            this.button.addActionListener(e -> fireEditingStopped());
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                boolean isSelected, int row, int column) {
-            clicked = true;
-            return button;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            if (clicked) {
-                int row = tabelaEntradas.getSelectedRow();
-                JTable tabela = (JTable) button.getParent();
-                boolean isSaida = tabela.equals(tabelaSaidas);
-                List<MovimentacaoCaixa> lista = isSaida
-                        ? controller.listarSaidas()
-                        : controller.listarEntradas();
-
-                MovimentacaoCaixa mov = lista.get(row);
-
-                if (button.getText().equals("Editar")) {
-                    // Abre o modal correto (Entrada ou Saída)
-                    if (isSaida) {
-                        new ModalSaida(null, mov).setVisible(true);
-                        recarregarTabelaSaidas();
-                    } else {
-                        new ModalEntrada(null, mov).setVisible(true);
-                        recarregarTabelaEntradas();
-                    }
-
-                } else if (button.getText().equals("Excluir")) {
-                    int resp = JOptionPane.showConfirmDialog(null,
-                            "Excluir \"" + mov.getNome() + "\"?", "Confirmar exclusão",
-                            JOptionPane.YES_NO_OPTION);
-
-                    if (resp == JOptionPane.YES_OPTION) {
-                        controller.removerMovimentacao(mov.getId());
-                        if (isSaida)
-                            recarregarTabelaSaidas();
-                        else
-                            recarregarTabelaEntradas();
-                    }
-                }
-            }
-            clicked = false;
-            return button.getText();
-        }
-
-    }
-
-    static class CellButton extends JButton {
-        public CellButton(String text, Color background, Color foreground) {
-            super(text);
-            setBackground(background);
-            setForeground(foreground);
-            setFocusPainted(false);
-            setBorderPainted(false);
-            setContentAreaFilled(false);
-            setOpaque(false);
-            setFont(new Font("Segoe UI", Font.BOLD, 14));
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            if (getModel().isRollover()) {
-                g2.setColor(getBackground().brighter());
-            } else {
-                g2.setColor(getBackground());
-            }
-            g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 15, 15);
-            g2.dispose();
-            super.paintComponent(g);
         }
     }
 
