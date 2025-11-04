@@ -4,11 +4,9 @@ import alphacontrol.controllers.ModalAdicionarProdutoController;
 import alphacontrol.controllers.ModalEditarProdutoController;
 import alphacontrol.controllers.ProdutoController;
 import alphacontrol.models.Produto;
-
+import alphacontrol.views.components.Navbar;
 import alphacontrol.dao.ProdutoDAO;
 import java.sql.Connection;
-// import alphacontrol.util.ConexaoBanco; 
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -45,6 +43,11 @@ public class TelaEstoque extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+        
+        JFrame estaTela = this;
+        Navbar navbar = new Navbar(estaTela, controller, "Estoque");
+        setJMenuBar(navbar);
+        
         getContentPane().setBackground(BEGE_FUNDO);
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
@@ -69,16 +72,13 @@ public class TelaEstoque extends JFrame {
         txtPesquisa = new RoundedTextField("Pesquise por nome...");
         txtPesquisa.setPreferredSize(new Dimension(350, 45));
 
-        JButton btnFiltrar = new RoundedButton("Filtrar", COBRE_SUAVE, Color.WHITE, 150, 45);
         JButton btnPesquisar = new RoundedButton("Pesquisar", VERDE_MUSGO, Color.WHITE, 150, 45);
         JButton btnAdd = new RoundedButton("Adicionar Produto", VERDE_OLIVA, Color.WHITE, 220, 45);
 
         btnAdd.addActionListener(e -> abrirModalAdicionar());
         btnPesquisar.addActionListener(e -> pesquisar());
-        btnFiltrar.addActionListener(e -> atualizarTabela()); 
-
+        
         painelBusca.add(txtPesquisa);
-        painelBusca.add(btnFiltrar);
         painelBusca.add(btnPesquisar);
 
         JPanel painelAdd = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -209,23 +209,28 @@ public class TelaEstoque extends JFrame {
         );
     }
     
-    private void incrementarEstoqueNaLinha(int row) {
+    private Integer incrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
         try {
             controller.incrementarEstoque(produto); 
-            atualizarTabela(); 
+            return produto.getQntEstoque();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao incrementar estoque: " + e.getMessage());
+            return null;
         }
     }
 
-    private void decrementarEstoqueNaLinha(int row) {
+    private Integer decrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
         try {
-            controller.decrementarEstoque(produto); 
-            atualizarTabela(); 
+            boolean atualizou = controller.decrementarEstoque(produto); 
+            if (atualizou) {
+                return produto.getQntEstoque();
+            }
+            return null;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao decrementar estoque: " + e.getMessage());
+            return null;
         }
     }
 
@@ -289,8 +294,6 @@ public class TelaEstoque extends JFrame {
         
         SwingUtilities.invokeLater(() -> {
             try {
-                // Connection connection = ConexaoBanco.getConexao(); 
-                
                 Connection connection = null; 
                 
                 ProdutoDAO dao = new ProdutoDAO(connection);
@@ -303,8 +306,6 @@ public class TelaEstoque extends JFrame {
             }
         });
     }
-
-    // ==== Classes internas auxiliares ====
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
@@ -518,19 +519,31 @@ public class TelaEstoque extends JFrame {
             this.telaEstoque = telaEstoque;
 
             panel.btnMinus.addActionListener(e -> {
-                fireEditingStopped(); 
-                telaEstoque.decrementarEstoqueNaLinha(row); 
+                Integer novaQtd = telaEstoque.decrementarEstoqueNaLinha(row);
+                
+                if (novaQtd != null) {
+                    panel.lblQuantity.setText(novaQtd.toString());
+                    fireEditingStopped(); 
+                }
             });
 
             panel.btnPlus.addActionListener(e -> {
-                fireEditingStopped();
-                telaEstoque.incrementarEstoqueNaLinha(row); 
+                Integer novaQtd = telaEstoque.incrementarEstoqueNaLinha(row);
+                
+                if (novaQtd != null) {
+                    panel.lblQuantity.setText(novaQtd.toString());
+                    fireEditingStopped();
+                }
             });
         }
         
         @Override
         public Object getCellEditorValue() {
-            return panel.lblQuantity.getText();
+            try {
+                return Integer.parseInt(panel.lblQuantity.getText());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
 
         @Override

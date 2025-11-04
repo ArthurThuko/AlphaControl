@@ -1,5 +1,8 @@
 package alphacontrol.views.fiado;
 
+import alphacontrol.controllers.ProdutoController;
+import alphacontrol.views.components.Navbar;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -19,25 +22,28 @@ public class TelaFiado extends JFrame {
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
     // ==== Paleta de cores para os botões ====
-    private static final Color VERDE_MUSGO = new Color(119, 140, 85); // Pesquisar
-    private static final Color COBRE_SUAVE = new Color(198, 134, 78); // Filtrar
-    private static final Color VERDE_OLIVA = new Color(101, 125, 64); // Adicionar Produto
+    private static final Color VERDE_MUSGO = new Color(119, 140, 85); // Pesquisar / Ver
+    private static final Color VERDE_OLIVA = new Color(101, 125, 64); // Adicionar
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90); // Editar
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); // Excluir
 
-    public TelaFiado() {
+    public TelaFiado(ProdutoController controller) {
         setTitle("Fiados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
 
+        // --- Adiciona a Navbar ---
+        JFrame estaTela = this;
+        setJMenuBar(new Navbar(estaTela, controller, "Fiado"));
+
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
         painelPrincipal.setBorder(new EmptyBorder(20, 30, 20, 30));
         GridBagConstraints gbc = new GridBagConstraints();
 
-        JLabel titulo = new JLabel("Fiados");
+        JLabel titulo = new JLabel("Controle de Fiados");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
         titulo.setForeground(MARROM_ESCURO);
         titulo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -55,7 +61,7 @@ public class TelaFiado extends JFrame {
         txtPesquisa.setPreferredSize(new Dimension(350, 45));
 
         JButton btnPesquisar = new RoundedButton("Pesquisar", VERDE_MUSGO, Color.WHITE, 150, 45);
-        JButton btnAdd = new RoundedButton("Adicionar Cliente", Color.BLUE, Color.WHITE, 220, 45);
+        JButton btnAdd = new RoundedButton("Adicionar Cliente", VERDE_OLIVA, Color.WHITE, 220, 45); // Corrigido
 
         painelBusca.add(txtPesquisa);
         painelBusca.add(btnPesquisar);
@@ -76,14 +82,14 @@ public class TelaFiado extends JFrame {
         // --- Colunas e dados ---
         String[] colunas = { "Nome", "Rua", "Bairro", "Telefone", "Débito", "Ações" };
         Object[][] dados = {
-                { "Fulano", "Rua x", "Centro", "99999990", "1899.90", "ações" },
-                { "Beltrano", "Rua y", "Favela", "45156156", "89.90", "ações" },
+                { "Fulano de Tal", "Rua x", "Centro", "(75) 99999-9990", "R$ 1.899,90", "" },
+                { "Beltrano da Silva", "Rua y", "Bairro Nobre", "(75) 94515-6156", "R$ 89,90", "" },
         };
 
         DefaultTableModel modelo = new DefaultTableModel(dados, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return false; // Nenhuma célula é editável diretamente
             }
         };
 
@@ -116,9 +122,9 @@ public class TelaFiado extends JFrame {
         tabela.setBackground(BEGE_CLARO);
         tabela.setForeground(MARROM_ESCURO);
         tabela.setGridColor(new Color(223, 214, 198));
-        tabela.setShowGrid(true);
+        tabela.setShowGrid(false); // Modernizado
         tabela.setShowVerticalLines(false);
-        tabela.setIntercellSpacing(new Dimension(0, 1));
+        tabela.setIntercellSpacing(new Dimension(0, 0)); // Modernizado
         tabela.setSelectionBackground(MARROM_CLARO.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
 
@@ -131,12 +137,14 @@ public class TelaFiado extends JFrame {
         header.setDefaultRenderer(new HeaderRenderer(tabela));
 
         PaddedCellRenderer paddedRenderer = new PaddedCellRenderer();
-        for (int i = 0; i < tabela.getColumnCount() - 1; i++) { // aplica padding em todas, menos Ações
+        for (int i = 0; i < tabela.getColumnCount() - 1; i++) {
             tabela.getColumnModel().getColumn(i).setCellRenderer(paddedRenderer);
         }
 
-        // 👉 Renderer para a coluna "Ações"
-        tabela.getColumn("Ações").setCellRenderer(new AcoesRenderer());
+        // Renderer para a coluna "Ações"
+        tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
+        // Se precisar que os botões sejam clicáveis, adicione o CellEditor
+        // tabela.getColumn("Ações").setCellEditor(new ActionsCellEditor(tabela, this)); 
 
         TableColumnModel colModel = tabela.getColumnModel();
         colModel.getColumn(0).setPreferredWidth(350);
@@ -144,12 +152,14 @@ public class TelaFiado extends JFrame {
         colModel.getColumn(2).setPreferredWidth(150);
         colModel.getColumn(3).setPreferredWidth(200);
         colModel.getColumn(4).setPreferredWidth(120);
-        colModel.getColumn(5).setPreferredWidth(250);
+        colModel.getColumn(5).setMinWidth(300); // Espaço para 3 botões
+        colModel.getColumn(5).setMaxWidth(320);
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            TelaFiado tela = new TelaFiado();
+            ProdutoController controller = null; // Apenas para teste
+            TelaFiado tela = new TelaFiado(controller);
             tela.setVisible(true);
         });
     }
@@ -166,6 +176,11 @@ public class TelaFiado extends JFrame {
                 int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setVerticalAlignment(SwingConstants.CENTER);
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+            } else {
+                setBackground(table.getBackground());
+            }
             return this;
         }
     }
@@ -268,89 +283,68 @@ public class TelaFiado extends JFrame {
         }
     }
 
-    static class ButtonRenderer extends DefaultTableCellRenderer {
-        private final Color background;
-        private final Color foreground;
-
-        public ButtonRenderer(Color background, Color foreground) {
-            this.background = background;
-            this.foreground = foreground;
-            setHorizontalAlignment(SwingConstants.CENTER);
+    // --- Renderer de Botão Único (copiado de TelaEstoque) ---
+    static class CellButton extends JButton {
+        public CellButton(String text, Color background, Color foreground) {
+            super(text);
+            setBackground(background);
+            setForeground(foreground);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setOpaque(false);
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus,
-                int row, int column) {
-            JButton button = new JButton((value == null) ? "" : value.toString());
-            button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            button.setForeground(foreground);
-            button.setBackground(background);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setContentAreaFilled(true);
-            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            button.setOpaque(true);
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            if (getModel().isRollover()) {
+                g2.setColor(getBackground().brighter());
+            } else {
+                g2.setColor(getBackground());
+            }
+            g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 15, 15);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+    
+    // --- NOVO RENDERER DE AÇÕES (baseado em TelaEstoque) ---
+    static class ActionsPanel extends JPanel {
+        public JButton btnVisualizar = new CellButton("Ver", VERDE_MUSGO, Color.WHITE);
+        public JButton btnEditar = new CellButton("Editar", DOURADO_SUAVE, MARROM_ESCURO);
+        public JButton btnExcluir = new CellButton("Excluir", VERMELHO_TERROSO, Color.WHITE);
 
-            // Manter arredondamento igual ao RoundedButton
-            button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-                @Override
-                public void update(Graphics g, JComponent c) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(button.getBackground());
-                    g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 15, 15);
-                    g2.setColor(MARROM_CLARO);
-                    g2.drawRoundRect(0, 0, button.getWidth() - 1, button.getHeight() - 1, 15, 15);
-                    g2.dispose();
-                    super.update(g, c);
-                }
-            });
+        public ActionsPanel() {
+            super(new FlowLayout(FlowLayout.CENTER, 10, 0));
+            setOpaque(true);
+            setAlignmentY(Component.CENTER_ALIGNMENT);
+            
+            Dimension btnSizeEdit = new Dimension(90, 40);
+            Dimension btnSizeVer = new Dimension(70, 40);
+            
+            btnVisualizar.setPreferredSize(btnSizeVer);
+            btnEditar.setPreferredSize(btnSizeEdit);
+            btnExcluir.setPreferredSize(btnSizeEdit);
 
-            return button;
+            add(btnVisualizar);
+            add(btnEditar);
+            add(btnExcluir);
         }
     }
 
-    // ==== Renderer com dois botões (Editar e Excluir) ====
-    static class AcoesRenderer extends DefaultTableCellRenderer {
+    static class ActionsCellRenderer extends ActionsPanel implements TableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
-            JPanel painel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-            painel.setBackground(isSelected ? table.getSelectionBackground() : BEGE_CLARO);
-
-            JButton btnEditar = new JButton("Editar");
-            btnEditar.setBackground(new Color(226, 180, 90)); // dourado suave
-            btnEditar.setForeground(MARROM_ESCURO);
-            btnEditar.setFont(new Font("Segoe UI", Font.BOLD, 7));
-            btnEditar.setFocusPainted(false);
-            btnEditar.setBorderPainted(false);
-            btnEditar.setPreferredSize(new Dimension(50, 20));
-            btnEditar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            JButton btnExcluir = new JButton("Excluir");
-            btnExcluir.setBackground(new Color(178, 67, 62)); // vermelho terroso
-            btnExcluir.setForeground(Color.WHITE);
-            btnExcluir.setFont(new Font("Segoe UI", Font.BOLD, 7));
-            btnExcluir.setFocusPainted(false);
-            btnExcluir.setBorderPainted(false);
-            btnExcluir.setPreferredSize(new Dimension(50, 20));
-            btnExcluir.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            JButton btnVisualizar = new JButton("Visualizar");
-            btnExcluir.setBackground(new Color(178, 67, 62)); // vermelho terroso
-            btnExcluir.setForeground(Color.WHITE);
-            btnExcluir.setFont(new Font("Segoe UI", Font.BOLD, 7));
-            btnExcluir.setFocusPainted(false);
-            btnExcluir.setBorderPainted(false);
-            btnExcluir.setPreferredSize(new Dimension(50, 20));
-            btnExcluir.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            painel.add(btnEditar);
-            painel.add(btnExcluir);
-            painel.add(btnVisualizar);
-
-            return painel;
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+            } else {
+                setBackground(table.getBackground());
+            }
+            return this;
         }
     }
 

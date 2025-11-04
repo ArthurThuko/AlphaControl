@@ -3,11 +3,12 @@ package alphacontrol.views.fluxo_caixa;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
-
 import java.util.List;
 
 import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.controllers.ProdutoController; // Importado
 import alphacontrol.models.MovimentacaoCaixa;
+import alphacontrol.views.components.Navbar; // Importado
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -29,13 +30,16 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblTotal = new JLabel("R$ 0,00");;
     private FluxoCaixaController controller;
 
-    public TelaFluxoCaixa() {
+    public TelaFluxoCaixa(ProdutoController pController) { // Construtor modificado
         controller = new FluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
+
+        // --- Navbar Adicionada ---
+        setJMenuBar(new Navbar(this, pController, "Fluxo de Caixa"));
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
@@ -114,7 +118,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(lblTitulo, gbc);
 
-        // === Cabeçalho ===
         DefaultTableModel modelo = new DefaultTableModel(new String[] {
                 "Nome", "Valor (R$)", "Data", "Editar", "Excluir"
         }, 0) {
@@ -150,7 +153,7 @@ public class TelaFluxoCaixa extends JFrame {
         btnAdd.addActionListener(e -> {
             ModalEntrada modal = new ModalEntrada(this);
             modal.setVisible(true);
-            recarregarTabelaEntradas(); // Atualiza após fechar o modal
+            recarregarTabelaEntradas(); 
         });
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -194,12 +197,11 @@ public class TelaFluxoCaixa extends JFrame {
             }
         };
 
-        JTable tabelaSaidas = new JTable(modelo);
+        tabelaSaidas = new JTable(modelo);
         configurarTabela(tabelaSaidas);
 
-        // === Força o tema vermelho ===
-        Color vermelhoFundo = new Color(236, 204, 200); // fundo suave
-        Color vermelhoTexto = new Color(77, 30, 30); // texto escuro
+        Color vermelhoFundo = new Color(236, 204, 200); 
+        Color vermelhoTexto = new Color(77, 30, 30); 
 
         tabelaSaidas.setBackground(vermelhoFundo);
         tabelaSaidas.setForeground(vermelhoTexto);
@@ -217,7 +219,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         painel.add(scroll, gbc);
 
-        // === Total ===
         JLabel lblTotal = new JLabel("Total: R$ " + calcularTotal(modelo));
         lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTotal.setForeground(MARROM_ESCURO);
@@ -226,7 +227,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         painel.add(lblTotal, gbc);
 
-        // === Botão adicionar ===
         JButton btnAdd = new RoundedButton("Adicionar Saída", VERMELHO_TERROSO, Color.WHITE, 220, 45);
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -289,9 +289,9 @@ public class TelaFluxoCaixa extends JFrame {
                 DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
                 MovimentacaoCaixa mov = controller.listarEntradas().get(row);
 
-                if (col == 3) { // editar
+                if (col == 3) { 
                     abrirModal(mov);
-                } else if (col == 4) { // excluir
+                } else if (col == 4) { 
                     int resp = JOptionPane.showConfirmDialog(null,
                             "Excluir \"" + mov.getNome() + "\"?", "Confirmar exclusão",
                             JOptionPane.YES_NO_OPTION);
@@ -350,8 +350,7 @@ public class TelaFluxoCaixa extends JFrame {
          * Double.parseDouble(txtValor.getText()), txtData.getText());
          * else
          * controller.atualizar(nova);
-         * 
-         * recarregarTabelaEntradas();
+         * * recarregarTabelaEntradas();
          * dialog.dispose();
          * } catch (Exception ex) {
          * JOptionPane.showMessageDialog(dialog, "Erro ao salvar: " + ex.getMessage());
@@ -431,7 +430,7 @@ public class TelaFluxoCaixa extends JFrame {
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
             setHorizontalAlignment(SwingConstants.CENTER);
-            setBorder(new EmptyBorder(5, 20, 5, 20)); // ← aumente o segundo e quarto valor (esquerda/direita)
+            setBorder(new EmptyBorder(5, 20, 5, 20)); 
         }
 
         @Override
@@ -458,7 +457,7 @@ public class TelaFluxoCaixa extends JFrame {
             setFocusPainted(false);
             setBorderPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setMargin(new Insets(2, 6, 2, 6)); // diminui o tamanho
+            setMargin(new Insets(2, 6, 2, 6)); 
             setIcon(icon);
             setHorizontalAlignment(SwingConstants.CENTER);
         }
@@ -528,6 +527,9 @@ public class TelaFluxoCaixa extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaFluxoCaixa().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            ProdutoController controller = null; // Para a Navbar
+            new TelaFluxoCaixa(controller).setVisible(true);
+        });
     }
 }
