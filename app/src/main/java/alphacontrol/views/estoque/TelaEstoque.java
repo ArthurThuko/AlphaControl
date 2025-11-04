@@ -72,16 +72,13 @@ public class TelaEstoque extends JFrame {
         txtPesquisa = new RoundedTextField("Pesquise por nome...");
         txtPesquisa.setPreferredSize(new Dimension(350, 45));
 
-        JButton btnFiltrar = new RoundedButton("Filtrar", COBRE_SUAVE, Color.WHITE, 150, 45);
         JButton btnPesquisar = new RoundedButton("Pesquisar", VERDE_MUSGO, Color.WHITE, 150, 45);
         JButton btnAdd = new RoundedButton("Adicionar Produto", VERDE_OLIVA, Color.WHITE, 220, 45);
 
         btnAdd.addActionListener(e -> abrirModalAdicionar());
         btnPesquisar.addActionListener(e -> pesquisar());
-        btnFiltrar.addActionListener(e -> atualizarTabela()); 
-
+        
         painelBusca.add(txtPesquisa);
-        painelBusca.add(btnFiltrar);
         painelBusca.add(btnPesquisar);
 
         JPanel painelAdd = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));

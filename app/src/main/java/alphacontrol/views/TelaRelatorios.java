@@ -1,5 +1,8 @@
 package alphacontrol.views;
 
+import alphacontrol.controllers.ProdutoController;
+import alphacontrol.views.components.Navbar;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -8,11 +11,14 @@ import java.awt.geom.RoundRectangle2D;
 
 public class TelaRelatorios extends JFrame {
 
-    public TelaRelatorios() {
+    public TelaRelatorios(ProdutoController controller) {
         setTitle("Relatórios");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Tela cheia
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Alterado de DISPOSE para EXIT
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+
+        // === ADICIONA A NAVBAR ===
+        setJMenuBar(new Navbar(this, controller, "Relatório"));
 
         // === PALETA DE CORES ===
         Color begeFundo = new Color(247, 239, 224);
@@ -78,7 +84,6 @@ public class TelaRelatorios extends JFrame {
             rb.setFont(new Font("SansSerif", Font.PLAIN, 17));
         }
 
-        // painel com os rádios bem alinhados
         gbc.gridx = 1;
         gbc.gridwidth = 4;
         JPanel painelRadios = new JPanel(new FlowLayout(FlowLayout.LEFT, 35, 0));
@@ -122,7 +127,6 @@ public class TelaRelatorios extends JFrame {
         campoFinal.setText("dd/mm/aaaa");
         painelConteudo.add(campoFinal, gbc);
 
-        // Botões alinhados na mesma linha
         gbc.gridx = 4;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
@@ -213,6 +217,9 @@ public class TelaRelatorios extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaRelatorios::new);
+        SwingUtilities.invokeLater(() -> {
+            ProdutoController controller = null; // Apenas para teste
+            new TelaRelatorios(controller).setVisible(true);
+        });
     }
 }
