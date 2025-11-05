@@ -26,7 +26,6 @@ public class TelaPDV extends JFrame {
         setLayout(new BorderLayout(20, 20));
 
         // ==== TOPO ====
-        // ==== TOPO ====
         JPanel painelTopo = new JPanel();
         painelTopo.setLayout(new BoxLayout(painelTopo, BoxLayout.Y_AXIS));
         painelTopo.setBackground(BEGE_CLARO);
