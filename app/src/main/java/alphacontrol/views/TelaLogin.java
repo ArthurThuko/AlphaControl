@@ -1,17 +1,12 @@
 package alphacontrol.views;
 
 import javax.swing.*;
-
-//CONTROLLERS
 import alphacontrol.controllers.LoginController;
-
-//COMPONENTES
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.CampoSenhaEstilizado;
 import alphacontrol.views.components.CampoTextoEstilizado;
 import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
-
 import java.awt.*;
 
 public class TelaLogin extends JFrame {
@@ -21,10 +16,11 @@ public class TelaLogin extends JFrame {
     private JButton btnLogin;
     private JButton btnLimpar;
     private LoginController controller;
+    private JCheckBox cbMostrarSenha;
+    private char defaultEcho;
 
     public TelaLogin() {
-        controller = new LoginController();
-
+        
         setTitle("Login - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(550, 550);
@@ -35,7 +31,7 @@ public class TelaLogin extends JFrame {
         painelPrincipal.setLayout(new BoxLayout(painelPrincipal, BoxLayout.Y_AXIS));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 50));
 
-        // ---------- LOGO ----------
+        
         ImageIcon iconeOriginal = new ImageIcon(getClass().getResource("/alphacontrol/img/logo_alpha_control.png"));
         Image img = iconeOriginal.getImage();
         Image imgRedimensionada = img.getScaledInstance(120, 120, Image.SCALE_SMOOTH);
@@ -45,7 +41,7 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(lblLogo);
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        // ---------- TÍTULO ----------
+        
         JLabel lblTitulo = new JLabel("Acesso ao AlphaControl", SwingConstants.CENTER);
         lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblTitulo.setFont(new Font("Georgia", Font.BOLD, 20));
@@ -53,17 +49,17 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(lblTitulo);
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        // ---------- CAMPOS ----------
+        
         JPanel painelCampos = new JPanel();
         painelCampos.setLayout(new GridBagLayout());
         painelCampos.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // mais espaçamento
+        gbc.insets = new Insets(10, 10, 10, 10); 
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0; // permite expansão horizontal
+        gbc.weightx = 1.0; 
 
-        Font fonteMaior = new Font("Georgia", Font.PLAIN, 18); // fonte maior
+        Font fonteMaior = new Font("Georgia", Font.PLAIN, 18); 
 
         JLabel lblUsuario = new JLabel("Usuário:");
         lblUsuario.setFont(fonteMaior);
@@ -74,7 +70,7 @@ public class TelaLogin extends JFrame {
 
         txtUsuario = new CampoTextoEstilizado(15);
         txtUsuario.setFont(fonteMaior);
-        txtUsuario.setPreferredSize(new Dimension(300, 40)); // aumenta o tamanho
+        txtUsuario.setPreferredSize(new Dimension(300, 40)); 
         gbc.gridx = 1;
         painelCampos.add(txtUsuario, gbc);
 
@@ -91,15 +87,16 @@ public class TelaLogin extends JFrame {
         gbc.gridx = 1;
         painelCampos.add(txtSenha, gbc);
 
-        // ---------- CHECKBOX MOSTRAR SENHA ----------
-        JCheckBox cbMostrarSenha = new JCheckBox("Mostrar senha");
+        
+        cbMostrarSenha = new JCheckBox("Mostrar senha");
         cbMostrarSenha.setOpaque(false);
         cbMostrarSenha.setForeground(new Color(70, 50, 30));
         cbMostrarSenha.setFont(new Font("Georgia", Font.PLAIN, 16));
         cbMostrarSenha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        char defaultEcho = txtSenha.getEchoChar();
+        defaultEcho = txtSenha.getEchoChar();
         txtSenha.setEchoChar(defaultEcho);
+        
         cbMostrarSenha.addActionListener(e -> {
             if (cbMostrarSenha.isSelected()) {
                 txtSenha.setEchoChar((char) 0);
@@ -115,7 +112,7 @@ public class TelaLogin extends JFrame {
         painelPrincipal.add(painelCampos);
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // ---------- BOTÕES ----------
+        
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         painelBotoes.setOpaque(false);
 
@@ -134,11 +131,7 @@ public class TelaLogin extends JFrame {
         painelBotoes.add(btnLimpar);
         painelPrincipal.add(painelBotoes);
 
-        // ---------- AÇÕES ----------
-        btnLogin.addActionListener(e -> {
-            controller.fazerLogin(txtUsuario.getText(), new String(txtSenha.getPassword()), this);
-        });
-
+        
         btnLimpar.addActionListener(e -> {
             txtUsuario.setText("");
             txtSenha.setText("");
@@ -146,8 +139,23 @@ public class TelaLogin extends JFrame {
             txtSenha.setEchoChar(defaultEcho);
         });
 
-        add(painelPrincipal);
+        
+        controller = new LoginController(this); 
 
+        add(painelPrincipal);
         setVisible(true);
+    }
+    
+    
+    public JButton getBtnLogin() {
+        return btnLogin;
+    }
+
+    public String getTxtUsuario() {
+        return txtUsuario.getText();
+    }
+    
+    public String getTxtSenha() {
+        return new String(txtSenha.getPassword());
     }
 }

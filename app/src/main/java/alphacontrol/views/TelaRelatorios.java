@@ -1,6 +1,7 @@
 package alphacontrol.views;
 
 import alphacontrol.controllers.ProdutoController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.views.components.Navbar;
 
 import javax.swing.*;
@@ -10,17 +11,19 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class TelaRelatorios extends JFrame {
+    
+    private TelaPrincipalController mainController;
 
-    public TelaRelatorios(ProdutoController controller) {
+    public TelaRelatorios(TelaPrincipalController mainController) {
+        this.mainController = mainController;
+        
         setTitle("Relatórios");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Alterado de DISPOSE para EXIT
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
-        // === ADICIONA A NAVBAR ===
-        setJMenuBar(new Navbar(this, controller, "Relatório"));
+        setJMenuBar(new Navbar(this, this.mainController, "Relatório"));
 
-        // === PALETA DE CORES ===
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
         Color marromClaro = new Color(184, 142, 106);
@@ -28,7 +31,6 @@ public class TelaRelatorios extends JFrame {
         Color verdeBotao = new Color(72, 166, 90);
         Color azulBotao = new Color(70, 130, 180);
 
-        // === PAINEL PRINCIPAL ===
         JPanel painelPrincipal = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -44,21 +46,18 @@ public class TelaRelatorios extends JFrame {
         painelPrincipal.setBackground(begeFundo);
         painelPrincipal.setBorder(new EmptyBorder(60, 80, 60, 80));
 
-        // === TÍTULO ===
         JLabel titulo = new JLabel("Relatórios", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 42));
         titulo.setForeground(marromEscuro);
         titulo.setBorder(new EmptyBorder(0, 0, 40, 0));
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
-        // === PAINEL DE CONTEÚDO ===
         JPanel painelConteudo = new JPanel(new GridBagLayout());
         painelConteudo.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Tipo de relatório
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel lblTipo = new JLabel("Tipo de Relatório:");
@@ -95,7 +94,6 @@ public class TelaRelatorios extends JFrame {
         painelConteudo.add(painelRadios, gbc);
         gbc.gridwidth = 1;
 
-        // === CAMPOS DE DATA E BOTÕES NA MESMA LINHA ===
         gbc.gridy++;
         gbc.gridx = 0;
         JLabel lblInicio = new JLabel("Data Início:");
@@ -138,7 +136,6 @@ public class TelaRelatorios extends JFrame {
         painelBotoes.add(btnVisualizar);
         painelConteudo.add(painelBotoes, gbc);
 
-        // === TABELA ABAIXO ===
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 5;
@@ -218,8 +215,7 @@ public class TelaRelatorios extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ProdutoController controller = null; // Apenas para teste
-            new TelaRelatorios(controller).setVisible(true);
+            new TelaRelatorios(null).setVisible(true);
         });
     }
 }

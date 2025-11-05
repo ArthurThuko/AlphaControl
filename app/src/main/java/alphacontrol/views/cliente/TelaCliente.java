@@ -1,4 +1,4 @@
-package alphacontrol.views;
+package alphacontrol.views.cliente;
 
 
 import javax.swing.*;

@@ -1,55 +1,69 @@
 package alphacontrol.controllers;
 
-import javax.swing.JFrame;
+import alphacontrol.views.TelaLogin;
+import alphacontrol.views.TelaPrincipal;
+import alphacontrol.dao.ClienteDAO; 
+import alphacontrol.dao.FiadoDAO;
+import alphacontrol.dao.ProdutoDAO;
+import alphacontrol.dao.VendaDAO;
+import alphacontrol.Conexao;
+import alphacontrol.models.LoginService;
+import java.sql.Connection;
 import javax.swing.JOptionPane;
 
-import alphacontrol.models.LoginService;
-import alphacontrol.views.TelaPrincipal;
-
-import alphacontrol.controllers.ProdutoController;
-import alphacontrol.controllers.TelaPrincipalController;
-import alphacontrol.dao.ProdutoDAO;
-import java.sql.Connection;
-
-// --- 1. IMPORTAR SUA CLASSE DE CONEXÃO ---
-// (Estou assumindo que o nome da classe é 'Conexao' com 'C' maiúsculo)
-import alphacontrol.Conexao; 
-
-
 public class LoginController {
-    private LoginService service;
 
-    public LoginController() {
-        this.service = new LoginService();
+    private TelaLogin view;
+    private LoginService loginService;
+
+    public LoginController(TelaLogin view) {
+        this.view = view;
+        this.loginService = new LoginService();
+        this.view.getBtnLogin().addActionListener(e -> {
+            autenticar();
+        });
     }
 
-    public void fazerLogin(String usuario, String senha, JFrame tela) {
-        if (service.autenticar(usuario, senha)) {
-            JOptionPane.showMessageDialog(tela, "Login realizado com sucesso!");
-            tela.dispose(); // Fecha a tela de login
+    private void autenticar() {
+        String usuario = view.getTxtUsuario();
+        String senha = view.getTxtSenha();
 
+        if (loginService.autenticar(usuario, senha)) {
             try {
-                // --- 2. USAR A CONEXÃO REAL ---
-                // (Se sua classe for 'conexao' minúsculo, mude 'Conexao' para 'conexao' abaixo)
-                Connection conexaoBD = Conexao.getConexao(); 
-
-                ProdutoDAO produtoDAO = new ProdutoDAO(conexaoBD);
+                Connection connection = Conexao.getConexao();
+                
+                if (connection == null) {
+                    JOptionPane.showMessageDialog(view, "Erro ao conectar ao banco de dados!");
+                    return;
+                }
+                
+                ProdutoDAO produtoDAO = new ProdutoDAO(connection);
                 ProdutoController produtoController = new ProdutoController(produtoDAO);
                 
-                TelaPrincipal telaPrincipal = new TelaPrincipal(null); 
+                ClienteDAO clienteDAO = new ClienteDAO(connection);
+                ClienteController clienteController = new ClienteController(clienteDAO);
                 
-                TelaPrincipalController principalController = new TelaPrincipalController(telaPrincipal, produtoController);
+                VendaDAO vendaDAO = new VendaDAO(connection);
                 
-                telaPrincipal.setController(principalController); 
+                FiadoDAO fiadoDAO = new FiadoDAO(connection);
+                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO);
+                
+                PdvController pdvController = new PdvController(produtoController, clienteController);
+
+                TelaPrincipalController principalController = new TelaPrincipalController(produtoController, clienteController, pdvController, fiadoController);
+                
+                TelaPrincipal telaPrincipal = new TelaPrincipal(principalController);
+                principalController.setView(telaPrincipal);
+                
                 telaPrincipal.setVisible(true);
+                view.dispose();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro crítico ao iniciar: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace(); 
+                JOptionPane.showMessageDialog(view, "Erro ao iniciar: " + ex.getMessage());
             }
-
         } else {
-            JOptionPane.showMessageDialog(tela, "Usuário ou senha incorretos.");
+            JOptionPane.showMessageDialog(view, "Usuário ou senha inválidos!");
         }
     }
 }

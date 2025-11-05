@@ -1,6 +1,7 @@
 package alphacontrol.views;
 
 import alphacontrol.controllers.ProdutoController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.views.components.Navbar;
 
 import javax.swing.*;
@@ -14,7 +15,6 @@ import java.awt.event.FocusListener;
 
 public class TelaPDV extends JFrame {
 
-    // ==== Cores base ====
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
@@ -22,29 +22,29 @@ public class TelaPDV extends JFrame {
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color VERDE_BOTAO = new Color(72, 166, 90);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
+    
+    private TelaPrincipalController mainController;
 
-    public TelaPDV(ProdutoController controller) {
+    public TelaPDV(TelaPrincipalController mainController) {
+        this.mainController = mainController;
+        
         setTitle("PDV - Ponto de Venda");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         getContentPane().setBackground(BEGE_FUNDO);
         setLayout(new BorderLayout());
 
-        // Adiciona a Navbar
-        setJMenuBar(new Navbar(this, controller, "PDV"));
+        setJMenuBar(new Navbar(this, this.mainController, "PDV"));
 
-        // ==== TOPO ====
         JPanel painelTopo = new JPanel(new BorderLayout(15, 15));
         painelTopo.setBackground(BEGE_FUNDO);
         painelTopo.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
 
-        // Título centralizado
         JLabel lblTitulo = new JLabel("Ponto de Venda (PDV)", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
         painelTopo.add(lblTitulo, BorderLayout.CENTER);
 
-        // Alerta à direita
         JLabel lblAlerta = new JLabel("⚠ Estoque baixo: Produto X");
         lblAlerta.setOpaque(true);
         lblAlerta.setBackground(new Color(255, 240, 240));
@@ -52,9 +52,7 @@ public class TelaPDV extends JFrame {
         lblAlerta.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblAlerta.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
         painelTopo.add(lblAlerta, BorderLayout.EAST);
-        // lblAlerta.setVisible(false); // Descomente para esconder por padrão
-
-        // Linha de busca à esquerda
+        
         JPanel pnlPesquisa = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnlPesquisa.setBackground(BEGE_FUNDO);
         
@@ -73,7 +71,6 @@ public class TelaPDV extends JFrame {
 
         add(painelTopo, BorderLayout.NORTH);
 
-        // ==== CENTRO ====
         JPanel painelCentro = new JPanel(new GridBagLayout());
         painelCentro.setBackground(BEGE_FUNDO);
         painelCentro.setBorder(new EmptyBorder(0, 30, 30, 30));
@@ -83,7 +80,6 @@ public class TelaPDV extends JFrame {
         gbcCentro.weighty = 1.0;
         gbcCentro.insets = new Insets(0, 0, 0, 0);
 
-        // === TABELA DE PRODUTOS ===
         String[] colunas = { "Nome", "Qtd.", "Categoria", "Valor Venda", "Ações" };
         DefaultTableModel modelo = new DefaultTableModel(colunas, 0);
         JTable tabelaProdutos = new JTable(modelo);
@@ -100,10 +96,9 @@ public class TelaPDV extends JFrame {
 
         gbcCentro.gridx = 0;
         gbcCentro.weightx = 0.7;
-        gbcCentro.insets = new Insets(0, 0, 0, 15); // Gap à direita
+        gbcCentro.insets = new Insets(0, 0, 0, 15);
         painelCentro.add(painelTabela, gbcCentro);
 
-        // === CARRINHO ===
         RoundedPanel painelCarrinho = new RoundedPanel(15);
         painelCarrinho.setLayout(new GridBagLayout());
         painelCarrinho.setBackground(BEGE_CLARO);
@@ -121,7 +116,7 @@ public class TelaPDV extends JFrame {
 
         gbcCarrinho.gridy = 1;
         gbcCarrinho.fill = GridBagConstraints.BOTH;
-        gbcCarrinho.weighty = 1.0; // Faz a tabela crescer
+        gbcCarrinho.weighty = 1.0;
         gbcCarrinho.insets = new Insets(0, 20, 0, 20);
         
         String[] colunasCarrinho = { "Produto", "Qtd", "Subtotal" };
@@ -134,10 +129,9 @@ public class TelaPDV extends JFrame {
         scrollCarrinho.setBorder(BorderFactory.createEmptyBorder());
         painelCarrinho.add(scrollCarrinho, gbcCarrinho);
 
-        // --- Painel de Pagamento Fixo no Fim ---
         gbcCarrinho.gridy = 2;
         gbcCarrinho.fill = GridBagConstraints.HORIZONTAL;
-        gbcCarrinho.weighty = 0.0; // Fixa no fim
+        gbcCarrinho.weighty = 0.0;
         gbcCarrinho.insets = new Insets(10, 0, 0, 0);
         
         JPanel pnlPagamento = new JPanel(new GridBagLayout());
@@ -173,10 +167,9 @@ public class TelaPDV extends JFrame {
         
         painelCarrinho.add(pnlPagamento, gbcCarrinho);
 
-        // Adiciona o carrinho ao painel central
         gbcCentro.gridx = 1;
         gbcCentro.weightx = 0.3;
-        gbcCentro.insets = new Insets(0, 15, 0, 0); // Gap à esquerda
+        gbcCentro.insets = new Insets(0, 15, 0, 0);
         painelCentro.add(painelCarrinho, gbcCentro);
 
         add(painelCentro, BorderLayout.CENTER);
@@ -200,9 +193,6 @@ public class TelaPDV extends JFrame {
         header.setOpaque(false);
         header.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
     }
-
-
-    // ==== Componentes customizados reutilizados ====
 
     static class RoundedButton extends JButton {
         private final Color bgColor;
@@ -256,12 +246,12 @@ public class TelaPDV extends JFrame {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE); // Fundo branco para campos de texto
+            g2.setColor(Color.WHITE);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
             g2.setColor(MARROM_CLARO);
             if (hasFocus()) {
                  g2.setStroke(new BasicStroke(2));
-                 g2.setColor(MARROM_MEDIO); // Borda mais forte ao focar
+                 g2.setColor(MARROM_MEDIO);
             } else {
                  g2.setStroke(new BasicStroke(1));
                  g2.setColor(MARROM_CLARO);
@@ -278,7 +268,7 @@ public class TelaPDV extends JFrame {
                 setForeground(MARROM_ESCURO);
                 showingPlaceholder = false;
             }
-            repaint(); // Força o redesenho da borda
+            repaint();
         }
 
         @Override
@@ -288,7 +278,7 @@ public class TelaPDV extends JFrame {
                 setForeground(CINZA_PLACEHOLDER);
                 showingPlaceholder = true;
             }
-            repaint(); // Força o redesenho da borda
+            repaint();
         }
 
         @Override
@@ -312,7 +302,6 @@ public class TelaPDV extends JFrame {
             g2.setColor(getBackground());
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
             
-            // Desenha a borda por dentro
             g2.setColor(MARROM_CLARO);
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
             
@@ -323,10 +312,7 @@ public class TelaPDV extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // A Navbar precisa de um controller, mesmo que seja null para esta tela.
-            // A TelaPDV agora espera um controller (para ser consistente com a Navbar).
-            ProdutoController controller = null; 
-            TelaPDV tela = new TelaPDV(controller);
+            TelaPDV tela = new TelaPDV(null);
             tela.setVisible(true);
         });
     }

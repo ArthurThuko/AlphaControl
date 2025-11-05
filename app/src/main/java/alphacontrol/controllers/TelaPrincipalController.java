@@ -1,67 +1,65 @@
 package alphacontrol.controllers;
 
-import alphacontrol.views.TelaLogin;
-import alphacontrol.views.TelaPDV;
+import javax.swing.*;
+import java.awt.*;
 import alphacontrol.views.estoque.TelaEstoque;
-import alphacontrol.views.fiado.TelaFiado;
-import alphacontrol.views.TelaRelatorios;
+import alphacontrol.views.TelaPDV; 
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
-
-import alphacontrol.controllers.ProdutoController; 
-
-import java.awt.Frame;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import alphacontrol.views.TelaRelatorios;
+import alphacontrol.views.fiado.TelaFiado;
+import alphacontrol.views.TelaLogin; 
 
 public class TelaPrincipalController {
 
     private JFrame telaPrincipal;
+    private ProdutoController produtoController;
+    private ClienteController clienteController; 
+    private PdvController pdvController;
+    private FiadoController fiadoController;
 
-    private final ProdutoController produtoController;
-
-    public TelaPrincipalController(JFrame telaPrincipal, ProdutoController produtoController) {
-        this.telaPrincipal = telaPrincipal;
-        this.produtoController = produtoController;
+    public TelaPrincipalController(ProdutoController pCtrl, ClienteController cCtrl, PdvController pdvCtrl, FiadoController fCtrl) {
+        this.produtoController = pCtrl;
+        this.clienteController = cCtrl;
+        this.pdvController = pdvCtrl;
+        this.fiadoController = fCtrl;
     }
 
-    public void abrirTelaEstoque() {
-        new TelaEstoque(this.produtoController).setVisible(true);
-        telaPrincipal.dispose();
+    public void setView(JFrame view) {
+        this.telaPrincipal = view;
     }
     
+    public ProdutoController getProdutoController() { return this.produtoController; }
+    public ClienteController getClienteController() { return this.clienteController; }
+    public PdvController getPdvController() { return this.pdvController; }
+    public FiadoController getFiadoController() { return this.fiadoController; }
+
+    public void abrirTelaEstoque() {
+        new TelaEstoque(this).setVisible(true);
+        if (telaPrincipal != null) telaPrincipal.dispose(); 
+    }
+
     public void abrirTelaPDV() {
-        new TelaPDV(this.produtoController).setVisible(true);
-        telaPrincipal.dispose();
-    }
-
-    public void abrirTelaFiados() {
-        new TelaFiado(this.produtoController).setVisible(true);
-        telaPrincipal.dispose();
-    }
-
-    public void abrirTelaRelatorios() {
-        new TelaRelatorios(this.produtoController).setVisible(true);
-        telaPrincipal.dispose();
+        new TelaPDV(this).setVisible(true);
+        if (telaPrincipal != null) telaPrincipal.dispose(); 
     }
 
     public void abrirTelaFluxoCaixa() {
-        new TelaFluxoCaixa(this.produtoController).setVisible(true);
-        telaPrincipal.dispose();
+        new TelaFluxoCaixa(this).setVisible(true);
+        if (telaPrincipal != null) telaPrincipal.dispose(); 
     }
 
-    public void logout() {
-        int confirm = JOptionPane.showConfirmDialog(
-                telaPrincipal,
-                "Deseja realmente sair?",
-                "Confirmação",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
+    public void abrirTelaRelatorios() {
+        new TelaRelatorios(this).setVisible(true);
+        if (telaPrincipal != null) telaPrincipal.dispose(); 
+    }
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            telaPrincipal.dispose();
-            
-            TelaLogin telaLogin = new TelaLogin();
-            telaLogin.setVisible(true);
-        }
+    public void abrirTelaFiado() {
+        new TelaFiado(this).setVisible(true);
+        if (telaPrincipal != null) telaPrincipal.dispose(); 
+    }
+    
+    public void logout() {
+        if (telaPrincipal != null) telaPrincipal.dispose();
+        new TelaLogin().setVisible(true);
     }
 }
