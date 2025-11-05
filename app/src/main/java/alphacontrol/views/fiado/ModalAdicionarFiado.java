@@ -28,19 +28,20 @@ public class ModalAdicionarFiado extends JDialog {
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
-
-    private JComboBox<Cliente> cmbClientes;
+    private JTextField txtClienteNome;
+    private JButton btnBuscarCliente;
     private JTextField txtValor;
     private JButton btnSalvar;
     private JButton btnAdicionarCliente;
     private TelaFiado parentView;
+    private Cliente clienteSelecionado;
 
     public ModalAdicionarFiado(TelaFiado parent, FiadoController fiadoController, ClienteController clienteController) {
         super(parent, "Adicionar Fiado", true);
         this.parentView = parent;
 
         setUndecorated(true);
-        setSize(500, 400);
+        setSize(600, 400);
         setLocationRelativeTo(parent);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -67,72 +68,88 @@ public class ModalAdicionarFiado extends JDialog {
         gbc.weightx = 1.0;
 
         JLabel lblTitulo = new JLabel("Registrar Fiado");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
         lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 10, 20, 10);
         painelFundo.add(lblTitulo, gbc);
 
         gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.1;
+        gbc.weightx = 0.3;
+        gbc.insets = new Insets(10, 10, 10, 10);
         JLabel lblCliente = new JLabel("Cliente:");
-        lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblCliente.setForeground(MARROM_ESCURO);
         painelFundo.add(lblCliente, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.9;
-        cmbClientes = new JComboBox<>();
-        cmbClientes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        cmbClientes.setRenderer(new ClienteComboBoxRenderer());
-        cmbClientes.setUI(new CustomComboBoxUI());
-        cmbClientes.setPreferredSize(new Dimension(200, 45));
-        painelFundo.add(cmbClientes, gbc);
+        gbc.weightx = 0.5;
+        txtClienteNome = new RoundedTextField("Nenhum cliente selecionado", 20);
+        txtClienteNome.setEditable(false);
+        txtClienteNome.setPreferredSize(new Dimension(200, 45));
+        painelFundo.add(txtClienteNome, gbc);
+        
+        gbc.gridx = 2;
+        gbc.weightx = 0.2;
+        gbc.fill = GridBagConstraints.NONE;
+        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 45);
+        painelFundo.add(btnBuscarCliente, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.1;
+        gbc.weightx = 0.3;
         JLabel lblValor = new JLabel("Valor (R$):");
-        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblValor.setForeground(MARROM_ESCURO);
         painelFundo.add(lblValor, gbc);
 
         gbc.gridx = 1;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.9;
+        gbc.weightx = 0.7;
         txtValor = new RoundedTextField("0,00", 15);
         txtValor.setPreferredSize(new Dimension(200, 45));
         painelFundo.add(txtValor, gbc);
         
-        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel painelBotoes = new JPanel(new GridBagLayout());
         painelBotoes.setOpaque(false);
+        
+        GridBagConstraints gbcBotoes = new GridBagConstraints();
+        gbcBotoes.insets = new Insets(0, 10, 0, 10);
 
-        btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 120, 40);
-        btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 120, 40);
-        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 120, 40);
+        btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 140, 45);
+        btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 140, 45);
+        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 140, 45);
         
         btnCancelar.addActionListener(e -> dispose());
         
-        painelBotoes.add(btnSalvar);
-        painelBotoes.add(btnAdicionarCliente);
-        painelBotoes.add(btnCancelar);
+        gbcBotoes.gridx = 0;
+        painelBotoes.add(btnSalvar, gbcBotoes);
+        
+        gbcBotoes.gridx = 1;
+        painelBotoes.add(btnAdicionarCliente, gbcBotoes);
+        
+        gbcBotoes.gridx = 2;
+        painelBotoes.add(btnCancelar, gbcBotoes);
         
         gbc.gridx = 0;
         gbc.gridy = 3;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.insets = new Insets(25, 10, 10, 10);
         painelFundo.add(painelBotoes, gbc);
 
         new ModalAdicionarFiadoController(this, fiadoController, clienteController);
@@ -142,8 +159,19 @@ public class ModalAdicionarFiado extends JDialog {
         return parentView;
     }
 
-    public JComboBox<Cliente> getCmbClientes() {
-        return cmbClientes;
+    public Cliente getClienteSelecionado() {
+        return clienteSelecionado;
+    }
+
+    public void setClienteSelecionado(Cliente cliente) {
+        this.clienteSelecionado = cliente;
+        if (cliente != null) {
+            this.txtClienteNome.setText(cliente.getNome());
+            this.txtClienteNome.setForeground(MARROM_ESCURO);
+        } else {
+            this.txtClienteNome.setText("Nenhum cliente selecionado");
+            this.txtClienteNome.setForeground(CINZA_PLACEHOLDER);
+        }
     }
 
     public JTextField getTxtValor() {
@@ -157,25 +185,9 @@ public class ModalAdicionarFiado extends JDialog {
     public JButton getBtnAdicionarCliente() {
         return btnAdicionarCliente;
     }
-
-    static class ClienteComboBoxRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof Cliente) {
-                Cliente cliente = (Cliente) value;
-                setText(cliente.getNome());
-            }
-
-            if (isSelected) {
-                setBackground(MARROM_CLARO.brighter());
-                setForeground(MARROM_ESCURO);
-            } else {
-                setBackground(Color.WHITE);
-                setForeground(MARROM_ESCURO);
-            }
-            return this;
-        }
+    
+    public JButton getBtnBuscarCliente() {
+        return btnBuscarCliente;
     }
 
     static class RoundedTextField extends JTextField implements FocusListener {
@@ -195,7 +207,14 @@ public class ModalAdicionarFiado extends JDialog {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE); 
+            g2.setColor(getBackground());
+            
+            if (isEditable()) {
+                g2.setColor(Color.WHITE);
+            } else {
+                g2.setColor(new Color(235, 235, 235));
+            }
+
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.setColor(MARROM_CLARO);
             g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
@@ -220,7 +239,7 @@ public class ModalAdicionarFiado extends JDialog {
         }
         @Override
         public String getText() {
-            return showingPlaceholder ? "" : super.getText();
+            return (showingPlaceholder && isEditable()) ? "" : super.getText();
         }
     }
 
@@ -246,45 +265,6 @@ public class ModalAdicionarFiado extends JDialog {
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
             g2.dispose();
             super.paintComponent(g);
-        }
-    }
-
-    static class CustomComboBoxUI extends BasicComboBoxUI {
-        @Override
-        protected JButton createArrowButton() {
-            JButton button = new JButton("▼");
-            button.setBackground(MARROM_MEDIO);
-            button.setForeground(Color.WHITE);
-            button.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            button.setBorder(BorderFactory.createEmptyBorder());
-            return button;
-        }
-
-        @Override
-        public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-            g.setColor(Color.WHITE);
-            g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-        }
-
-        @Override
-        protected ComboPopup createPopup() {
-            BasicComboPopup popup = (BasicComboPopup) super.createPopup();
-            popup.setBorder(BorderFactory.createLineBorder(MARROM_CLARO, 1));
-            return popup;
-        }
-        
-        @Override
-        public void paint(Graphics g, JComponent c) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE);
-            g2.fillRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 15, 15);
-            g2.setColor(MARROM_CLARO);
-            g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 15, 15);
-            g2.dispose();
-            
-            Rectangle r = rectangleForCurrentValue();
-            paintCurrentValue(g, r, hasFocus);
         }
     }
 }

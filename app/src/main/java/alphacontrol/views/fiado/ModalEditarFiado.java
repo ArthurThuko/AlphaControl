@@ -1,4 +1,4 @@
-package alphacontrol.views.cliente;
+package alphacontrol.views.fiado;
 
 import alphacontrol.models.Cliente;
 import javax.swing.*;
@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.text.ParseException;
 
-public class ModalAdicionarCliente extends JDialog {
+public class ModalEditarFiado extends JDialog {
     
     private final JTextField txtNome;
     private final JFormattedTextField txtCpf;
@@ -22,11 +22,13 @@ public class ModalAdicionarCliente extends JDialog {
     
     private final JButton btnSalvar;
     private final JLabel titulo;
+    private Cliente cliente;
 
     private Point mouseClickPoint;
 
-    public ModalAdicionarCliente(JFrame parent) {
-        super(parent, "Adicionar Cliente", true);
+    public ModalEditarFiado(JFrame parent, Cliente cliente) {
+        super(parent, "Editar Cliente", true);
+        this.cliente = cliente;
 
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
@@ -66,7 +68,7 @@ public class ModalAdicionarCliente extends JDialog {
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        titulo = new JLabel("Adicionar Cliente", SwingConstants.CENTER);
+        titulo = new JLabel("Editar Cliente", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
         gbc.gridwidth = 2;
@@ -170,21 +172,18 @@ public class ModalAdicionarCliente extends JDialog {
         setSize(500, 750); 
         setLocationRelativeTo(parent);
         setResizable(false);
+        
+        preencherCampos();
     }
     
-    public ModalAdicionarCliente(JFrame parent, Cliente cliente) {
-        this(parent);
-        
-        setTitle("Editar Cliente");
-        titulo.setText("Editar Cliente");
-        
+    private void preencherCampos() {
         txtNome.setText(cliente.getNome());
-        txtCpf.setValue(cliente.getCpf());
-        txtTelefone.setValue(cliente.getTelefone());
-        txtCep.setValue(String.valueOf(cliente.getCep()));
+        txtCpf.setText(cliente.getCpf());
+        txtTelefone.setText(cliente.getTelefone());
+        txtCep.setText(cliente.getCep());
         txtRua.setText(cliente.getRua());
         txtBairro.setText(cliente.getBairro());
-        txtNumero.setText(String.valueOf(cliente.getNumeroCasa()));
+        txtNumero.setText(cliente.getNumeroCasa());
     }
     
     private MaskFormatter createFormatter(String s) {
@@ -192,6 +191,7 @@ public class ModalAdicionarCliente extends JDialog {
         try {
             formatter = new MaskFormatter(s);
             formatter.setPlaceholderCharacter(' ');
+            formatter.setValueContainsLiteralCharacters(false);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -248,6 +248,10 @@ public class ModalAdicionarCliente extends JDialog {
     }
     
     private String getUnmaskedText(JFormattedTextField field) {
+        Object value = field.getValue();
+        if (value != null) {
+            return value.toString().replaceAll("[^0-9]", "");
+        }
         return field.getText().replaceAll("[^0-9]", "");
     }
 
@@ -288,8 +292,12 @@ public class ModalAdicionarCliente extends JDialog {
     public JButton getBtnSalvar() { 
         return btnSalvar; 
     }
+    
+    public Cliente getClienteOriginal() {
+        return this.cliente;
+    }
 
-    public Cliente getClienteFromFields() throws ParseException {
+    public Cliente getDadosEditadosDosCampos() throws ParseException {
         return new Cliente(
             txtNome.getText(),
             txtCpf.getText(),

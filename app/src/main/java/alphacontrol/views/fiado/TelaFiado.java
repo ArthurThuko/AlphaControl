@@ -3,12 +3,14 @@ package alphacontrol.views.fiado;
 import alphacontrol.controllers.ClienteController;
 import alphacontrol.controllers.FiadoController;
 import alphacontrol.controllers.ModalAdicionarClienteController;
+import alphacontrol.controllers.ModalEditarFiadoController;
 import alphacontrol.controllers.ProdutoController;
 import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.cliente.ModalAdicionarCliente;
 import alphacontrol.views.components.Navbar;
 import alphacontrol.views.fiado.ModalAdicionarFiado;
+import alphacontrol.views.fiado.ModalEditarFiado;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -157,18 +159,31 @@ public class TelaFiado extends JFrame {
         atualizarTabela(); 
     }
     
+    private void abrirTelaDetalheFiado(int clienteId) {
+        Cliente cliente = clienteController.buscarPorId(clienteId);
+        if (cliente == null) {
+            JOptionPane.showMessageDialog(this, "Cliente não encontrado.");
+            return;
+        }
+        
+        TelaDetalheFiado telaDetalhe = new TelaDetalheFiado(cliente, this.fiadoController, this);
+        telaDetalhe.setVisible(true);
+    }
+    
     public void atualizarTabela() {
         modelo.setRowCount(0);
         List<Cliente> clientes = clienteController.pesquisar(txtPesquisa.getText());
         for (Cliente c : clientes) {
-            modelo.addRow(new Object[]{
-                c.getId(),
-                c.getNome(),
-                c.getEnderecoCompleto(),
-                c.getTelefone(),
-                c.getDebito(),
-                ""
-            });
+            if (c.getDebito() > 0) {
+                modelo.addRow(new Object[]{
+                    c.getId(),
+                    c.getNome(),
+                    c.getEnderecoCompleto(),
+                    c.getTelefone(),
+                    c.getDebito(),
+                    ""
+                });
+            }
         }
     }
 
@@ -199,7 +214,7 @@ public class TelaFiado extends JFrame {
         tabela.getColumnModel().getColumn(4).setCellRenderer(new CurrencyRenderer()); 
         
         tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
-        tabela.getColumn("Ações").setCellEditor(new ActionsCellEditor(this, tabela, clienteController)); 
+        tabela.getColumn("Ações").setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController)); 
 
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
@@ -416,17 +431,17 @@ public class TelaFiado extends JFrame {
         private int row;
         private TelaFiado telaFiado;
         private ClienteController clienteController;
+        private FiadoController fiadoController;
 
-        public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController controller) {
+        public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController cController, FiadoController fController) {
             this.table = table;
             this.telaFiado = parentFrame;
-            this.clienteController = controller;
+            this.clienteController = cController;
+            this.fiadoController = fController;
             
             panel.btnVer.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
-                String nome = (String) table.getValueAt(row, 1);
-                
-                JOptionPane.showMessageDialog(table, "Abrindo débitos (TelaCliente) de: " + nome);
+                telaFiado.abrirTelaDetalheFiado(id);
                 fireEditingStopped();
             });
 
@@ -440,8 +455,8 @@ public class TelaFiado extends JFrame {
                     return;
                 }
 
-                ModalAdicionarCliente modal = new ModalAdicionarCliente(this.telaFiado, cliente);
-                new ModalAdicionarClienteController(modal, clienteController, cliente);
+                ModalEditarFiado modal = new ModalEditarFiado(this.telaFiado, cliente);
+                new ModalEditarFiadoController(modal, clienteController);
                 modal.setVisible(true);
                 this.telaFiado.atualizarTabela();
                 fireEditingStopped();
@@ -464,7 +479,7 @@ public class TelaFiado extends JFrame {
                 
                 if (resp == JOptionPane.YES_OPTION) {
                     try {
-                        clienteController.quitarDivida(id);
+                        fiadoController.quitarDividaCompleta(id);
                         ((DefaultTableModel) table.getModel()).setValueAt(0.0, row, 4);
                         JOptionPane.showMessageDialog(table, "Dívida de " + nome + " quitada.");
                     } catch (Exception ex) {
