@@ -4,6 +4,7 @@ import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.Produto;
 import java.sql.SQLException;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 public class ProdutoController {
     private final ProdutoDAO produtoDAO;
@@ -12,39 +13,67 @@ public class ProdutoController {
         this.produtoDAO = produtoDAO;
     }
 
-    public void adicionarProduto(Produto produto) {
-        try {
-            produtoDAO.adicionarProduto(produto);
-            System.out.println("✅ Produto adicionado com sucesso!");
-        } catch (SQLException e) {
-            System.err.println("Erro ao adicionar produto: " + e.getMessage());
+    public void adicionar(Produto produto) throws SQLException {
+        if (produto.getNome().isEmpty() || produto.getCategoria().isEmpty()) {
+            throw new SQLException("Nome e Categoria são obrigatórios.");
         }
+        produtoDAO.adicionarProduto(produto);
     }
 
-    public void listarProdutos() {
-        try {
-            List<Produto> produtos = produtoDAO.listarProdutos();
-            produtos.forEach(System.out::println);
-        } catch (SQLException e) {
-            System.err.println("Erro ao listar produtos: " + e.getMessage());
+    public void atualizar(Produto produto) throws SQLException {
+        if (produto.getProdutoId() <= 0) {
+            throw new SQLException("ID do produto inválido para atualização.");
         }
+        produtoDAO.atualizarProduto(produto);
     }
 
-    public void atualizarProduto(Produto produto) {
-        try {
-            produtoDAO.atualizarProduto(produto);
-            System.out.println("✅ Produto atualizado com sucesso!");
-        } catch (SQLException e) {
-            System.err.println("Erro ao atualizar produto: " + e.getMessage());
-        }
-    }
+    public void deletar(int id, String nome) throws SQLException {
+        int resposta = JOptionPane.showConfirmDialog(
+                null, 
+                "Tem certeza que deseja excluir o produto '" + nome + "'?",
+                "Confirmar Exclusão",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
 
-    public void deletarProduto(int id) {
-        try {
+        if (resposta == JOptionPane.YES_OPTION) {
             produtoDAO.deletarProduto(id);
-            System.out.println("✅ Produto deletado com sucesso!");
-        } catch (SQLException e) {
-            System.err.println("Erro ao deletar produto: " + e.getMessage());
         }
+    }
+    
+    public List<Produto> listar() {
+        try {
+            return produtoDAO.listarProdutos();
+        } catch (SQLException e) {
+            mostrarErro("Erro ao listar produtos: " + e.getMessage());
+            return List.of(); 
+        }
+    }
+    
+    public List<Produto> pesquisar(String nome) {
+        try {
+            return produtoDAO.pesquisarProdutos(nome);
+        } catch (SQLException e) {
+            mostrarErro("Erro ao pesquisar produtos: " + e.getMessage());
+            return List.of(); 
+        }
+    }
+    
+    public void incrementarEstoque(Produto produto) throws SQLException {
+        produto.incrementarEstoque(1); 
+        this.atualizar(produto);       
+    }
+
+    public boolean decrementarEstoque(Produto produto) throws SQLException {
+        if (produto.getQntEstoque() <= 0) {
+            return false; 
+        }
+        produto.decrementarEstoque(1); 
+        this.atualizar(produto);
+        return true;
+    }
+    
+    private void mostrarErro(String msg) {
+        JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 }

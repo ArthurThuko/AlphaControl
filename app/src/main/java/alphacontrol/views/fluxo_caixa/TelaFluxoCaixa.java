@@ -7,6 +7,7 @@ import javax.swing.table.*;
 import java.util.List;
 
 import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
 
 import java.awt.*;
@@ -27,7 +28,7 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblSaldo = new JLabel("R$ 0,00");
     private FluxoCaixaController controller;
 
-    public TelaFluxoCaixa() {
+    public TelaFluxoCaixa(TelaPrincipalController mainController) {
         controller = new FluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,6 +94,8 @@ public class TelaFluxoCaixa extends JFrame {
         painelPrincipal.add(painelLateral, gbc);
 
         add(painelPrincipal);
+        
+        atualizarSaldo();
     }
 
     private JPanel criarPainelEntradas() {
@@ -515,6 +518,13 @@ public class TelaFluxoCaixa extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaFluxoCaixa().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                TelaFluxoCaixa tela = new TelaFluxoCaixa(null);
+                tela.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

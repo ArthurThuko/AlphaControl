@@ -1,5 +1,6 @@
 package alphacontrol.views.estoque;
 
+import alphacontrol.models.Produto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -10,7 +11,9 @@ public class ModalEditarProduto extends JDialog {
 
     private Point mouseClickPoint;
     public JTextField[] campos;
-    public boolean salvarConfirmado = false;
+    
+    private final JButton botaoSalvar;
+    private int produtoId;
 
     public ModalEditarProduto(JFrame parent) {
         super(parent, "Editar Produto", true);
@@ -21,7 +24,6 @@ public class ModalEditarProduto extends JDialog {
         Color marromClaro = new Color(184, 142, 106);
         Color begeClaro = new Color(255, 250, 240);
 
-        // Painel principal
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -35,7 +37,6 @@ public class ModalEditarProduto extends JDialog {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { mouseClickPoint = e.getPoint(); }
         });
@@ -53,7 +54,6 @@ public class ModalEditarProduto extends JDialog {
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        // Título centralizado
         JLabel titulo = new JLabel("Editar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
@@ -62,7 +62,6 @@ public class ModalEditarProduto extends JDialog {
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // Campos
         String[] labels = {
                 "Nome:", "Quantidade:", "Alerta Estoque Min.:",
                 "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
@@ -83,8 +82,7 @@ public class ModalEditarProduto extends JDialog {
             gbc.gridy++;
         }
 
-        // Botão Salvar Alterações
-        JButton botaoSalvar = new JButton("Salvar Alterações") {
+        botaoSalvar = new JButton("Salvar Alterações") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -100,32 +98,28 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        botaoSalvar.addActionListener(e -> {
-            salvarConfirmado = true;  // sinaliza que o usuário confirmou a edição
-            dispose();
-        });
-
+        
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(botaoSalvar, gbc);
         gbc.gridy++;
 
-        // Botão Fechar estilizado
         JButton botaoFechar = new JButton("Fechar") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? marromClaro.darker() : marromClaro);
+                if (getModel().isPressed()) {
+                    g2.setColor(marromMedio);
+                } else {
+                    g2.setColor(marromClaro);
+                }
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.setColor(marromEscuro);
-                g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        botaoFechar.setForeground(begeClaro);
+        botaoFechar.setForeground(marromEscuro);
         botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
@@ -134,7 +128,6 @@ public class ModalEditarProduto extends JDialog {
 
         painel.add(botaoFechar, gbc);
 
-        // Configurações do modal
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
@@ -162,5 +155,36 @@ public class ModalEditarProduto extends JDialog {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
+    }
+    
+    public JButton getBtnSalvar() {
+        return botaoSalvar;
+    }
+
+    public void setProduto(Produto p) {
+        this.produtoId = p.getProdutoId(); 
+        
+        campos[0].setText(p.getNome());
+        campos[1].setText(String.valueOf(p.getQntEstoque()));
+        campos[2].setText("0"); 
+        campos[3].setText(p.getCategoria());
+        campos[4].setText(String.valueOf(p.getValorCompra()));
+        campos[5].setText(String.valueOf(p.getValorVenda()));
+    }
+
+    public Produto getProdutoFromFields() {
+        Produto p = new Produto(
+            campos[0].getText(), 
+            campos[3].getText(), 
+            Double.parseDouble(campos[4].getText()), 
+            Double.parseDouble(campos[5].getText()), 
+            Integer.parseInt(campos[1].getText())
+        );
+        p.setProdutoId(this.produtoId); 
+        return p;
+    }
+    
+    public void mostrarErro(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 }
