@@ -30,6 +30,10 @@ public class ModalAdicionarClienteController {
 
     private void salvarCliente() {
         try {
+            if (!view.validarCampos()) {
+                return;
+            }
+            
             Cliente dadosDosCampos = view.getClienteFromFields();
             
             if (clienteParaEditar == null) {
@@ -37,16 +41,18 @@ public class ModalAdicionarClienteController {
                 JOptionPane.showMessageDialog(view, "Cliente adicionado com sucesso!");
             } else {
                 dadosDosCampos.setId(clienteParaEditar.getId());
+                dadosDosCampos.setEnderecoId(clienteParaEditar.getEnderecoId());
+                dadosDosCampos.setDebito(clienteParaEditar.getDebito());
+
                 clienteController.atualizar(dadosDosCampos);
                 JOptionPane.showMessageDialog(view, "Cliente atualizado com sucesso!");
             }
             
             view.dispose();
 
-        } catch (NumberFormatException ex) {
-            view.mostrarErro("Erro de formato. Verifique os campos numéricos.");
         } catch (Exception ex) {
-            view.mostrarErro(ex.getMessage());
+            view.mostrarErro("Erro ao salvar cliente: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }

@@ -5,6 +5,7 @@ import alphacontrol.dao.FiadoDAO;
 import alphacontrol.models.Cliente;
 import alphacontrol.models.Fiado;
 import java.sql.SQLException;
+import java.util.List;
 
 public class FiadoController {
 
@@ -30,6 +31,19 @@ public class FiadoController {
             }
         } catch (SQLException e) {
             throw new SQLException("Erro ao processar fiado e atualizar débito: " + e.getMessage(), e);
+        }
+    }
+    
+    public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
+        return fiadoDAO.listarPorCliente(clienteId);
+    }
+    
+    public void quitarDividaCompleta(int clienteId) throws SQLException {
+        try {
+            clienteDAO.quitarDivida(clienteId);
+            fiadoDAO.quitarFiadosPorCliente(clienteId);
+        } catch (SQLException e) {
+            throw new SQLException("Erro ao quitar dívida completa: " + e.getMessage(), e);
         }
     }
 }

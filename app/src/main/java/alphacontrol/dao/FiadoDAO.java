@@ -3,9 +3,12 @@ package alphacontrol.dao;
 import alphacontrol.models.Fiado;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FiadoDAO {
 
@@ -57,4 +60,37 @@ public class FiadoDAO {
         }
     }
     
+    public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
+        List<Fiado> fiados = new ArrayList<>();
+        String sql = "SELECT * FROM fiado WHERE cliente_id = ? ORDER BY data DESC";
+        
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setInt(1, clienteId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    fiados.add(instanciarFiado(rs));
+                }
+            }
+        }
+        return fiados;
+    }
+    
+    public void quitarFiadosPorCliente(int clienteId) throws SQLException {
+        String sql = "UPDATE fiado SET status = 'QUITADO' WHERE cliente_id = ? AND status = 'PENDENTE'";
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setInt(1, clienteId);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    private Fiado instanciarFiado(ResultSet rs) throws SQLException {
+        Fiado fiado = new Fiado();
+        fiado.setId(rs.getInt("id"));
+        fiado.setClienteId(rs.getInt("cliente_id"));
+        fiado.setVendaId(rs.getObject("venda_id") != null ? rs.getInt("venda_id") : null);
+        fiado.setValor(rs.getDouble("valor"));
+        fiado.setData(rs.getTimestamp("data").toLocalDateTime());
+        fiado.setStatus(rs.getString("status"));
+        return fiado;
+    }
 }

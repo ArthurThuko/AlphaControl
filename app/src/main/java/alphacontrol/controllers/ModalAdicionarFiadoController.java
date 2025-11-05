@@ -3,6 +3,7 @@ package alphacontrol.controllers;
 import alphacontrol.models.Cliente;
 import alphacontrol.models.Fiado;
 import alphacontrol.views.fiado.ModalAdicionarFiado;
+import alphacontrol.views.cliente.ModalBuscaCliente;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
@@ -24,31 +25,27 @@ public class ModalAdicionarFiadoController {
     }
 
     private void initController() {
-        carregarClientes();
-        
         view.getBtnSalvar().addActionListener(e -> salvarFiado());
         
         view.getBtnAdicionarCliente().addActionListener(e -> {
             view.getParentView().abrirModalAdicionarCliente();
-            carregarClientes();
         });
+        
+        view.getBtnBuscarCliente().addActionListener(e -> buscarCliente());
     }
-
-    public void carregarClientes() {
-        try {
-            List<Cliente> clientes = clienteController.listar();
-            DefaultComboBoxModel<Cliente> model = new DefaultComboBoxModel<>();
-            for (Cliente c : clientes) {
-                model.addElement(c);
-            }
-            view.getCmbClientes().setModel(model);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(view, "Erro ao carregar clientes: " + e.getMessage());
+    
+    private void buscarCliente() {
+        ModalBuscaCliente modalBusca = new ModalBuscaCliente(view, clienteController);
+        modalBusca.setVisible(true); 
+        
+        Cliente cliente = modalBusca.getClienteSelecionado();
+        if (cliente != null) {
+            view.setClienteSelecionado(cliente);
         }
     }
 
     private void salvarFiado() {
-        Cliente clienteSelecionado = (Cliente) view.getCmbClientes().getSelectedItem();
+        Cliente clienteSelecionado = view.getClienteSelecionado();
         String valorStr = view.getTxtValor().getText().replace(",", ".");
 
         if (clienteSelecionado == null) {
