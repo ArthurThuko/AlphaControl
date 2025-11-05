@@ -37,6 +37,10 @@ public class FluxoCaixaController {
         movimentacaoCaixaDAO.deletar(id);
     }
 
+    public void atualizarMovimentacao(int id, String tipo, String nome, double valor, String data) {
+        movimentacaoCaixaDAO.atualizar(new MovimentacaoCaixa(id, nome, tipo, valor, data));
+    }
+
     public double calcularSaldo() {
         List<MovimentacaoCaixa> lista = movimentacaoCaixaDAO.listar();
 
