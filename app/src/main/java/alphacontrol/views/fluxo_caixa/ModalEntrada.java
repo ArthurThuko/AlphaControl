@@ -1,5 +1,8 @@
 package alphacontrol.views.fluxo_caixa;
 
+import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.models.MovimentacaoCaixa;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,31 +12,54 @@ import java.awt.geom.RoundRectangle2D;
 public class ModalEntrada extends JDialog {
 
     private Point mouseClickPoint;
+    private FluxoCaixaController controller = new FluxoCaixaController();
+    private JTextField txtNome, txtData, txtValor;
+    private MovimentacaoCaixa movimentacaoEditando; // 👈 novo campo
+
+    private final Color begeFundo = new Color(242, 245, 233);
+    private final Color verdeEscuro = new Color(48, 94, 64);
+    private final Color verdeMedio = new Color(86, 130, 89);
+    private final Color verdeClaro = new Color(142, 181, 145);
+    private final Color begeClaro = new Color(253, 250, 240);
 
     public ModalEntrada(JFrame parent) {
-        super(parent, "Adicionar Entrada", true);
+        this(parent, null);
+    }
 
-        Color begeFundo = new Color(247, 239, 224);
-        Color marromEscuro = new Color(77, 51, 30);
-        Color marromMedio = new Color(143, 97, 54);
-        Color marromClaro = new Color(184, 142, 106);
-        Color begeClaro = new Color(255, 250, 240);
+    public ModalEntrada(JFrame parent, MovimentacaoCaixa mov) {
+        super(parent, true);
+        this.movimentacaoEditando = mov; // 👈 guarda referência
+        setTitle(mov == null ? "Adicionar Entrada" : "Editar Entrada");
 
-        // Painel principal com cantos arredondados
+        JPanel painel = criarPainelPrincipal();
+        add(painel);
+        setUndecorated(true);
+        setBackground(new Color(0, 0, 0, 0));
+        setSize(500, 400);
+        setLocationRelativeTo(parent);
+        setResizable(false);
+
+        if (mov != null) {
+            txtNome.setText(mov.getNome());
+            txtData.setText(mov.getData());
+            txtValor.setText(String.valueOf(mov.getValor()));
+        }
+    }
+
+    private JPanel criarPainelPrincipal() {
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(begeFundo);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+                g2.dispose();
             }
         };
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // Permitir arrastar
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -52,147 +78,106 @@ public class ModalEntrada extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
-
-        // Título centralizado
-        JLabel titulo = new JLabel("Adicionar Produto", SwingConstants.CENTER);
-        titulo.setFont(new Font("Serif", Font.BOLD, 26));
-        titulo.setForeground(marromEscuro);
-
         gbc.gridwidth = 2;
+
+        JLabel titulo = new JLabel("Entrada", SwingConstants.CENTER);
+        titulo.setFont(new Font("Serif", Font.BOLD, 26));
+        titulo.setForeground(verdeEscuro);
         painel.add(titulo, gbc);
+
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // Campos
-        String[] labels = {
-                "Nome:", "Data:", "Valor:"
-        };
-        JTextField[] campos = new JTextField[labels.length];
+        txtNome = criarCampo("Nome:", painel, gbc);
+        txtData = criarCampo("Data:", painel, gbc);
+        txtValor = criarCampo("Valor:", painel, gbc);
 
-        for (int i = 0; i < labels.length; i++) {
-            gbc.gridx = 0;
-            JLabel lbl = new JLabel(labels[i], SwingConstants.CENTER);
-            lbl.setForeground(marromEscuro);
-            lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
-            painel.add(lbl, gbc);
-
-            gbc.gridx = 1;
-            campos[i] = criarCampo(begeClaro, marromClaro, marromEscuro);
-            gbc.weightx = 1;
-            painel.add(campos[i], gbc);
-            gbc.gridy++;
-        }
-
-        JButton botaoAdicionar = new JButton("Adicionar") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? marromEscuro : marromMedio);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        botaoAdicionar.setForeground(begeClaro);
-        botaoAdicionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        botaoAdicionar.setFocusPainted(false);
-        botaoAdicionar.setContentAreaFilled(false);
-        botaoAdicionar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        // Ação do botão "Adicionar"
-        botaoAdicionar.addActionListener(e -> {
-            String nome = campos[0].getText().trim();
-            String data = campos[1].getText().trim();
-            String valorStr = campos[2].getText().trim();
-
-            if (nome.isEmpty() || data.isEmpty() || valorStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            try {
-                double valor = Double.parseDouble(valorStr.replace(",", "."));
-
-                // Cria o controller e salva no banco
-                new alphacontrol.controllers.FluxoCaixaController().adicionarEntrada(nome, valor, data);
-
-                JOptionPane.showMessageDialog(this, "Entrada adicionada com sucesso!");
-                dispose(); // fecha o modal
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
+        JButton btnSalvar = criarBotao("Salvar", verdeMedio, e -> salvarEntrada());
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        painel.add(botaoAdicionar, gbc);
+        painel.add(btnSalvar, gbc);
         gbc.gridy++;
 
-        // Botão Fechar estilizado
-        JButton botaoFechar = new JButton("Fechar") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        JButton btnFechar = criarBotao("Fechar", verdeClaro, e -> dispose());
+        painel.add(btnFechar, gbc);
 
-                // Fundo com cor adaptável ao hover/press
-                Color fundoAtual = getModel().isPressed()
-                        ? marromClaro.darker()
-                        : (getModel().isRollover() ? marromClaro.brighter() : marromClaro);
-
-                g2.setColor(fundoAtual);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-
-                // Borda
-                g2.setColor(marromEscuro);
-                g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-
-                g2.dispose();
-
-                // Agora sim desenha o texto POR CIMA
-                super.paintComponent(g);
-            }
-        };
-
-        botaoFechar.setForeground(begeClaro);
-        botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        botaoFechar.setFocusPainted(false);
-        botaoFechar.setContentAreaFilled(false);
-        botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        botaoFechar.addActionListener(e -> dispose());
-
-        painel.add(botaoFechar, gbc);
-
-        // Configurações do modal
-        setUndecorated(true);
-        setBackground(new Color(0, 0, 0, 0));
-        add(painel);
-        setSize(500, 400);
-        setLocationRelativeTo(parent);
-        setResizable(false);
+        return painel;
     }
 
-    private JTextField criarCampo(Color fundo, Color borda, Color texto) {
-        JTextField campo = new JTextField() {
+    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
+        gbc.gridx = 0;
+        JLabel lbl = new JLabel(label, SwingConstants.CENTER);
+        lbl.setForeground(verdeEscuro);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        painel.add(lbl, gbc);
+
+        gbc.gridx = 1;
+        JTextField campo = new JTextField();
+        campo.setOpaque(true);
+        campo.setBackground(new Color(245, 250, 245));
+        campo.setForeground(verdeEscuro);
+        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+        campo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(verdeClaro, 2, true),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+
+        painel.add(campo, gbc);
+        gbc.gridy++;
+        return campo;
+    }
+
+    private JButton criarBotao(String texto, Color cor, java.awt.event.ActionListener action) {
+        JButton btn = new JButton(texto) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(fundo);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                g2.setColor(borda);
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                g2.setColor(getModel().isPressed() ? verdeEscuro : cor);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        campo.setOpaque(false);
-        campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        return campo;
+        btn.setForeground(begeClaro);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.addActionListener(action);
+        return btn;
+    }
+
+    private void salvarEntrada() {
+        String nome = txtNome.getText().trim();
+        String data = txtData.getText().trim();
+        String valorStr = txtValor.getText().trim();
+
+        if (nome.isEmpty() || data.isEmpty() || valorStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            double valor = Double.parseDouble(valorStr.replace(",", "."));
+
+            if (movimentacaoEditando == null) {
+                // ➕ Adicionando novo
+                controller.adicionarEntrada(nome, valor, data);
+                JOptionPane.showMessageDialog(this, "Entrada adicionada com sucesso!");
+            } else {
+                // ✏️ Editando existente
+                controller.atualizarMovimentacao(
+                        movimentacaoEditando.getId(),
+                        "entrada",
+                        nome,
+                        valor,
+                        data);
+                JOptionPane.showMessageDialog(this, "Entrada atualizada com sucesso!");
+            }
+
+            dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

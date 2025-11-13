@@ -12,7 +12,7 @@ public class MovimentacaoCaixaDAO {
     public void inserir(MovimentacaoCaixa movimentacao) {
         String sql = "INSERT INTO movimentacaocaixa (nome, tipo, valor, data) VALUES (?, ?, ?, ?)";
         try (Connection conn = Conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, movimentacao.getNome());
             stmt.setString(2, movimentacao.getTipo());
@@ -26,9 +26,9 @@ public class MovimentacaoCaixaDAO {
     }
 
     public void atualizar(MovimentacaoCaixa movimentacao) {
-        String sql = "UPDATE movimentacaocaixa SET nome=?, tipo=?, valor=?, data=? WHERE id=?";
+        String sql = "UPDATE movimentacaocaixa SET nome=?, tipo=?, valor=?, data=? WHERE idMovimentacaoCaixa=?";
         try (Connection conn = Conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, movimentacao.getNome());
             stmt.setString(2, movimentacao.getTipo());
@@ -43,9 +43,9 @@ public class MovimentacaoCaixaDAO {
     }
 
     public void deletar(int id) {
-        String sql = "DELETE FROM movimentacaocaixa WHERE id=?";
+        String sql = "DELETE FROM movimentacaocaixa WHERE idMovimentacaoCaixa=?";
         try (Connection conn = Conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -60,16 +60,16 @@ public class MovimentacaoCaixaDAO {
         String sql = "SELECT * FROM movimentacaocaixa ORDER BY data DESC";
 
         try (Connection conn = Conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 MovimentacaoCaixa e = new MovimentacaoCaixa(
+                        rs.getInt("idMovimentacaoCaixa"), // ← pega o ID corretamente
                         rs.getString("nome"),
                         rs.getString("tipo"),
                         rs.getDouble("valor"),
-                        rs.getString("data")
-                );
+                        rs.getString("data"));
                 lista.add(e);
             }
 

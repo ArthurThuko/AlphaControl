@@ -7,8 +7,17 @@ public class MovimentacaoCaixa {
     private double valor;
     private String data;
 
-    public MovimentacaoCaixa(){}
-    
+    public MovimentacaoCaixa() {
+    }
+
+    public MovimentacaoCaixa(int id, String nome, String tipo, double valor, String data) {
+        this.id = id;
+        this.nome = nome;
+        this.tipo = tipo;
+        this.valor = valor;
+        this.data = data;
+    }
+
     public MovimentacaoCaixa(String nome, String tipo, double valor, String data) {
         this.nome = nome;
         this.tipo = tipo;
@@ -23,7 +32,6 @@ public class MovimentacaoCaixa {
     public void setId(int id) {
         this.id = id;
     }
-
 
     public String getNome() {
         return nome;

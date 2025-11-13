@@ -32,7 +32,7 @@ public class TelaPrincipal extends JFrame {
     public TelaPrincipal(TelaPrincipalController controller) {
         this.controller = controller;
 
-        setTitle("AlphaControl - Tela Principal");
+        setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
