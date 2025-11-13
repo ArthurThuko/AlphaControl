@@ -32,6 +32,7 @@ public class TelaFluxoCaixa extends JFrame {
 
 
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
+          this.mainController = mainController;
         controller = new FluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
