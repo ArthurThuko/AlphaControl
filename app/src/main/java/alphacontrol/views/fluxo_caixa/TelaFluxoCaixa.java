@@ -9,6 +9,7 @@ import java.util.List;
 import alphacontrol.controllers.FluxoCaixaController;
 import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
+import alphacontrol.views.components.Navbar;
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
@@ -27,6 +28,8 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblTotalSaidas = new JLabel("R$ 0,00");
     private JLabel lblSaldo = new JLabel("R$ 0,00");
     private FluxoCaixaController controller;
+    private TelaPrincipalController mainController;
+
 
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
         controller = new FluxoCaixaController();
@@ -35,6 +38,8 @@ public class TelaFluxoCaixa extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
+
+        setJMenuBar(new Navbar(this, this.mainController, "Fluxo de Caixa"));
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
@@ -94,7 +99,7 @@ public class TelaFluxoCaixa extends JFrame {
         painelPrincipal.add(painelLateral, gbc);
 
         add(painelPrincipal);
-        
+
         atualizarSaldo();
     }
 
