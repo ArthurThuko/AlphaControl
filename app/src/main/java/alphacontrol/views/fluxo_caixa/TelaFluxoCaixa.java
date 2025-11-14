@@ -31,8 +31,11 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblTotalSaidas = new JLabel("R$ 0,00");
     private JLabel lblSaldo = new JLabel("R$ 0,00");
     private FluxoCaixaController controller;
+    private TelaPrincipalController mainController;
+
 
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
+          this.mainController = mainController;
         controller = new FluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,7 +104,7 @@ public class TelaFluxoCaixa extends JFrame {
         painelPrincipal.add(painelLateral, gbc);
 
         add(painelPrincipal);
-        
+
         atualizarSaldo();
     }
 
