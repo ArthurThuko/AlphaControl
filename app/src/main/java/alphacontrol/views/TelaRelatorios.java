@@ -6,7 +6,9 @@ import alphacontrol.views.components.Navbar;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
@@ -47,7 +49,7 @@ public class TelaRelatorios extends JFrame {
         painelPrincipal.setBorder(new EmptyBorder(60, 80, 60, 80));
 
         JLabel titulo = new JLabel("Relatórios", SwingConstants.CENTER);
-        titulo.setFont(new Font("Serif", Font.BOLD, 42));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
         titulo.setForeground(marromEscuro);
         titulo.setBorder(new EmptyBorder(0, 0, 40, 0));
         painelPrincipal.add(titulo, BorderLayout.NORTH);
@@ -61,7 +63,7 @@ public class TelaRelatorios extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel lblTipo = new JLabel("Tipo de Relatório:");
-        lblTipo.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        lblTipo.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblTipo.setForeground(marromEscuro);
         painelConteudo.add(lblTipo, gbc);
 
@@ -80,7 +82,8 @@ public class TelaRelatorios extends JFrame {
         for (JRadioButton rb : radios) {
             rb.setOpaque(false);
             rb.setForeground(marromEscuro);
-            rb.setFont(new Font("SansSerif", Font.PLAIN, 17));
+            rb.setFont(new Font("Segoe UI", Font.PLAIN, 17));
+            rb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
         gbc.gridx = 1;
@@ -97,7 +100,7 @@ public class TelaRelatorios extends JFrame {
         gbc.gridy++;
         gbc.gridx = 0;
         JLabel lblInicio = new JLabel("Data Início:");
-        lblInicio.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        lblInicio.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblInicio.setForeground(marromEscuro);
         painelConteudo.add(lblInicio, gbc);
 
@@ -113,7 +116,7 @@ public class TelaRelatorios extends JFrame {
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
         JLabel lblFinal = new JLabel("Data Final:");
-        lblFinal.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        lblFinal.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblFinal.setForeground(marromEscuro);
         painelConteudo.add(lblFinal, gbc);
 
@@ -152,14 +155,26 @@ public class TelaRelatorios extends JFrame {
 
         DefaultTableModel modeloTabela = new DefaultTableModel(dados, colunas);
         JTable tabela = new JTable(modeloTabela);
-        tabela.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        tabela.setRowHeight(28);
-        tabela.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
-        tabela.getTableHeader().setBackground(marromClaro);
-        tabela.getTableHeader().setForeground(Color.WHITE);
+        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        tabela.setRowHeight(30);
         tabela.setBackground(begeClaro);
         tabela.setGridColor(marromClaro);
         tabela.setSelectionBackground(new Color(220, 210, 200));
+        tabela.setShowVerticalLines(false);
+        tabela.setIntercellSpacing(new Dimension(0, 1));
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setBackground(marromEscuro);
+        header.setForeground(Color.WHITE);
+        header.setBorder(new EmptyBorder(5, 10, 5, 10));
+        header.setReorderingAllowed(false);
+
+        PaddedCellRenderer.apply(tabela, 0, SwingConstants.CENTER);
+        PaddedCellRenderer.apply(tabela, 1, SwingConstants.LEFT);
+        PaddedCellRenderer.apply(tabela, 2, SwingConstants.CENTER);
+        PaddedCellRenderer.apply(tabela, 3, SwingConstants.RIGHT);
+        PaddedCellRenderer.apply(tabela, 4, SwingConstants.CENTER);
 
         JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(BorderFactory.createLineBorder(marromClaro, 2));
@@ -188,8 +203,8 @@ public class TelaRelatorios extends JFrame {
         };
         campo.setOpaque(false);
         campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        campo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        campo.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
         return campo;
     }
 
@@ -199,18 +214,44 @@ public class TelaRelatorios extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? corFundo.darker() : corFundo);
+                g2.setColor(getModel().isRollover() ? corFundo.brighter() : (getModel().isPressed() ? corFundo.darker() : corFundo));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
         botao.setForeground(corTexto);
-        botao.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botao.setFont(new Font("Segoe UI", Font.BOLD, 16));
         botao.setFocusPainted(false);
         botao.setContentAreaFilled(false);
         botao.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return botao;
+    }
+
+    static class PaddedCellRenderer extends DefaultTableCellRenderer {
+        public PaddedCellRenderer(int alignment) {
+            setHorizontalAlignment(alignment);
+            setBorder(new EmptyBorder(5, 15, 5, 15));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (isSelected) {
+                c.setBackground(table.getSelectionBackground());
+                c.setForeground(table.getSelectionForeground());
+            } else {
+                c.setBackground(table.getBackground());
+                c.setForeground(table.getForeground());
+            }
+            return c;
+        }
+
+        public static void apply(JTable table, int col, int alignment) {
+            table.getColumnModel().getColumn(col).setCellRenderer(new PaddedCellRenderer(alignment));
+        }
     }
 
     public static void main(String[] args) {
