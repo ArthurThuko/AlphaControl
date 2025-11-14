@@ -97,7 +97,7 @@ public class TelaEstoque extends JFrame {
         gbc.insets = new Insets(0, 0, 20, 0);
         painelPrincipal.add(painelTopo, gbc);
 
-        String[] colunas = { "ID", "Nome", "Qtd.", "Categoria", "Valor Compra (R$)", "Valor Venda (R$)", "Ações" };
+        String[] colunas = { "ID", "Nome", "Qtd.", "Categoria", "Preço de Custo (R$)", "Valor Venda (R$)", "Ações" };
         
         modelo = new DefaultTableModel(null, colunas) {
             @Override
