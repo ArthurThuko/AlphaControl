@@ -36,11 +36,11 @@ public class TelaFiado extends JFrame {
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
-    private static final Color VERDE_MUSGO = new Color(119, 140, 85); 
-    private static final Color VERDE_OLIVA = new Color(101, 125, 64); 
-    private static final Color DOURADO_SUAVE = new Color(226, 180, 90); 
-    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); 
-    
+    private static final Color VERDE_MUSGO = new Color(119, 140, 85);
+    private static final Color VERDE_OLIVA = new Color(101, 125, 64);
+    private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
+    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
+
     private DefaultTableModel modelo;
     private JTable tabela;
     private ClienteController clienteController;
@@ -52,12 +52,12 @@ public class TelaFiado extends JFrame {
         this.mainController = mainController;
         this.clienteController = mainController.getClienteController();
         this.fiadoController = mainController.getFiadoController();
-        
+
         setTitle("Fiados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
-        
+
         setJMenuBar(new Navbar(this, mainController, "Fiado"));
 
         JPanel painelFundo = new JPanel(new GridBagLayout());
@@ -67,14 +67,19 @@ public class TelaFiado extends JFrame {
         RoundedPanel painelCentral = new RoundedPanel(15);
         painelCentral.setBackground(BEGE_CLARO);
         painelCentral.setLayout(new GridBagLayout());
-        painelCentral.setPreferredSize(new Dimension(1600, 900)); 
-        
-        painelFundo.add(painelCentral, new GridBagConstraints());
-        
+        painelCentral.setPreferredSize(null); // permite redimensionar automaticamente
+
+        GridBagConstraints gbcFundo = new GridBagConstraints();
+        gbcFundo.fill = GridBagConstraints.BOTH;
+        gbcFundo.weightx = 1.0;
+        gbcFundo.weighty = 1.0;
+        painelFundo.add(painelCentral, gbcFundo);
+
+        // Configuração principal do painel interno
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(15, 25, 15, 25); 
+        gbc.insets = new Insets(15, 25, 15, 25);
 
         JLabel titulo = new JLabel("Controle de Fiados");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
@@ -89,7 +94,7 @@ public class TelaFiado extends JFrame {
         gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(0, 25, 20, 25);
-        
+
         JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         painelBusca.setOpaque(false);
 
@@ -98,7 +103,7 @@ public class TelaFiado extends JFrame {
 
         JButton btnPesquisar = new RoundedButton("Pesquisar", VERDE_MUSGO, Color.WHITE, 150, 45);
         btnPesquisar.addActionListener(e -> atualizarTabela());
-        
+
         painelBusca.add(txtPesquisa);
         painelBusca.add(btnPesquisar);
         painelCentral.add(painelBusca, gbc);
@@ -107,23 +112,23 @@ public class TelaFiado extends JFrame {
         painelAdd.setOpaque(false);
         JButton btnCriarFiado = new RoundedButton("Criar Fiado", VERDE_OLIVA, Color.WHITE, 220, 45);
         btnCriarFiado.addActionListener(e -> abrirModalAdicionarFiado());
-        
+
         painelAdd.add(btnCriarFiado);
-        
+
         gbc.gridx = 1;
         painelCentral.add(painelAdd, gbc);
 
         String[] colunas = { "ID", "Nome", "Endereço", "Telefone", "Débito", "Ações" };
-        
+
         modelo = new DefaultTableModel(null, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5; 
+                return column == 5;
             }
         };
 
         tabela = new JTable(modelo);
-        configurarTabela(tabela); 
+        configurarTabela(tabela);
 
         JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -140,17 +145,17 @@ public class TelaFiado extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 25, 20, 25);
         painelCentral.add(painelTabela, gbc);
-        
+
         atualizarTabela();
     }
-    
+
     public void abrirModalAdicionarCliente() {
         ModalAdicionarCliente modal = new ModalAdicionarCliente(this);
         new ModalAdicionarClienteController(modal, this.clienteController);
         modal.setVisible(true);
         atualizarTabela();
     }
-    
+
     private void abrirModalAdicionarFiado() {
         ModalAdicionarFiado modal = new ModalAdicionarFiado(
                 this, 
@@ -158,20 +163,20 @@ public class TelaFiado extends JFrame {
                 this.clienteController
         );
         modal.setVisible(true);
-        atualizarTabela(); 
+        atualizarTabela();
     }
-    
+
     private void abrirTelaDetalheFiado(int clienteId) {
         Cliente cliente = clienteController.buscarPorId(clienteId);
         if (cliente == null) {
             JOptionPane.showMessageDialog(this, "Cliente não encontrado.");
             return;
         }
-        
+
         TelaDetalheFiado telaDetalhe = new TelaDetalheFiado(cliente, this.fiadoController, this);
         telaDetalhe.setVisible(true);
     }
-    
+
     public void atualizarTabela() {
         modelo.setRowCount(0);
         List<Cliente> clientes = clienteController.pesquisar(txtPesquisa.getText());
@@ -194,8 +199,8 @@ public class TelaFiado extends JFrame {
         tabela.setRowHeight(60);
         tabela.setBackground(BEGE_CLARO);
         tabela.setForeground(MARROM_ESCURO);
-        tabela.setShowGrid(false); 
-        tabela.setIntercellSpacing(new Dimension(0, 0)); 
+        tabela.setShowGrid(false);
+        tabela.setIntercellSpacing(new Dimension(0, 0));
         tabela.setSelectionBackground(MARROM_CLARO.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
 
@@ -209,14 +214,15 @@ public class TelaFiado extends JFrame {
 
         PaddedCellRenderer centerRenderer = new PaddedCellRenderer(SwingConstants.CENTER);
         PaddedCellRenderer leftRenderer = new PaddedCellRenderer(SwingConstants.LEFT);
-        
-        tabela.getColumnModel().getColumn(1).setCellRenderer(leftRenderer); 
-        tabela.getColumnModel().getColumn(2).setCellRenderer(leftRenderer); 
-        tabela.getColumnModel().getColumn(3).setCellRenderer(centerRenderer); 
-        tabela.getColumnModel().getColumn(4).setCellRenderer(new CurrencyRenderer()); 
-        
+
+        tabela.getColumnModel().getColumn(1).setCellRenderer(leftRenderer);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(leftRenderer);
+        tabela.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+        tabela.getColumnModel().getColumn(4).setCellRenderer(new CurrencyRenderer());
+
         tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
-        tabela.getColumn("Ações").setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController)); 
+        tabela.getColumn("Ações")
+                .setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController));
 
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
@@ -224,21 +230,23 @@ public class TelaFiado extends JFrame {
         colId.setPreferredWidth(0);
 
         TableColumnModel colModel = tabela.getColumnModel();
-        colModel.getColumn(1).setPreferredWidth(350); 
-        colModel.getColumn(2).setPreferredWidth(250); 
-        colModel.getColumn(3).setPreferredWidth(150); 
-        colModel.getColumn(4).setPreferredWidth(120); 
-        colModel.getColumn(5).setMinWidth(350); 
+        colModel.getColumn(1).setPreferredWidth(350);
+        colModel.getColumn(2).setPreferredWidth(250);
+        colModel.getColumn(3).setPreferredWidth(150);
+        colModel.getColumn(4).setPreferredWidth(120);
+        colModel.getColumn(5).setMinWidth(350);
         colModel.getColumn(5).setMaxWidth(360);
     }
-    
+
     static class CurrencyRenderer extends DefaultTableCellRenderer {
         private static final DecimalFormat FORMATTER = new DecimalFormat("R$ #,##0.00");
+
         public CurrencyRenderer() {
             super();
             setHorizontalAlignment(SwingConstants.RIGHT);
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
+
         @Override
         public void setValue(Object value) {
             if (value instanceof Number) {
@@ -247,11 +255,14 @@ public class TelaFiado extends JFrame {
                 super.setValue(value);
             }
         }
+
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (!isSelected) c.setBackground(table.getBackground());
-            
+            if (!isSelected)
+                c.setBackground(table.getBackground());
+
             if (value instanceof Number && ((Number) value).doubleValue() > 0) {
                 c.setForeground(VERMELHO_TERROSO);
                 c.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -268,6 +279,7 @@ public class TelaFiado extends JFrame {
             setBorder(new EmptyBorder(5, 15, 5, 15));
             setHorizontalAlignment(alignment);
         }
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
@@ -284,10 +296,12 @@ public class TelaFiado extends JFrame {
 
     static class RoundedPanel extends JPanel {
         private final int cornerRadius;
+
         public RoundedPanel(int radius) {
             this.cornerRadius = radius;
             setOpaque(false);
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -302,6 +316,7 @@ public class TelaFiado extends JFrame {
 
     static class RoundedButton extends JButton {
         private final Color backgroundColor, hoverColor;
+
         public RoundedButton(String text, Color bg, Color fg, int w, int h) {
             super(text);
             backgroundColor = bg;
@@ -314,6 +329,7 @@ public class TelaFiado extends JFrame {
             setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -328,6 +344,7 @@ public class TelaFiado extends JFrame {
     static class RoundedTextField extends JTextField implements FocusListener {
         private final String placeholder;
         private boolean showingPlaceholder;
+
         public RoundedTextField(String placeholder, int columns) {
             super(placeholder, columns);
             this.placeholder = placeholder;
@@ -338,17 +355,19 @@ public class TelaFiado extends JFrame {
             setOpaque(false);
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE); 
+            g2.setColor(Color.WHITE);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.setColor(MARROM_CLARO);
             g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.dispose();
             super.paintComponent(g);
         }
+
         @Override
         public void focusGained(FocusEvent e) {
             if (showingPlaceholder) {
@@ -357,6 +376,7 @@ public class TelaFiado extends JFrame {
                 showingPlaceholder = false;
             }
         }
+
         @Override
         public void focusLost(FocusEvent e) {
             if (getText().isEmpty()) {
@@ -365,6 +385,7 @@ public class TelaFiado extends JFrame {
                 showingPlaceholder = true;
             }
         }
+
         @Override
         public String getText() {
             return showingPlaceholder ? "" : super.getText();
@@ -383,6 +404,7 @@ public class TelaFiado extends JFrame {
             setFont(new Font("Segoe UI", Font.BOLD, 14));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -393,7 +415,7 @@ public class TelaFiado extends JFrame {
             super.paintComponent(g);
         }
     }
-    
+
     static class ActionsPanel extends JPanel {
         public JButton btnVer = new CellButton("Ver Débitos", VERDE_MUSGO, Color.WHITE);
         public JButton btnEditar = new CellButton("Editar", DOURADO_SUAVE, MARROM_ESCURO);
@@ -403,7 +425,7 @@ public class TelaFiado extends JFrame {
             super(new FlowLayout(FlowLayout.CENTER, 10, 0));
             setOpaque(true);
             setAlignmentY(Component.CENTER_ALIGNMENT);
-            
+
             Dimension btnSize = new Dimension(100, 40);
             btnVer.setPreferredSize(btnSize);
             btnEditar.setPreferredSize(btnSize);
@@ -417,7 +439,8 @@ public class TelaFiado extends JFrame {
 
     static class ActionsCellRenderer extends ActionsPanel implements TableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
             } else {
@@ -435,12 +458,13 @@ public class TelaFiado extends JFrame {
         private ClienteController clienteController;
         private FiadoController fiadoController;
 
-        public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController cController, FiadoController fController) {
+        public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController cController,
+                FiadoController fController) {
             this.table = table;
             this.telaFiado = parentFrame;
             this.clienteController = cController;
             this.fiadoController = fController;
-            
+
             panel.btnVer.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
                 telaFiado.abrirTelaDetalheFiado(id);
@@ -467,7 +491,7 @@ public class TelaFiado extends JFrame {
             panel.btnPagar.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
                 double valor = (double) table.getValueAt(row, 4);
-                
+
                 if (valor == 0) {
                     JOptionPane.showMessageDialog(table, "Cliente não possui débitos.");
                     fireEditingStopped();
@@ -491,9 +515,10 @@ public class TelaFiado extends JFrame {
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                int column) {
             this.row = row;
-            panel.setBackground(table.getSelectionBackground()); 
+            panel.setBackground(table.getSelectionBackground());
             return panel;
         }
 

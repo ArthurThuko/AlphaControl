@@ -64,7 +64,7 @@ public class Navbar extends JMenuBar {
         });
 
         navRelatorio.addActionListener(e -> {
-            if (!"Relatório".equals(activeItem)) {
+            if (!"Relatórios".equals(activeItem)) {
                 new TelaRelatorios(mainController).setVisible(true);
                 currentScreen.dispose();
             }
