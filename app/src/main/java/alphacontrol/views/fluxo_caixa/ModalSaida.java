@@ -82,7 +82,7 @@ public class ModalSaida extends JDialog {
         gbc.gridwidth = 2;
 
         JLabel titulo = new JLabel("Saída", SwingConstants.CENTER);
-        titulo.setFont(new Font("Serif", Font.BOLD, 26));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
         titulo.setForeground(vermelhoEscuro);
         painel.add(titulo, gbc);
 
@@ -109,7 +109,7 @@ public class ModalSaida extends JDialog {
         gbc.gridx = 0;
         JLabel lbl = new JLabel(label, SwingConstants.CENTER);
         lbl.setForeground(vermelhoEscuro);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         painel.add(lbl, gbc);
 
         gbc.gridx = 1;
@@ -117,7 +117,7 @@ public class ModalSaida extends JDialog {
         campo.setOpaque(true);
         campo.setBackground(new Color(255, 250, 245)); // cor de fundo suave
         campo.setForeground(vermelhoEscuro);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
         campo.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(vermelhoClaro, 2, true),
@@ -141,7 +141,7 @@ public class ModalSaida extends JDialog {
             }
         };
         btn.setForeground(begeClaro);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
         btn.addActionListener(action);
