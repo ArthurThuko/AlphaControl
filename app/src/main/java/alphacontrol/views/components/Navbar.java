@@ -1,12 +1,12 @@
 package alphacontrol.views.components;
 
-import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.views.estoque.TelaEstoque;
-import alphacontrol.views.TelaPDV;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
-import alphacontrol.views.TelaRelatorios;
+import alphacontrol.views.pdv.TelaPDV;
+import alphacontrol.views.principal.TelaPrincipal;
+import alphacontrol.views.relatorios.TelaRelatorios;
 import alphacontrol.views.fiado.TelaFiado;
-import alphacontrol.views.TelaPrincipal;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -8,7 +8,6 @@ public class Produto {
     private double valorVenda;
     private int qntEstoque;
 
-    // Construtor para produtos NOVOS (sem ID)
     public Produto(String nome, String categoria, double valorCompra, double valorVenda, int qntEstoque) {
         this.setNome(nome);
         this.setCategoria(categoria);
@@ -17,13 +16,11 @@ public class Produto {
         this.setQntEstoque(qntEstoque);
     }
 
-    // Construtor para produtos vindos do BANDO DE DADOS (com ID)
     public Produto(int produtoId, String nome, String categoria, double valorCompra, double valorVenda, int qntEstoque) {
-        this(nome, categoria, valorCompra, valorVenda, qntEstoque); // Chama o construtor 1
-        this.setProdutoId(produtoId); // Define o ID
+        this(nome, categoria, valorCompra, valorVenda, qntEstoque);
+        this.setProdutoId(produtoId);
     }
 
-    // --- Getters e Setters ---
 
     public int getProdutoId() {
         return produtoId;

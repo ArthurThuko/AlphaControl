@@ -4,8 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import alphacontrol.Conexao;
 import alphacontrol.models.MovimentacaoCaixa;
+import alphacontrol.views.conexao.Conexao;
 
 public class MovimentacaoCaixaDAO {
 

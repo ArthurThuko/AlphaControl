@@ -1,4 +1,4 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.fiado;
 
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.dao.FiadoDAO;

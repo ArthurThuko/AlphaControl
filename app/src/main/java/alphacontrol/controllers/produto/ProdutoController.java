@@ -1,4 +1,4 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.produto;
 
 import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.Produto;

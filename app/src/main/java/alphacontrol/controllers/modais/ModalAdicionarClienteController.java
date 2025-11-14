@@ -1,5 +1,6 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.modais;
 
+import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.cliente.ModalAdicionarCliente;
 import javax.swing.JOptionPane;

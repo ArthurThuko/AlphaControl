@@ -1,4 +1,4 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.fluxo;
 
 import alphacontrol.dao.MovimentacaoCaixaDAO;
 import alphacontrol.models.MovimentacaoCaixa;

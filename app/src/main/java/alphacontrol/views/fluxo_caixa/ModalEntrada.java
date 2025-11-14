@@ -1,6 +1,6 @@
 package alphacontrol.views.fluxo_caixa;
 
-import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.models.MovimentacaoCaixa;
 
 import javax.swing.*;

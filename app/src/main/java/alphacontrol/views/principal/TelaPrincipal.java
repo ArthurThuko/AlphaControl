@@ -1,18 +1,17 @@
-package alphacontrol.views;
+package alphacontrol.views.principal;
 
-import alphacontrol.controllers.ClienteController;
-import alphacontrol.controllers.FiadoController;
-import alphacontrol.controllers.PdvController;
-import alphacontrol.controllers.ProdutoController;
-import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.pdv.PdvController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
-import alphacontrol.Conexao;
-
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
+import alphacontrol.views.conexao.Conexao;
 
 import java.awt.*;
 import java.sql.Connection;

@@ -1,5 +1,6 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.modais;
 
+import alphacontrol.controllers.fiado.FiadoController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.fiado.ModalQuitarDivida;
 

@@ -1,7 +1,8 @@
-package alphacontrol.views;
+package alphacontrol.views.login;
 
 import javax.swing.*;
-import alphacontrol.controllers.LoginController;
+
+import alphacontrol.controllers.login.LoginController;
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.CampoSenhaEstilizado;
 import alphacontrol.views.components.CampoTextoEstilizado;

@@ -1,7 +1,7 @@
 package alphacontrol.views.cliente;
 
-import alphacontrol.controllers.ClienteController;
-import alphacontrol.controllers.ModalBuscaClienteController;
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.modais.ModalBuscaClienteController;
 import alphacontrol.models.Cliente;
 
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.cliente;
 
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.models.Cliente;

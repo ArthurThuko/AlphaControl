@@ -1,5 +1,6 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.modais;
 
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.estoque.ModalAdicionarProduto;
 import java.sql.SQLException;
@@ -19,11 +20,10 @@ public class ModalAdicionarProdutoController {
         try {
             Produto produto = view.getProdutoFromFields();
             controller.adicionar(produto);
-            view.dispose(); // Fecha o modal SÓ SE tiver sucesso
+            view.dispose();
         } catch (NumberFormatException e) {
             view.mostrarErro("Erro de formato: Verifique se os valores (R$) e Quantidade são números válidos.");
         } catch (SQLException | IllegalArgumentException e) {
-            // Captura erros do DAO (SQLException) ou do Modelo (IllegalArgumentException)
             view.mostrarErro(e.getMessage());
         }
     }

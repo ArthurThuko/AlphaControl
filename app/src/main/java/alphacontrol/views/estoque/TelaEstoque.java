@@ -1,9 +1,9 @@
 package alphacontrol.views.estoque;
 
-import alphacontrol.controllers.ModalAdicionarProdutoController;
-import alphacontrol.controllers.ModalEditarProdutoController;
-import alphacontrol.controllers.ProdutoController;
-import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
+import alphacontrol.controllers.modais.ModalEditarProdutoController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
 import alphacontrol.dao.ProdutoDAO;

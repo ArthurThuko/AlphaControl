@@ -6,8 +6,8 @@ import javax.swing.table.*;
 
 import java.util.List;
 
-import alphacontrol.controllers.FluxoCaixaController;
-import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
 import alphacontrol.views.components.Navbar; // Import adicionado
 
