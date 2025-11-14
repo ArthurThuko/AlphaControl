@@ -5,6 +5,8 @@ import alphacontrol.dao.FiadoDAO;
 import alphacontrol.models.Cliente;
 import alphacontrol.models.Fiado;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class FiadoController {
@@ -38,6 +40,32 @@ public class FiadoController {
         return fiadoDAO.listarPorCliente(clienteId);
     }
     
+    /**
+     * NOVO MÉTODO: Registra um pagamento parcial para um cliente.
+     * Apenas atualiza o débito na tabela 'cliente'.
+     */
+    public void pagarFiado(int clienteId, double valorPago) throws SQLException {
+        try {
+            Cliente cliente = clienteDAO.buscarPorId(clienteId);
+            if (cliente == null) {
+                throw new SQLException("Cliente não encontrado.");
+            }
+            if (valorPago > cliente.getDebito()) {
+                 throw new SQLException("Valor pago é maior que o débito total.");
+            }
+            
+            double novoDebito = cliente.getDebito() - valorPago;
+            cliente.setDebito(novoDebito);
+            clienteDAO.atualizarCliente(cliente);
+
+        } catch (SQLException e) {
+            throw new SQLException("Erro ao registrar pagamento parcial: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Quita a dívida completa: Zera o débito do cliente e marca fiados como 'QUITADO'.
+     */
     public void quitarDividaCompleta(int clienteId) throws SQLException {
         try {
             clienteDAO.quitarDivida(clienteId);

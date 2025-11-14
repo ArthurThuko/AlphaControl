@@ -81,7 +81,7 @@ public class ModalEntrada extends JDialog {
         gbc.gridwidth = 2;
 
         JLabel titulo = new JLabel("Entrada", SwingConstants.CENTER);
-        titulo.setFont(new Font("Serif", Font.BOLD, 26));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
         titulo.setForeground(verdeEscuro);
         painel.add(titulo, gbc);
 
@@ -108,7 +108,7 @@ public class ModalEntrada extends JDialog {
         gbc.gridx = 0;
         JLabel lbl = new JLabel(label, SwingConstants.CENTER);
         lbl.setForeground(verdeEscuro);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         painel.add(lbl, gbc);
 
         gbc.gridx = 1;
@@ -116,7 +116,7 @@ public class ModalEntrada extends JDialog {
         campo.setOpaque(true);
         campo.setBackground(new Color(245, 250, 245));
         campo.setForeground(verdeEscuro);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
         campo.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(verdeClaro, 2, true),
@@ -140,7 +140,7 @@ public class ModalEntrada extends JDialog {
             }
         };
         btn.setForeground(begeClaro);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
         btn.addActionListener(action);
@@ -161,11 +161,9 @@ public class ModalEntrada extends JDialog {
             double valor = Double.parseDouble(valorStr.replace(",", "."));
 
             if (movimentacaoEditando == null) {
-                // ➕ Adicionando novo
                 controller.adicionarEntrada(nome, valor, data);
                 JOptionPane.showMessageDialog(this, "Entrada adicionada com sucesso!");
             } else {
-                // ✏️ Editando existente
                 controller.atualizarMovimentacao(
                         movimentacaoEditando.getId(),
                         "entrada",

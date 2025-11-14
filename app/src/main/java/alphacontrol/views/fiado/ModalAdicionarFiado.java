@@ -41,7 +41,7 @@ public class ModalAdicionarFiado extends JDialog {
         this.parentView = parent;
 
         setUndecorated(true);
-        setSize(600, 400);
+        setSize(600, 380); // Altura ajustada
         setLocationRelativeTo(parent);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -207,7 +207,6 @@ public class ModalAdicionarFiado extends JDialog {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground());
             
             if (isEditable()) {
                 g2.setColor(Color.WHITE);

@@ -9,7 +9,7 @@ import java.util.List;
 import alphacontrol.controllers.FluxoCaixaController;
 import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
-import alphacontrol.views.components.Navbar;
+import alphacontrol.views.components.Navbar; // Import adicionado
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
@@ -21,6 +21,9 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color VERDE_CLARO = new Color(202, 219, 183);
     private static final Color VERDE_BORDA = new Color(139, 160, 118);
     private static final Color VERDE_BOTAO = new Color(101, 125, 64);
+    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
+    private static final Color AZUL_ACAO = new Color(0, 100, 200);
+
 
     private JTable tabelaEntradas;
     private JTable tabelaSaidas;
@@ -40,7 +43,8 @@ public class TelaFluxoCaixa extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
 
-        setJMenuBar(new Navbar(this, this.mainController, "Fluxo de Caixa"));
+        // LINHA DA NAVBAR ADICIONADA AQUI
+        setJMenuBar(new Navbar(this, mainController, "Fluxo de Caixa"));
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
@@ -82,15 +86,15 @@ public class TelaFluxoCaixa extends JFrame {
         gbcPainel.insets = new Insets(0, 15, 0, 15);
 
         gbcPainel.gridx = 0;
-        gbcPainel.weightx = 0.45;
+        gbcPainel.weightx = 0.4;
         painelLateral.add(painelEntradas, gbcPainel);
 
         gbcPainel.gridx = 1;
-        gbcPainel.weightx = 0.45;
+        gbcPainel.weightx = 0.4;
         painelLateral.add(painelSaidas, gbcPainel);
 
         gbcPainel.gridx = 2;
-        gbcPainel.weightx = 0.1;
+        gbcPainel.weightx = 0.2;
         painelLateral.add(painelDireita, gbcPainel);
 
         gbc.gridx = 0;
@@ -132,22 +136,20 @@ public class TelaFluxoCaixa extends JFrame {
 
         tabelaEntradas = new JTable(modelo);
 
-        // ==== TABELA DE ENTRADAS ====
         tabelaEntradas.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int linha = tabelaEntradas.rowAtPoint(evt.getPoint());
                 int coluna = tabelaEntradas.columnAtPoint(evt.getPoint());
+                if (linha < 0) return;
 
-                // Coluna 3 = Editar, Coluna 4 = Excluir
                 if (coluna == 3) {
                     MovimentacaoCaixa mov = controller.listarEntradas().get(linha);
 
-                    // Abre modal de edição
                     ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov);
                     modal.setVisible(true);
 
-                    recarregarTabelaEntradas(); // Atualiza lista
+                    recarregarTabelaEntradas();
                 } else if (coluna == 4) {
                     int confirm = JOptionPane.showConfirmDialog(
                             TelaFluxoCaixa.this,
@@ -166,23 +168,9 @@ public class TelaFluxoCaixa extends JFrame {
 
         configurarTabela(tabelaEntradas);
         recarregarTabelaEntradas();
-
-        tabelaEntradas.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        tabelaEntradas.getColumnModel().getColumn(0).setPreferredWidth(100); // Nome
-        tabelaEntradas.getColumnModel().getColumn(1).setPreferredWidth(110); // Valor (R$)
-        tabelaEntradas.getColumnModel().getColumn(2).setPreferredWidth(90); // Data
-        tabelaEntradas.getColumnModel().getColumn(3).setPreferredWidth(60); // Editar
-        tabelaEntradas.getColumnModel().getColumn(4).setPreferredWidth(60); // Excluir
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabelaEntradas.getColumnCount(); i++) {
-            tabelaEntradas.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
+        
         JScrollPane scroll = new JScrollPane(tabelaEntradas);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setBorder(BorderFactory.createLineBorder(VERDE_BORDA));
         scroll.getViewport().setBackground(VERDE_CLARO);
 
         gbc.gridy = 1;
@@ -244,17 +232,16 @@ public class TelaFluxoCaixa extends JFrame {
 
         tabelaSaidas = new JTable(modelo);
 
-        // ==== TABELA DE SAÍDAS ====
         tabelaSaidas.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int linha = tabelaSaidas.rowAtPoint(evt.getPoint());
                 int coluna = tabelaSaidas.columnAtPoint(evt.getPoint());
+                if (linha < 0) return;
 
                 if (coluna == 3) {
                     MovimentacaoCaixa mov = controller.listarSaidas().get(linha);
 
-                    // Abre modal de edição
                     ModalSaida modal = new ModalSaida(TelaFluxoCaixa.this, mov);
                     modal.setVisible(true);
 
@@ -275,24 +262,11 @@ public class TelaFluxoCaixa extends JFrame {
             }
         });
 
-        configurarTabelaSaidas(tabelaSaidas); // usamos um método separado, só para diferenciar cores
+        configurarTabelaSaidas(tabelaSaidas);
         recarregarTabelaSaidas();
 
-        tabelaSaidas.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        tabelaSaidas.getColumnModel().getColumn(0).setPreferredWidth(100);
-        tabelaSaidas.getColumnModel().getColumn(1).setPreferredWidth(110);
-        tabelaSaidas.getColumnModel().getColumn(2).setPreferredWidth(90);
-        tabelaSaidas.getColumnModel().getColumn(3).setPreferredWidth(45);
-        tabelaSaidas.getColumnModel().getColumn(4).setPreferredWidth(45);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i = 0; i < tabelaSaidas.getColumnCount(); i++) {
-            tabelaSaidas.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
         JScrollPane scroll = new JScrollPane(tabelaSaidas);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setBorder(BorderFactory.createLineBorder(VERMELHO_BORDA));
         scroll.getViewport().setBackground(VERMELHO_CLARO);
 
         gbc.gridy = 1;
@@ -354,12 +328,41 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.setForeground(MARROM_ESCURO);
         tabela.setGridColor(VERDE_BORDA);
         tabela.setShowGrid(false);
-        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 16));
-        tabela.getTableHeader().setBackground(VERDE_CLARO);
-        tabela.getTableHeader().setForeground(MARROM_ESCURO);
         tabela.setIntercellSpacing(new Dimension(0, 5));
         tabela.setSelectionBackground(VERDE_BORDA.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setBackground(VERDE_BORDA);
+        header.setForeground(Color.WHITE);
+        header.setBorder(new EmptyBorder(5, 10, 5, 10));
+        header.setReorderingAllowed(false);
+        
+        PaddedCellRenderer textRenderer = new PaddedCellRenderer();
+        textRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+
+        PaddedCellRenderer valueRenderer = new PaddedCellRenderer();
+        valueRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        PaddedCellRenderer dateRenderer = new PaddedCellRenderer();
+        dateRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        ActionCellRenderer actionRenderer = new ActionCellRenderer();
+
+        tabela.getColumnModel().getColumn(0).setCellRenderer(textRenderer);
+        tabela.getColumnModel().getColumn(1).setCellRenderer(valueRenderer);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(dateRenderer);
+        tabela.getColumnModel().getColumn(3).setCellRenderer(actionRenderer);
+        tabela.getColumnModel().getColumn(4).setCellRenderer(actionRenderer);
+
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(250);
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(150);
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(3).setMaxWidth(100);
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(4).setMaxWidth(100);
     }
 
     private void configurarTabelaSaidas(JTable tabela) {
@@ -369,12 +372,41 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.setForeground(MARROM_ESCURO);
         tabela.setGridColor(new Color(178, 67, 62));
         tabela.setShowGrid(false);
-        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 16));
-        tabela.getTableHeader().setBackground(new Color(236, 204, 200));
-        tabela.getTableHeader().setForeground(MARROM_ESCURO);
         tabela.setIntercellSpacing(new Dimension(0, 5));
         tabela.setSelectionBackground(new Color(214, 160, 160));
         tabela.setSelectionForeground(MARROM_ESCURO);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setBackground(new Color(178, 67, 62));
+        header.setForeground(Color.WHITE);
+        header.setBorder(new EmptyBorder(5, 10, 5, 10));
+        header.setReorderingAllowed(false);
+        
+        PaddedCellRenderer textRenderer = new PaddedCellRenderer();
+        textRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+
+        PaddedCellRenderer valueRenderer = new PaddedCellRenderer();
+        valueRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        PaddedCellRenderer dateRenderer = new PaddedCellRenderer();
+        dateRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        ActionCellRenderer actionRenderer = new ActionCellRenderer();
+
+        tabela.getColumnModel().getColumn(0).setCellRenderer(textRenderer);
+        tabela.getColumnModel().getColumn(1).setCellRenderer(valueRenderer);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(dateRenderer);
+        tabela.getColumnModel().getColumn(3).setCellRenderer(actionRenderer);
+        tabela.getColumnModel().getColumn(4).setCellRenderer(actionRenderer);
+
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(250);
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(150);
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(3).setMaxWidth(100);
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(4).setMaxWidth(100);
     }
 
     private String calcularTotal(DefaultTableModel modelo) {
@@ -410,7 +442,15 @@ public class TelaFluxoCaixa extends JFrame {
         }
 
         double saldo = totalEntradas - totalSaidas;
-        lblSaldo.setText(String.format("R$ %.2f", saldo));
+        lblSaldo.setText(new DecimalFormat("R$ #,##0.00").format(saldo));
+        
+        if (saldo < 0) {
+            lblSaldo.setForeground(VERMELHO_TERROSO);
+        } else if (saldo > 0) {
+            lblSaldo.setForeground(VERDE_BOTAO);
+        } else {
+            lblSaldo.setForeground(new Color(30, 60, 110));
+        }
     }
 
     private void recarregarTabelaEntradas() {
@@ -451,8 +491,6 @@ public class TelaFluxoCaixa extends JFrame {
         atualizarSaldo();
     }
 
-    // ==== Componentes reutilizados ====
-
     static class RoundedPanel extends JPanel {
         private final int radius;
         private final Color bgColor;
@@ -472,6 +510,7 @@ public class TelaFluxoCaixa extends JFrame {
             g2.setColor(bgColor);
             g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
             g2.setColor(borderColor);
+            g2.setStroke(new BasicStroke(1.5f));
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
         }
     }
@@ -504,8 +543,7 @@ public class TelaFluxoCaixa extends JFrame {
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
-            setHorizontalAlignment(SwingConstants.CENTER);
-            setBorder(new EmptyBorder(5, 20, 5, 20)); // ← aumente o segundo e quarto valor (esquerda/direita)
+            setBorder(new EmptyBorder(5, 15, 5, 15));
         }
 
         @Override
@@ -523,8 +561,44 @@ public class TelaFluxoCaixa extends JFrame {
         }
     }
 
+    static class ActionCellRenderer extends DefaultTableCellRenderer {
+        
+        public ActionCellRenderer() {
+            setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            c.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+            if (value.equals("Editar")) {
+                c.setForeground(AZUL_ACAO);
+            } else if (value.equals("Excluir")) {
+                c.setForeground(VERMELHO_TERROSO);
+            }
+
+            if (isSelected) {
+                c.setBackground(table.getSelectionBackground());
+            } else {
+                c.setBackground(table.getBackground());
+            }
+            return c;
+        }
+    }
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
             try {
                 TelaFluxoCaixa tela = new TelaFluxoCaixa(null);
                 tela.setVisible(true);

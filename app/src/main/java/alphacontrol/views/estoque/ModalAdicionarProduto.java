@@ -47,7 +47,6 @@ public class ModalAdicionarProduto extends JDialog {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
-        // --- Permitir arrastar a tela ---
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -67,7 +66,6 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        // --- Título centralizado ---
         JLabel titulo = new JLabel("Adicionar Produto", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 26));
         titulo.setForeground(marromEscuro);
@@ -76,17 +74,12 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        // --- Campos (Usando os campos da sua classe original) ---
-        // (Removi o campo "Alerta Estoque Min." para ser compatível com seu 'getProdutoFromFields')
-
-        // 1. Nome
         painel.add(criarLabel("Nome:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtNome = criarCampo(begeClaro, marromClaro, marromEscuro);
         painel.add(txtNome, gbc);
         gbc.gridy++;
 
-        // 2. Categoria
         gbc.gridx = 0;
         painel.add(criarLabel("Categoria:", marromEscuro), gbc);
         gbc.gridx = 1;
@@ -94,15 +87,13 @@ public class ModalAdicionarProduto extends JDialog {
         painel.add(txtCategoria, gbc);
         gbc.gridy++;
         
-        // 3. Valor Compra
         gbc.gridx = 0;
-        painel.add(criarLabel("Valor Compra (R$):", marromEscuro), gbc);
+        painel.add(criarLabel("Preço de Custo (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
         txtCompra = criarCampo(begeClaro, marromClaro, marromEscuro);
         painel.add(txtCompra, gbc);
         gbc.gridy++;
 
-        // 4. Valor Venda
         gbc.gridx = 0;
         painel.add(criarLabel("Valor Venda (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
@@ -110,7 +101,6 @@ public class ModalAdicionarProduto extends JDialog {
         painel.add(txtVenda, gbc);
         gbc.gridy++;
         
-        // 5. Quantidade
         gbc.gridx = 0;
         painel.add(criarLabel("Quantidade:", marromEscuro), gbc);
         gbc.gridx = 1;
@@ -119,7 +109,6 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridy++;
 
 
-        // --- Botão Salvar (do design novo) ---
         btnSalvar = new JButton("Salvar") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -136,14 +125,12 @@ public class ModalAdicionarProduto extends JDialog {
         btnSalvar.setFocusPainted(false);
         btnSalvar.setContentAreaFilled(false);
         btnSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        // NÃO ADICIONE O addActionListener AQUI (o Controller faz isso)
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(btnSalvar, gbc);
         gbc.gridy++;
 
-        // --- Botão Fechar (do design novo) ---
         JButton botaoFechar = new JButton("Fechar") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -163,20 +150,18 @@ public class ModalAdicionarProduto extends JDialog {
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
         botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        botaoFechar.addActionListener(e -> dispose()); // Este botão pode fechar
+        botaoFechar.addActionListener(e -> dispose());
 
         painel.add(botaoFechar, gbc);
 
-        // --- Configurações do modal (do design novo) ---
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 600); // Tamanho do design novo
+        setSize(500, 600);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
     
-    // --- Método auxiliar para criar os campos (do design novo) ---
     private JTextField criarCampo(Color fundo, Color borda, Color texto) {
         JTextField campo = new JTextField() {
             @Override
@@ -198,7 +183,6 @@ public class ModalAdicionarProduto extends JDialog {
         return campo;
     }
     
-    // --- Método auxiliar para criar os labels (do design novo) ---
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
@@ -206,7 +190,6 @@ public class ModalAdicionarProduto extends JDialog {
         return lbl;
     }
 
-    // --- MÉTODOS MVC (do seu modal original, 100% mantidos) ---
 
     public JButton getBtnSalvar() { 
         return btnSalvar; 

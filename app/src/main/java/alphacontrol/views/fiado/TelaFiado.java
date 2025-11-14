@@ -6,11 +6,13 @@ import alphacontrol.controllers.ModalAdicionarClienteController;
 import alphacontrol.controllers.ModalEditarFiadoController;
 import alphacontrol.controllers.ProdutoController;
 import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.ModalQuitarDividaController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.cliente.ModalAdicionarCliente;
 import alphacontrol.views.components.Navbar;
 import alphacontrol.views.fiado.ModalAdicionarFiado;
 import alphacontrol.views.fiado.ModalEditarFiado;
+import alphacontrol.views.fiado.ModalQuitarDivida;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -156,9 +158,10 @@ public class TelaFiado extends JFrame {
 
     private void abrirModalAdicionarFiado() {
         ModalAdicionarFiado modal = new ModalAdicionarFiado(
-                this,
-                this.fiadoController,
-                this.clienteController);
+                this, 
+                this.fiadoController, 
+                this.clienteController
+        );
         modal.setVisible(true);
         atualizarTabela();
     }
@@ -177,16 +180,18 @@ public class TelaFiado extends JFrame {
     public void atualizarTabela() {
         modelo.setRowCount(0);
         List<Cliente> clientes = clienteController.pesquisar(txtPesquisa.getText());
-for (Cliente c : clientes) {
-    modelo.addRow(new Object[]{
-        c.getId(),
-        c.getNome(),
-        c.getEnderecoCompleto(),
-        c.getTelefone(),
-        c.getDebito(),
-        ""
-    });
-}
+        for (Cliente c : clientes) {
+            if (c.getDebito() > 0) {
+                modelo.addRow(new Object[]{
+                        c.getId(),
+                        c.getNome(),
+                        c.getEnderecoCompleto(),
+                        c.getTelefone(),
+                        c.getDebito(),
+                        ""
+                });
+            }
+        }
     }
 
     private void configurarTabela(JTable tabela) {
@@ -485,29 +490,26 @@ for (Cliente c : clientes) {
 
             panel.btnPagar.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
-                String nome = (String) table.getValueAt(row, 1);
                 double valor = (double) table.getValueAt(row, 4);
 
                 if (valor == 0) {
-                    JOptionPane.showMessageDialog(table, "Cliente " + nome + " não possui débitos.");
+                    JOptionPane.showMessageDialog(table, "Cliente não possui débitos.");
                     fireEditingStopped();
                     return;
                 }
 
-                int resp = JOptionPane.showConfirmDialog(table,
-                        "Quitar dívida total de " + nome + " (Valor: " + new DecimalFormat("R$ #,##0.00").format(valor)
-                                + ")?",
-                        "Confirmar Pagamento", JOptionPane.YES_NO_OPTION);
-
-                if (resp == JOptionPane.YES_OPTION) {
-                    try {
-                        fiadoController.quitarDividaCompleta(id);
-                        ((DefaultTableModel) table.getModel()).setValueAt(0.0, row, 4);
-                        JOptionPane.showMessageDialog(table, "Dívida de " + nome + " quitada.");
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(table, "Erro ao quitar dívida: " + ex.getMessage());
-                    }
+                Cliente cliente = clienteController.buscarPorId(id);
+                if (cliente == null) {
+                    JOptionPane.showMessageDialog(table, "Cliente não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    fireEditingStopped();
+                    return;
                 }
+
+                ModalQuitarDivida modal = new ModalQuitarDivida(this.telaFiado, cliente, this.fiadoController);
+                new ModalQuitarDividaController(modal);
+                modal.setVisible(true);
+                
+                this.telaFiado.atualizarTabela();
                 fireEditingStopped();
             });
         }

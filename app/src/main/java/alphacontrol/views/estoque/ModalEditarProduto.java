@@ -64,7 +64,7 @@ public class ModalEditarProduto extends JDialog {
 
         String[] labels = {
                 "Nome:", "Quantidade:", "Alerta Estoque Min.:",
-                "Categoria:", "Valor Compra (R$):", "Valor Venda (R$):"
+                "Categoria:", "Preço de Custo (R$):", "Valor Venda (R$):"
         };
         campos = new JTextField[labels.length];
 

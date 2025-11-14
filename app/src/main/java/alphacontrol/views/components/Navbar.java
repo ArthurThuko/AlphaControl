@@ -2,10 +2,11 @@ package alphacontrol.views.components;
 
 import alphacontrol.controllers.TelaPrincipalController;
 import alphacontrol.views.estoque.TelaEstoque;
-import alphacontrol.views.TelaPDV; 
+import alphacontrol.views.TelaPDV;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
 import alphacontrol.views.TelaRelatorios;
 import alphacontrol.views.fiado.TelaFiado;
+import alphacontrol.views.TelaPrincipal;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,13 +25,22 @@ public class Navbar extends JMenuBar {
     public Navbar(JFrame currentScreen, TelaPrincipalController mainController, String activeItem) {
         setBackground(MARROM_MEDIO);
         setBorder(new EmptyBorder(0, 5, 0, 5));
-        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
+        NavItem navPrincipal = new NavItem("Principal", "Principal".equals(activeItem));
         NavItem navEstoque = new NavItem("Estoque", "Estoque".equals(activeItem));
         NavItem navPDV = new NavItem("PDV", "PDV".equals(activeItem));
         NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa", "Fluxo de Caixa".equals(activeItem));
         NavItem navRelatorio = new NavItem("Relatório", "Relatório".equals(activeItem));
         NavItem navFiado = new NavItem("Fiado", "Fiado".equals(activeItem));
+        NavItem navSair = new NavItem("Sair", false);
+
+        navPrincipal.addActionListener(e -> {
+            if (!"Principal".equals(activeItem)) {
+                new TelaPrincipal(mainController).setVisible(true);
+                currentScreen.dispose();
+            }
+        });
 
         navEstoque.addActionListener(e -> {
             if (!"Estoque".equals(activeItem)) {
@@ -66,12 +76,30 @@ public class Navbar extends JMenuBar {
                 currentScreen.dispose();
             }
         });
+        
+        navSair.addActionListener(e -> {
+            int resp = JOptionPane.showConfirmDialog(
+                currentScreen, 
+                "Deseja realmente sair do AlphaControl?", 
+                "Confirmar Saída", 
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            if (resp == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
 
+        add(navPrincipal);
         add(navEstoque);
         add(navPDV);
         add(navFluxoCaixa);
         add(navRelatorio);
         add(navFiado);
+        
+        add(Box.createHorizontalGlue());
+        
+        add(navSair);
     }
 
     class NavItem extends JButton {
