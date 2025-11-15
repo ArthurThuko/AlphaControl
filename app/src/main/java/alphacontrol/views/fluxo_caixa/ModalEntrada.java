@@ -13,7 +13,7 @@ import java.awt.geom.RoundRectangle2D;
 public class ModalEntrada extends JDialog {
 
     private Point mouseClickPoint;
-    private FluxoCaixaController controller = new FluxoCaixaController();
+    private FluxoCaixaController controller;
     private JTextField txtNome, txtData, txtValor;
     private MovimentacaoCaixa movimentacaoEditando;
 
@@ -24,13 +24,14 @@ public class ModalEntrada extends JDialog {
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
 
-    public ModalEntrada(JFrame parent) {
-        this(parent, null);
+    public ModalEntrada(JFrame parent, FluxoCaixaController controller) {
+        this(parent, null, controller);
     }
 
-    public ModalEntrada(JFrame parent, MovimentacaoCaixa mov) {
+    public ModalEntrada(JFrame parent, MovimentacaoCaixa mov, FluxoCaixaController controller) {
         super(parent, true);
         this.movimentacaoEditando = mov;
+        this.controller = controller;
         setTitle(mov == null ? "Adicionar Entrada" : "Editar Entrada");
 
         JPanel painel = criarPainelPrincipal();

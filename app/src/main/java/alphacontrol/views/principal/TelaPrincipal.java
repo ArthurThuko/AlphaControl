@@ -5,6 +5,7 @@ import alphacontrol.controllers.fiado.FiadoController;
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
@@ -155,14 +156,18 @@ public class TelaPrincipal extends JFrame {
 
                 ProdutoController produtoController = new ProdutoController(produtoDAO);
                 ClienteController clienteController = new ClienteController(clienteDAO);
-                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO);
-                PdvController pdvController = new PdvController(produtoController, clienteController);
+                
+                FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(conexao);
+                
+                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
+                PdvController pdvController = new PdvController(produtoController, clienteController, fluxoCaixaController);
 
                 TelaPrincipalController principalController = new TelaPrincipalController(
                         produtoController, 
                         clienteController, 
                         pdvController, 
-                        fiadoController
+                        fiadoController,
+                        fluxoCaixaController
                 );
                 
                 TelaPrincipal tela = new TelaPrincipal(principalController);

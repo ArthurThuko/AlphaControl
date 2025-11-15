@@ -5,6 +5,7 @@ import java.awt.*;
 
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.views.estoque.TelaEstoque;
@@ -21,12 +22,14 @@ public class TelaPrincipalController {
     private ClienteController clienteController; 
     private PdvController pdvController;
     private FiadoController fiadoController;
+    private FluxoCaixaController fluxoCaixaController;
 
-    public TelaPrincipalController(ProdutoController pCtrl, ClienteController cCtrl, PdvController pdvCtrl, FiadoController fCtrl) {
+    public TelaPrincipalController(ProdutoController pCtrl, ClienteController cCtrl, PdvController pdvCtrl, FiadoController fCtrl, FluxoCaixaController fluxoCtrl) {
         this.produtoController = pCtrl;
         this.clienteController = cCtrl;
         this.pdvController = pdvCtrl;
         this.fiadoController = fCtrl;
+        this.fluxoCaixaController = fluxoCtrl;
     }
 
     public void setView(JFrame view) {
@@ -37,6 +40,7 @@ public class TelaPrincipalController {
     public ClienteController getClienteController() { return this.clienteController; }
     public PdvController getPdvController() { return this.pdvController; }
     public FiadoController getFiadoController() { return this.fiadoController; }
+    public FluxoCaixaController getFluxoCaixaController() { return this.fluxoCaixaController; }
 
     public void abrirTelaEstoque() {
         new TelaEstoque(this).setVisible(true);

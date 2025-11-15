@@ -1,77 +1,61 @@
 package alphacontrol.controllers.fiado;
 
-import alphacontrol.dao.ClienteDAO;
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.dao.FiadoDAO;
-import alphacontrol.models.Cliente;
+import alphacontrol.dao.ClienteDAO;
 import alphacontrol.models.Fiado;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import alphacontrol.models.Cliente; // Importar o modelo Cliente
+import javax.swing.JOptionPane;
+import java.sql.SQLException; // Importar SQLException
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List; // Importar List
 
 public class FiadoController {
 
     private FiadoDAO fiadoDAO;
     private ClienteDAO clienteDAO;
+    private FluxoCaixaController fluxoCaixaController;
 
-    public FiadoController(FiadoDAO fiadoDAO, ClienteDAO clienteDAO) {
+    public FiadoController(FiadoDAO fiadoDAO, ClienteDAO clienteDAO, FluxoCaixaController fluxoCaixaController) {
         this.fiadoDAO = fiadoDAO;
         this.clienteDAO = clienteDAO;
+        this.fluxoCaixaController = fluxoCaixaController;
     }
 
+    // MÉTODO QUE ESTAVA FALTANDO
     public void adicionarFiado(Fiado fiado) throws SQLException {
-        try {
-            fiadoDAO.adicionarFiado(fiado);
-            
-            Cliente cliente = clienteDAO.buscarPorId(fiado.getClienteId());
-            if (cliente != null) {
-                double novoDebito = cliente.getDebito() + fiado.getValor();
-                cliente.setDebito(novoDebito);
-                clienteDAO.atualizarCliente(cliente);
-            } else {
-                throw new SQLException("Cliente não encontrado para atualizar o débito.");
-            }
-        } catch (SQLException e) {
-            throw new SQLException("Erro ao processar fiado e atualizar débito: " + e.getMessage(), e);
-        }
+        fiadoDAO.inserir(fiado);
+        clienteDAO.atualizarDebito(fiado.getClienteId(), fiado.getValor());
     }
     
+    // MÉTODO QUE ESTAVA FALTANDO
     public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
         return fiadoDAO.listarPorCliente(clienteId);
     }
-    
-    /**
-     * NOVO MÉTODO: Registra um pagamento parcial para um cliente.
-     * Apenas atualiza o débito na tabela 'cliente'.
-     */
-    public void pagarFiado(int clienteId, double valorPago) throws SQLException {
-        try {
-            Cliente cliente = clienteDAO.buscarPorId(clienteId);
-            if (cliente == null) {
-                throw new SQLException("Cliente não encontrado.");
-            }
-            if (valorPago > cliente.getDebito()) {
-                 throw new SQLException("Valor pago é maior que o débito total.");
-            }
-            
-            double novoDebito = cliente.getDebito() - valorPago;
-            cliente.setDebito(novoDebito);
-            clienteDAO.atualizarCliente(cliente);
 
-        } catch (SQLException e) {
-            throw new SQLException("Erro ao registrar pagamento parcial: " + e.getMessage(), e);
-        }
+    // MÉTODO QUE ESTAVA FALTANDO
+    public void pagarFiado(int clienteId, double valorPago) throws SQLException {
+        fiadoDAO.pagarParcial(clienteId, valorPago);
+        clienteDAO.atualizarDebito(clienteId, -valorPago);
+        
+        Cliente cliente = clienteDAO.buscarPorId(clienteId);
+        String dataHoje = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String nomeEntrada = "Pgto. Parcial Fiado: " + cliente.getNome();
+        fluxoCaixaController.adicionarEntrada(nomeEntrada, valorPago, dataHoje);
     }
-    
-    /**
-     * Quita a dívida completa: Zera o débito do cliente e marca fiados como 'QUITADO'.
-     */
+
+    // MÉTODO QUE ESTAVA FALTANDO
     public void quitarDividaCompleta(int clienteId) throws SQLException {
-        try {
-            clienteDAO.quitarDivida(clienteId);
-            fiadoDAO.quitarFiadosPorCliente(clienteId);
-        } catch (SQLException e) {
-            throw new SQLException("Erro ao quitar dívida completa: " + e.getMessage(), e);
-        }
+        Cliente cliente = clienteDAO.buscarPorId(clienteId);
+        double valorTotal = cliente.getDebito();
+        
+        fiadoDAO.quitarTudo(clienteId);
+        clienteDAO.atualizarDebito(clienteId, -valorTotal);
+        
+        String dataHoje = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String nomeEntrada = "Pgto. Total Fiado: " + cliente.getNome();
+        fluxoCaixaController.adicionarEntrada(nomeEntrada, valorTotal, dataHoje);
     }
 }
