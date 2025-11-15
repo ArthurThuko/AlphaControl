@@ -107,7 +107,7 @@ public class ModalEntrada extends JDialog {
         return painel;
     }
 
-    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
+    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc, Color fundo, Color borda, Color texto) {
         gbc.gridx = 0;
         gbc.weightx = 0.3;
         JLabel lbl = new JLabel(label, SwingConstants.RIGHT);

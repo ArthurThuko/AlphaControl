@@ -43,7 +43,6 @@ public class TelaFluxoCaixa extends JFrame {
     private FluxoCaixaController controller;
     private TelaPrincipalController mainController;
 
-
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
           this.mainController = mainController;
         this.controller = mainController.getFluxoCaixaController();
@@ -85,8 +84,14 @@ public class TelaFluxoCaixa extends JFrame {
         JPanel painelTabelas = new JPanel(new GridBagLayout());
         painelTabelas.setOpaque(false);
 
+        JPanel painelTabelas = new JPanel(new GridLayout(1, 2, 30, 0)); 
+        painelTabelas.setOpaque(false);
+        
         JPanel painelEntradas = criarPainelEntradas();
         JPanel painelSaidas = criarPainelSaidas();
+        
+        painelTabelas.add(painelEntradas);
+        painelTabelas.add(painelSaidas);
 
         GridBagConstraints gbcTabelas = new GridBagConstraints();
         gbcTabelas.gridy = 0;
@@ -207,6 +212,7 @@ public class TelaFluxoCaixa extends JFrame {
         return painelResumo;
     }
 
+
     private JPanel criarPainelEntradas() {
         JPanel painel = new RoundedPanel(15);
         painel.setBackground(BEGE_CLARO);
@@ -223,6 +229,7 @@ public class TelaFluxoCaixa extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
         gbc.gridy = 0;
+        gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(lblTitulo, gbc);
 
@@ -297,6 +304,7 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.weighty = 0; 
         gbc.fill = GridBagConstraints.NONE; 
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 0, 0, 0); 
         painel.add(btnAdd, gbc);
 
         return painel;
@@ -318,6 +326,7 @@ public class TelaFluxoCaixa extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(MARROM_ESCURO);
         gbc.gridy = 0;
+        gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         painel.add(lblTitulo, gbc);
 
@@ -392,6 +401,7 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.weighty = 0; 
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 0, 0, 0); 
         painel.add(btnAdd, gbc);
 
         return painel;
@@ -421,7 +431,7 @@ public class TelaFluxoCaixa extends JFrame {
         textRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 
         PaddedCellRenderer valueRenderer = new PaddedCellRenderer();
-        valueRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        valueRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
         PaddedCellRenderer dateRenderer = new PaddedCellRenderer();
         dateRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -434,12 +444,12 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.getColumnModel().getColumn(3).setCellRenderer(actionRenderer);
         tabela.getColumnModel().getColumn(4).setCellRenderer(actionRenderer);
 
-        tabela.getColumnModel().getColumn(0).setPreferredWidth(250);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(200);
         tabela.getColumnModel().getColumn(1).setPreferredWidth(120);
         tabela.getColumnModel().getColumn(2).setPreferredWidth(150);
-        tabela.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(100);
         tabela.getColumnModel().getColumn(3).setMaxWidth(100);
-        tabela.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(100);
         tabela.getColumnModel().getColumn(4).setMaxWidth(100);
     }
     
@@ -578,9 +588,12 @@ public class TelaFluxoCaixa extends JFrame {
         }
     }
 
+
+
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
             setBorder(new EmptyBorder(5, 15, 5, 15));
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         @Override
@@ -625,6 +638,7 @@ public class TelaFluxoCaixa extends JFrame {
         
         public ActionCellRenderer() {
             setHorizontalAlignment(SwingConstants.CENTER);
+            setBorder(new EmptyBorder(5, 15, 5, 15));
         }
 
         @Override
@@ -649,6 +663,22 @@ public class TelaFluxoCaixa extends JFrame {
             
             ((JComponent) c).setToolTipText(value.toString());
             
+            return c;
+        }
+    }
+    
+    static class HeaderRenderer implements TableCellRenderer {
+        DefaultTableCellRenderer renderer;
+
+        public HeaderRenderer(JTable table) {
+            renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
+            renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
             return c;
         }
     }
