@@ -134,7 +134,7 @@ public class ModalAdicionarCliente extends JDialog {
             }
         };
         btnSalvar.setForeground(begeClaro);
-        btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btnSalvar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnSalvar.setFocusPainted(false);
         btnSalvar.setContentAreaFilled(false);
         btnSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -156,7 +156,7 @@ public class ModalAdicionarCliente extends JDialog {
             }
         };
         botaoFechar.setForeground(marromEscuro);
-        botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botaoFechar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
         botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -214,7 +214,7 @@ public class ModalAdicionarCliente extends JDialog {
         };
         campo.setOpaque(false);
         campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
@@ -235,7 +235,7 @@ public class ModalAdicionarCliente extends JDialog {
         };
         campo.setOpaque(false);
         campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
@@ -243,7 +243,7 @@ public class ModalAdicionarCliente extends JDialog {
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         return lbl;
     }
     
