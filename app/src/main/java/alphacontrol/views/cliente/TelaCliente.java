@@ -26,7 +26,7 @@ public class TelaCliente extends JFrame {
 
         // ==== Título ====
         JLabel titulo = new JLabel("Débitos de [Cliente]", SwingConstants.CENTER);
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
         // ==== Painel Busca ====

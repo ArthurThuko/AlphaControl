@@ -1,6 +1,6 @@
 package alphacontrol.views.fiado;
 
-import alphacontrol.controllers.FiadoController;
+import alphacontrol.controllers.fiado.FiadoController;
 import alphacontrol.models.Cliente;
 
 import javax.swing.*;

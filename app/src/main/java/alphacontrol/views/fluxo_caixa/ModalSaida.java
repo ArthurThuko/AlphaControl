@@ -1,9 +1,10 @@
 package alphacontrol.views.fluxo_caixa;
 
-import alphacontrol.controllers.FluxoCaixaController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.models.MovimentacaoCaixa;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,24 +13,25 @@ import java.awt.geom.RoundRectangle2D;
 public class ModalSaida extends JDialog {
 
     private Point mouseClickPoint;
-    private FluxoCaixaController controller = new FluxoCaixaController();
+    private FluxoCaixaController controller;
     private JTextField txtNome, txtData, txtValor;
-    private MovimentacaoCaixa movimentacaoEditando; // 👈 guarda se está editando
+    private MovimentacaoCaixa movimentacaoEditando;
 
-    // Cores do tema
-    private final Color begeFundo = new Color(242, 245, 233);
-    private final Color vermelhoEscuro = new Color(120, 40, 40);
-    private final Color vermelhoMedio = new Color(180, 60, 60);
-    private final Color vermelhoClaro = new Color(230, 100, 100);
-    private final Color begeClaro = new Color(253, 250, 240);
+    private static final Color BEGE_FUNDO = new Color(247, 239, 224);
+    private static final Color MARROM_ESCURO = new Color(77, 51, 30);
+    private static final Color MARROM_MEDIO = new Color(143, 97, 54);
+    private static final Color MARROM_CLARO = new Color(184, 142, 106);
+    private static final Color BEGE_CLARO = new Color(255, 250, 240);
+    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
 
-    public ModalSaida(JFrame parent) {
-        this(parent, null);
+    public ModalSaida(JFrame parent, FluxoCaixaController controller) {
+        this(parent, null, controller);
     }
 
-    public ModalSaida(JFrame parent, MovimentacaoCaixa mov) {
+    public ModalSaida(JFrame parent, MovimentacaoCaixa mov, FluxoCaixaController controller) {
         super(parent, true);
-        this.movimentacaoEditando = mov; // 👈 guarda referência
+        this.movimentacaoEditando = mov;
+        this.controller = controller;
         setTitle(mov == null ? "Adicionar Saída" : "Editar Saída");
 
         JPanel painel = criarPainelPrincipal();
@@ -43,7 +45,7 @@ public class ModalSaida extends JDialog {
         if (mov != null) {
             txtNome.setText(mov.getNome());
             txtData.setText(mov.getData());
-            txtValor.setText(String.valueOf(mov.getValor()));
+            txtValor.setText(String.format("%.2f", mov.getValor()).replace(",", "."));
         }
     }
 
@@ -53,7 +55,7 @@ public class ModalSaida extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(begeFundo);
+                g2.setColor(BEGE_FUNDO);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
                 g2.dispose();
             }
@@ -81,25 +83,25 @@ public class ModalSaida extends JDialog {
         gbc.weightx = 1;
         gbc.gridwidth = 2;
 
-        JLabel titulo = new JLabel("Saída", SwingConstants.CENTER);
+        JLabel titulo = new JLabel(movimentacaoEditando == null ? "Adicionar Saída" : "Editar Saída", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        titulo.setForeground(vermelhoEscuro);
+        titulo.setForeground(MARROM_ESCURO);
         painel.add(titulo, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridy++;
 
         txtNome = criarCampo("Nome:", painel, gbc);
-        txtData = criarCampo("Data:", painel, gbc);
-        txtValor = criarCampo("Valor:", painel, gbc);
+        txtData = criarCampo("Data (dd/mm/aaaa):", painel, gbc);
+        txtValor = criarCampo("Valor (R$):", painel, gbc);
 
-        JButton btnSalvar = criarBotao("Salvar", vermelhoMedio, e -> salvarSaida());
+        JButton btnSalvar = criarBotao("Salvar", VERMELHO_TERROSO, Color.WHITE, e -> salvarSaida());
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(btnSalvar, gbc);
         gbc.gridy++;
 
-        JButton btnFechar = criarBotao("Fechar", vermelhoClaro, e -> dispose());
+        JButton btnFechar = criarBotao("Fechar", MARROM_MEDIO, Color.WHITE, e -> dispose());
         painel.add(btnFechar, gbc);
 
         return painel;
@@ -107,43 +109,55 @@ public class ModalSaida extends JDialog {
 
     private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
         gbc.gridx = 0;
-        JLabel lbl = new JLabel(label, SwingConstants.CENTER);
-        lbl.setForeground(vermelhoEscuro);
+        gbc.weightx = 0.3;
+        JLabel lbl = new JLabel(label, SwingConstants.RIGHT);
+        lbl.setForeground(MARROM_ESCURO);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         painel.add(lbl, gbc);
 
         gbc.gridx = 1;
-        JTextField campo = new JTextField();
-        campo.setOpaque(true);
-        campo.setBackground(new Color(255, 250, 245)); // cor de fundo suave
-        campo.setForeground(vermelhoEscuro);
+        gbc.weightx = 0.7;
+        JTextField campo = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(BEGE_CLARO);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
+                g2.setColor(MARROM_CLARO);
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        campo.setOpaque(false);
+        campo.setForeground(MARROM_ESCURO);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-
-        campo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(vermelhoClaro, 2, true),
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
         painel.add(campo, gbc);
         gbc.gridy++;
         return campo;
     }
 
-    private JButton criarBotao(String texto, Color cor, java.awt.event.ActionListener action) {
+    private JButton criarBotao(String texto, Color corFundo, Color corTexto, java.awt.event.ActionListener action) {
         JButton btn = new JButton(texto) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? vermelhoEscuro : cor);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                g2.setColor(getModel().isRollover() ? corFundo.brighter() : corFundo);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        btn.setForeground(begeClaro);
+        btn.setForeground(corTexto);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addActionListener(action);
         return btn;
     }
@@ -162,11 +176,9 @@ public class ModalSaida extends JDialog {
             double valor = Double.parseDouble(valorStr.replace(",", "."));
 
             if (movimentacaoEditando == null) {
-                // ➕ Adicionando novo registro
                 controller.adicionarSaida(nome, valor, data);
                 JOptionPane.showMessageDialog(this, "Saída adicionada com sucesso!");
             } else {
-                // ✏️ Atualizando registro existente
                 controller.atualizarMovimentacao(
                         movimentacaoEditando.getId(),
                         "saida",
@@ -178,7 +190,7 @@ public class ModalSaida extends JDialog {
 
             dispose();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Valor inválido!", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Valor inválido! Use ponto para decimais (ex: 50.25).", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

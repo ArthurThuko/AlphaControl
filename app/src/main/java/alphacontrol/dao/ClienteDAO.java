@@ -24,22 +24,22 @@ public class ClienteDAO {
 
     private void criarTabelasSeNaoExistir() {
         String sqlEndereco = "CREATE TABLE IF NOT EXISTS endereco ("
-                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "rua TEXT,"
-                + "bairro TEXT,"
-                + "n_casa TEXT,"
-                + "cep TEXT"
-                + ");";
+                 + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                 + "rua TEXT,"
+                 + "bairro TEXT,"
+                 + "n_casa TEXT,"
+                 + "cep TEXT"
+                 + ");";
         
         String sqlCliente = "CREATE TABLE IF NOT EXISTS cliente ("
-                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "nome TEXT NOT NULL,"
-                + "cpf TEXT,"
-                + "telefone TEXT NOT NULL,"
-                + "debito REAL DEFAULT 0.0,"
-                + "endereco_id INTEGER UNIQUE,"
-                + "FOREIGN KEY (endereco_id) REFERENCES endereco(id) ON DELETE CASCADE"
-                + ");";
+                 + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                 + "nome TEXT NOT NULL,"
+                 + "cpf TEXT,"
+                 + "telefone TEXT NOT NULL,"
+                 + "debito REAL DEFAULT 0.0,"
+                 + "endereco_id INTEGER UNIQUE,"
+                 + "FOREIGN KEY (endereco_id) REFERENCES endereco(id) ON DELETE CASCADE"
+                 + ");";
 
         try (Statement stmt = conexao.createStatement()) {
             stmt.execute(sqlEndereco);
@@ -52,8 +52,8 @@ public class ClienteDAO {
     public List<Cliente> listarClientes() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT c.*, e.*, c.id as cliente_id, e.id as endereco_id "
-                + "FROM cliente c "
-                + "JOIN endereco e ON c.endereco_id = e.id";
+                 + "FROM cliente c "
+                 + "LEFT JOIN endereco e ON c.endereco_id = e.id";
 
         try (Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -68,9 +68,9 @@ public class ClienteDAO {
     public List<Cliente> pesquisarClientes(String nome) throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT c.*, e.*, c.id as cliente_id, e.id as endereco_id "
-                + "FROM cliente c "
-                + "JOIN endereco e ON c.endereco_id = e.id "
-                + "WHERE c.nome LIKE ?";
+                 + "FROM cliente c "
+                 + "LEFT JOIN endereco e ON c.endereco_id = e.id "
+                 + "WHERE c.nome LIKE ?";
         
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setString(1, "%" + nome + "%");
@@ -85,9 +85,9 @@ public class ClienteDAO {
     
     public Cliente buscarPorId(int id) throws SQLException {
         String sql = "SELECT c.*, e.*, c.id as cliente_id, e.id as endereco_id "
-                + "FROM cliente c "
-                + "JOIN endereco e ON c.endereco_id = e.id "
-                + "WHERE c.id = ?";
+                 + "FROM cliente c "
+                 + "LEFT JOIN endereco e ON c.endereco_id = e.id "
+                 + "WHERE c.id = ?";
         
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -182,6 +182,16 @@ public class ClienteDAO {
         String sql = "UPDATE cliente SET debito = 0.0 WHERE id = ?";
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, clienteId);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    // MÉTODO NOVO QUE FALTAVA
+    public void atualizarDebito(int clienteId, double valor) throws SQLException {
+        String sql = "UPDATE cliente SET debito = debito + ? WHERE id = ?";
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setDouble(1, valor);
+            pstmt.setInt(2, clienteId);
             pstmt.executeUpdate();
         }
     }

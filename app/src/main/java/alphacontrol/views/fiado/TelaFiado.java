@@ -1,12 +1,12 @@
 package alphacontrol.views.fiado;
 
-import alphacontrol.controllers.ClienteController;
-import alphacontrol.controllers.FiadoController;
-import alphacontrol.controllers.ModalAdicionarClienteController;
-import alphacontrol.controllers.ModalEditarFiadoController;
-import alphacontrol.controllers.ProdutoController;
-import alphacontrol.controllers.TelaPrincipalController;
-import alphacontrol.controllers.ModalQuitarDividaController;
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.modais.ModalAdicionarClienteController;
+import alphacontrol.controllers.modais.ModalEditarFiadoController;
+import alphacontrol.controllers.modais.ModalQuitarDividaController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.cliente.ModalAdicionarCliente;
 import alphacontrol.views.components.Navbar;

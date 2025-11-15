@@ -3,37 +3,32 @@ package alphacontrol.views.estoque;
 import alphacontrol.models.Produto;
 import javax.swing.*;
 import java.awt.*;
-// Imports necessários para o novo design
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class ModalAdicionarProduto extends JDialog {
     
-    // Campos de texto do seu modal original
     private final JTextField txtNome;
     private final JTextField txtCategoria;
     private final JTextField txtCompra;
     private final JTextField txtVenda;
     private final JTextField txtQnt;
+    private final JTextField txtQntMinima; 
     
-    // Botão Salvar do seu modal original (precisa ser um campo da classe)
     private final JButton btnSalvar;
 
-    // Campo para arrastar a tela (do novo design)
     private Point mouseClickPoint;
 
     public ModalAdicionarProduto(JFrame parent) {
         super(parent, "Adicionar Produto", true);
 
-        // --- Paleta de Cores (do ModalAdcProduto) ---
         Color begeFundo = new Color(247, 239, 224);
         Color marromEscuro = new Color(77, 51, 30);
         Color marromMedio = new Color(143, 97, 54);
         Color marromClaro = new Color(184, 142, 106);
         Color begeClaro = new Color(255, 250, 240);
 
-        // --- Painel principal com cantos arredondados ---
         JPanel painel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -107,7 +102,13 @@ public class ModalAdicionarProduto extends JDialog {
         txtQnt = criarCampo(begeClaro, marromClaro, marromEscuro);
         painel.add(txtQnt, gbc);
         gbc.gridy++;
-
+        
+        gbc.gridx = 0;
+        painel.add(criarLabel("Alerta Estoque Min.:", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtQntMinima = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtQntMinima, gbc);
+        gbc.gridy++;
 
         btnSalvar = new JButton("Salvar") {
             @Override
@@ -121,7 +122,7 @@ public class ModalAdicionarProduto extends JDialog {
             }
         };
         btnSalvar.setForeground(begeClaro);
-        btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btnSalvar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnSalvar.setFocusPainted(false);
         btnSalvar.setContentAreaFilled(false);
         btnSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -146,7 +147,7 @@ public class ModalAdicionarProduto extends JDialog {
             }
         };
         botaoFechar.setForeground(begeClaro);
-        botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botaoFechar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
         botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -157,7 +158,7 @@ public class ModalAdicionarProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 600);
+        setSize(500, 650);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
@@ -178,7 +179,7 @@ public class ModalAdicionarProduto extends JDialog {
         };
         campo.setOpaque(false);
         campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
@@ -186,23 +187,22 @@ public class ModalAdicionarProduto extends JDialog {
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         return lbl;
     }
-
 
     public JButton getBtnSalvar() { 
         return btnSalvar; 
     }
 
     public Produto getProdutoFromFields() {
-        // Este construtor agora existe em Produto.java
         return new Produto(
             txtNome.getText(),
             txtCategoria.getText(),
             Double.parseDouble(txtCompra.getText()),
             Double.parseDouble(txtVenda.getText()),
-            Integer.parseInt(txtQnt.getText())
+            Integer.parseInt(txtQnt.getText()),
+            Integer.parseInt(txtQntMinima.getText())
         );
     }
 

@@ -1,5 +1,7 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.modais;
 
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.fiado.FiadoController;
 import alphacontrol.models.Cliente;
 import alphacontrol.models.Fiado;
 import alphacontrol.views.fiado.ModalAdicionarFiado;

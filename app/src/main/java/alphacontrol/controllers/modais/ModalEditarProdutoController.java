@@ -1,5 +1,6 @@
-package alphacontrol.controllers;
+package alphacontrol.controllers.modais;
 
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.estoque.ModalEditarProduto;
 import java.sql.SQLException;

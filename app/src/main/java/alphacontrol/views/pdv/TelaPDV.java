@@ -1,7 +1,7 @@
-package alphacontrol.views;
+package alphacontrol.views.pdv;
 
-import alphacontrol.controllers.ProdutoController;
-import alphacontrol.controllers.TelaPrincipalController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.views.components.Navbar;
 
 import javax.swing.*;

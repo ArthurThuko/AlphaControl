@@ -1,8 +1,8 @@
 package alphacontrol.views.fiado;
 
-import alphacontrol.controllers.ClienteController;
-import alphacontrol.controllers.FiadoController;
-import alphacontrol.controllers.ModalAdicionarFiadoController;
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.modais.ModalAdicionarFiadoController;
 import alphacontrol.models.Cliente;
 
 import javax.swing.*;
