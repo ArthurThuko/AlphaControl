@@ -72,7 +72,7 @@ public class ModalEditarProduto extends JDialog {
             gbc.gridx = 0;
             JLabel lbl = new JLabel(labels[i], SwingConstants.CENTER);
             lbl.setForeground(marromEscuro);
-            lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+            lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
             painel.add(lbl, gbc);
 
             gbc.gridx = 1;
@@ -94,7 +94,7 @@ public class ModalEditarProduto extends JDialog {
             }
         };
         botaoSalvar.setForeground(begeClaro);
-        botaoSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botaoSalvar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -120,7 +120,7 @@ public class ModalEditarProduto extends JDialog {
             }
         };
         botaoFechar.setForeground(marromEscuro);
-        botaoFechar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botaoFechar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         botaoFechar.setFocusPainted(false);
         botaoFechar.setContentAreaFilled(false);
         botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -152,7 +152,7 @@ public class ModalEditarProduto extends JDialog {
         };
         campo.setOpaque(false);
         campo.setForeground(texto);
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
@@ -166,7 +166,7 @@ public class ModalEditarProduto extends JDialog {
         
         campos[0].setText(p.getNome());
         campos[1].setText(String.valueOf(p.getQntEstoque()));
-        campos[2].setText("0"); 
+        campos[2].setText(String.valueOf(p.getQntMinima()));
         campos[3].setText(p.getCategoria());
         campos[4].setText(String.valueOf(p.getValorCompra()));
         campos[5].setText(String.valueOf(p.getValorVenda()));
@@ -178,7 +178,8 @@ public class ModalEditarProduto extends JDialog {
             campos[3].getText(), 
             Double.parseDouble(campos[4].getText()), 
             Double.parseDouble(campos[5].getText()), 
-            Integer.parseInt(campos[1].getText())
+            Integer.parseInt(campos[1].getText()),
+            Integer.parseInt(campos[2].getText())
         );
         p.setProdutoId(this.produtoId); 
         return p;

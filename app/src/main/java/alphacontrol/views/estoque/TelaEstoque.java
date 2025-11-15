@@ -2,11 +2,12 @@ package alphacontrol.views.estoque;
 
 import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
 import alphacontrol.controllers.modais.ModalEditarProdutoController;
+import alphacontrol.controllers.produto.*;
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
 import alphacontrol.dao.ProdutoDAO;
+import alphacontrol.views.components.AvisoEstoqueMinimo; 
 import java.sql.Connection;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +17,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.EventObject;
 import java.util.List;
+import java.util.ArrayList; 
 
 public class TelaEstoque extends JFrame {
 
@@ -37,10 +39,14 @@ public class TelaEstoque extends JFrame {
     private final JTable tabela;
     private final DefaultTableModel modelo;
     private final JTextField txtPesquisa;
+    
+    private List<Produto> listaProdutosAtual; 
+    private AvisoEstoqueMinimo avisoEstoque; 
 
     public TelaEstoque(TelaPrincipalController mainController) {
         this.mainController = mainController;
         this.controller = mainController.getProdutoController(); 
+        this.listaProdutosAtual = new ArrayList<>(); 
 
         setTitle("Estoque");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,11 +69,16 @@ public class TelaEstoque extends JFrame {
         titulo.setForeground(MARROM_ESCURO);
         titulo.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 0; 
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 30, 0);
+        gbc.insets = new Insets(10, 0, 15, 0); 
         painelPrincipal.add(titulo, gbc);
+        
+        avisoEstoque = new AvisoEstoqueMinimo();
+        gbc.gridy = 1; 
+        gbc.insets = new Insets(0, 0, 15, 0);
+        painelPrincipal.add(avisoEstoque, gbc);
 
         JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         painelBusca.setBackground(BEGE_FUNDO);
@@ -93,7 +104,7 @@ public class TelaEstoque extends JFrame {
         painelTopo.add(painelBusca, BorderLayout.WEST);
         painelTopo.add(painelAdd, BorderLayout.EAST);
 
-        gbc.gridy = 1;
+        gbc.gridy = 2; 
         gbc.insets = new Insets(0, 0, 20, 0);
         painelPrincipal.add(painelTopo, gbc);
 
@@ -127,7 +138,7 @@ public class TelaEstoque extends JFrame {
         painelTabela.setBorder(new EmptyBorder(1, 1, 1, 1));
         painelTabela.add(scroll, BorderLayout.CENTER);
 
-        gbc.gridy = 2;
+        gbc.gridy = 3; 
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -139,28 +150,48 @@ public class TelaEstoque extends JFrame {
         atualizarTabela();
     }
     
+    private void checarEstoqueMinimo(List<Produto> produtos) {
+        if (produtos == null) {
+            avisoEstoque.setAviso(new ArrayList<>()); 
+            return;
+        }
+        
+        List<Produto> produtosComEstoqueBaixo = new ArrayList<>();
+        for (Produto p : produtos) {
+            if (p.isEstoqueBaixo()) {
+                produtosComEstoqueBaixo.add(p);
+            }
+        }
+        
+        avisoEstoque.setAviso(produtosComEstoqueBaixo);
+    }
+    
     private void atualizarTabela() {
         modelo.setRowCount(0); 
-        List<Produto> produtos = controller.listar(); 
+        this.listaProdutosAtual = controller.listar(); 
         
-        for (Produto p : produtos) {
+        checarEstoqueMinimo(this.listaProdutosAtual); 
+        
+        for (Produto p : this.listaProdutosAtual) { 
             modelo.addRow(new Object[]{
                 p.getProdutoId(),  
-                p.getNome(),     
+                p.getNome(),   
                 p.getQntEstoque(), 
                 p.getCategoria(),  
                 p.getValorCompra(),
                 p.getValorVenda(), 
-                ""               
+                ""          
             });
         }
     }
     
     private void pesquisar() {
         modelo.setRowCount(0); 
-        List<Produto> produtos = controller.pesquisar(txtPesquisa.getText());
+        this.listaProdutosAtual = controller.pesquisar(txtPesquisa.getText()); 
         
-        for (Produto p : produtos) {
+        checarEstoqueMinimo(this.listaProdutosAtual); 
+        
+        for (Produto p : this.listaProdutosAtual) { 
             modelo.addRow(new Object[]{
                 p.getProdutoId(), p.getNome(), p.getQntEstoque(),
                 p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
@@ -177,6 +208,11 @@ public class TelaEstoque extends JFrame {
     
     private void abrirModalEditar(int row) {
         Produto produtoParaEditar = getProdutoFromRow(row);
+        
+        if (produtoParaEditar == null) { 
+            JOptionPane.showMessageDialog(this, "Erro: Não foi possível encontrar o produto selecionado.");
+            return;
+        }
         
         ModalEditarProduto modal = new ModalEditarProduto(this);
         modal.setProduto(produtoParaEditar); 
@@ -200,22 +236,39 @@ public class TelaEstoque extends JFrame {
     }
     
     private Produto getProdutoFromRow(int row) {
+        if (row < 0 || row >= modelo.getRowCount()) {
+            return null;
+        }
+        
         int id = (int) modelo.getValueAt(row, 0); 
         
-        return new Produto(
-            id,
-            (String) modelo.getValueAt(row, 1), 
-            (String) modelo.getValueAt(row, 3), 
-            (Double) modelo.getValueAt(row, 4), 
-            (Double) modelo.getValueAt(row, 5), 
-            (Integer) modelo.getValueAt(row, 2) 
-        );
+        if (listaProdutosAtual != null) {
+            for (Produto p : listaProdutosAtual) {
+                if (p.getProdutoId() == id) {
+                    try {
+                        p.setQntEstoque((Integer) modelo.getValueAt(row, 2));
+                    } catch (Exception e) {
+                    }
+                    return p; 
+                }
+            }
+        }
+        
+        return null;
     }
     
     private Integer incrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
+        if (produto == null) { 
+             JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para incrementar.");
+             return null;
+        }
+        
         try {
             controller.incrementarEstoque(produto); 
+            
+            checarEstoqueMinimo(this.listaProdutosAtual); 
+            
             return produto.getQntEstoque();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao incrementar estoque: " + e.getMessage());
@@ -225,9 +278,17 @@ public class TelaEstoque extends JFrame {
 
     private Integer decrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
+         if (produto == null) { 
+             JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para decrementar.");
+             return null;
+        }
+         
         try {
             boolean atualizou = controller.decrementarEstoque(produto); 
             if (atualizou) {
+                
+                checarEstoqueMinimo(this.listaProdutosAtual);
+                
                 return produto.getQntEstoque();
             }
             return null;
@@ -238,7 +299,7 @@ public class TelaEstoque extends JFrame {
     }
 
     private void configurarTabela(JTable tabela) {
-        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        tabela.setFont(new Font("Segoe UI", Font.BOLD, 16));
         tabela.setRowHeight(60);
         tabela.setBackground(BEGE_CLARO);
         tabela.setForeground(MARROM_ESCURO);
@@ -392,7 +453,7 @@ public class TelaEstoque extends JFrame {
             this.showingPlaceholder = true;
             addFocusListener(this);
             setForeground(CINZA_PLACEHOLDER);
-            setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            setFont(new Font("Segoe UI", Font.BOLD, 16));
             setOpaque(false);
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
