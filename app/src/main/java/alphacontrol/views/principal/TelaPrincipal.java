@@ -64,12 +64,12 @@ public class TelaPrincipal extends JFrame {
         btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
         btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
 
-        configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icon_estoque.png");
-        configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icon_pdv.png");
-        configurarBotaoComIcone(btnFiados, "/alphacontrol/img/icon_fiado.png");
-        configurarBotaoComIcone(btnRelatorios, "/alphacontrol/img/icon_relatorio.png");
-        configurarBotaoComIcone(btnFluxoCaixa, "/alphacontrol/img/icon_caixa.png");
-        configurarBotaoComIcone(btnSair, "/alphacontrol/img/icon_sair.png");
+        configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icons/Icon_Estoque.png");
+        configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icons/Icon_PDV.png");
+        configurarBotaoComIcone(btnFiados, "/alphacontrol/img/icons/Icon_Fiado.png");
+        configurarBotaoComIcone(btnRelatorios, "/alphacontrol/img/icons/Icon_Relatorio.png");
+        configurarBotaoComIcone(btnFluxoCaixa, "/alphacontrol/img/icons/Icon_FluxoCaixa.png");
+        configurarBotaoComIcone(btnSair, "/alphacontrol/img/icons/Icon_Sair.png");
 
         if (controller != null) {
             btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
@@ -115,7 +115,7 @@ public class TelaPrincipal extends JFrame {
             System.err.println("Erro ao carregar ícone: " + iconPath);
         }
         
-        botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 24));
+        botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 25));
         botao.setVerticalTextPosition(SwingConstants.BOTTOM);
         botao.setHorizontalTextPosition(SwingConstants.CENTER);
         botao.setIconTextGap(15);
