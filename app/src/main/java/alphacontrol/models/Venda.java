@@ -16,6 +16,8 @@ public class Venda{
         this.formaPagamento = formaPagamento;
     }
 
+    public Venda(){}
+
     public int getVendaId() {
         return vendaId;
     }

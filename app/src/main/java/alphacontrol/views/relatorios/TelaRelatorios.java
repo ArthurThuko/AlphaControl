@@ -1,7 +1,7 @@
 package alphacontrol.views.relatorios;
 
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.controllers.produto.ProdutoController;
+import alphacontrol.controllers.relatorio.RelatorioController;
 import alphacontrol.views.components.Navbar;
 
 import javax.swing.*;
@@ -13,8 +13,9 @@ import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
 
 public class TelaRelatorios extends JFrame {
-    
+
     private TelaPrincipalController mainController;
+    private RelatorioController controller;
 
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
@@ -25,16 +26,25 @@ public class TelaRelatorios extends JFrame {
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color AZUL_ACAO = new Color(70, 130, 180);
 
+    // ======= CAMPOS E COMPONENTES ACESSÍVEIS AO CONTROLLER =======
+    public JTextField campoInicio;
+    public JTextField campoFinal;
+    public JRadioButton rbVendas, rbProdutos, rbFluxo, rbFiados;
+    public JButton btnVisualizar, btnBaixar;
+    public JTable tabela;
+    // =============================================================
+
     public TelaRelatorios(TelaPrincipalController mainController) {
         this.mainController = mainController;
-        
+        this.controller = new RelatorioController(this);
+
         setTitle("Relatórios");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
         setJMenuBar(new Navbar(this, this.mainController, "Relatório"));
-        
+
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(BEGE_FUNDO);
         painelPrincipal.setBorder(new EmptyBorder(30, 50, 30, 50));
@@ -62,6 +72,8 @@ public class TelaRelatorios extends JFrame {
 
         add(painelPrincipal);
         setVisible(true);
+
+        configurarEventos();
     }
 
     private JPanel criarPainelFiltros() {
@@ -69,22 +81,31 @@ public class TelaRelatorios extends JFrame {
         painelFiltros.setBackground(BEGE_CLARO);
         painelFiltros.setLayout(new GridBagLayout());
         painelFiltros.setBorder(new EmptyBorder(20, 20, 20, 20));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        // ================= LINHA 0 ===================
+        gbc.gridy = 0;
 
         gbc.gridx = 0;
-        gbc.gridy = 0;
         JLabel lblTipo = new JLabel("Tipo de Relatório:");
         lblTipo.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTipo.setForeground(MARROM_ESCURO);
         painelFiltros.add(lblTipo, gbc);
 
-        JRadioButton rbVendas = new RoundedRadioButton("Vendas");
-        JRadioButton rbProdutos = new RoundedRadioButton("Produtos + vendidos");
-        JRadioButton rbFluxo = new RoundedRadioButton("Fluxo de Caixa");
-        JRadioButton rbFiados = new RoundedRadioButton("Fiados");
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        JPanel painelRadios = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 0));
+        painelRadios.setOpaque(false);
+
+        rbVendas = new RoundedRadioButton("Vendas");
+        rbProdutos = new RoundedRadioButton("Produtos + vendidos");
+        rbFluxo = new RoundedRadioButton("Fluxo de Caixa");
+        rbFiados = new RoundedRadioButton("Fiados");
 
         ButtonGroup grupo = new ButtonGroup();
         grupo.add(rbVendas);
@@ -93,63 +114,55 @@ public class TelaRelatorios extends JFrame {
         grupo.add(rbFiados);
         rbVendas.setSelected(true);
 
-        gbc.gridx = 1;
-        gbc.gridwidth = 3;
-        JPanel painelRadios = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 0));
-        painelRadios.setOpaque(false);
         painelRadios.add(rbVendas);
         painelRadios.add(rbProdutos);
         painelRadios.add(rbFluxo);
         painelRadios.add(rbFiados);
+
         painelFiltros.add(painelRadios, gbc);
+
         gbc.gridwidth = 1;
 
+        // ================= LINHA 1 ===================
         gbc.gridy = 1;
+
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
         JLabel lblInicio = new JLabel("Data Início:");
         lblInicio.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblInicio.setForeground(MARROM_ESCURO);
         painelFiltros.add(lblInicio, gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.5;
-        JTextField campoInicio = new RoundedTextField("dd/mm/aaaa");
-        campoInicio.setPreferredSize(new Dimension(220, 45));
+        campoInicio = new RoundedTextField("dd/mm/aaaa");
+        campoInicio.setPreferredSize(new Dimension(200, 45));
         painelFiltros.add(campoInicio, gbc);
 
         gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0;
         JLabel lblFinal = new JLabel("Data Final:");
         lblFinal.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblFinal.setForeground(MARROM_ESCURO);
         painelFiltros.add(lblFinal, gbc);
 
         gbc.gridx = 3;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.5;
-        JTextField campoFinal = new RoundedTextField("dd/mm/aaaa");
-        campoFinal.setPreferredSize(new Dimension(220, 45));
+        campoFinal = new RoundedTextField("dd/mm/aaaa");
+        campoFinal.setPreferredSize(new Dimension(200, 45));
         painelFiltros.add(campoFinal, gbc);
 
-        gbc.gridx = 4;
-        gbc.gridy = 0;
-        gbc.gridheight = 2;
-        gbc.fill = GridBagConstraints.VERTICAL;
+        // ================= LINHA 2 (BOTÕES) ===================
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.gridwidth = 4;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 0;
-        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         painelBotoes.setOpaque(false);
-        JButton btnVisualizar = new RoundedButton("Visualizar", AZUL_ACAO, Color.WHITE, 150, 45);
-        JButton btnBaixar = new RoundedButton("Baixar", VERDE_OLIVA, Color.WHITE, 150, 45);
+
+        btnVisualizar = new RoundedButton("Visualizar", AZUL_ACAO, Color.WHITE, 150, 45);
+        btnBaixar = new RoundedButton("Baixar", VERDE_OLIVA, Color.WHITE, 150, 45);
+
         painelBotoes.add(btnVisualizar);
         painelBotoes.add(btnBaixar);
-        gbc.insets = new Insets(10, 30, 10, 10);
+
         painelFiltros.add(painelBotoes, gbc);
 
         return painelFiltros;
@@ -159,35 +172,37 @@ public class TelaRelatorios extends JFrame {
         RoundedPanel painelTabela = new RoundedPanel(15);
         painelTabela.setBackground(BEGE_CLARO);
         painelTabela.setLayout(new BorderLayout());
-        painelTabela.setBorder(new EmptyBorder(1, 1, 1, 1));
 
-        String[] colunas = { "Código", "Descrição", "Data", "Valor", "Status" };
-        Object[][] dados = {
-                { "001", "Venda balcão", "10/10/2025", "R$ 120,00", "Concluído" },
-                { "002", "Venda online", "12/10/2025", "R$ 80,00", "Pendente" },
-                { "003", "Venda cartão", "15/10/2025", "R$ 200,00", "Concluído" }
-        };
-
-        DefaultTableModel modeloTabela = new DefaultTableModel(dados, colunas) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        
-        JTable tabela = new JTable(modeloTabela);
+        String[] colunas = { "", "", "", "", "" };
+        DefaultTableModel modeloTabela = new DefaultTableModel(colunas, 0);
+        tabela = new JTable(modeloTabela);
         configurarTabela(tabela);
 
         JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.getViewport().setBackground(BEGE_CLARO);
 
         painelTabela.add(tabela.getTableHeader(), BorderLayout.NORTH);
         painelTabela.add(scroll, BorderLayout.CENTER);
-        
+
         return painelTabela;
     }
-    
+
+    private void configurarEventos() {
+        btnVisualizar.addActionListener(e -> {
+
+            String tipo = rbVendas.isSelected() ? "vendas"
+                    : rbProdutos.isSelected() ? "produtos"
+                            : rbFluxo.isSelected() ? "fluxo"
+                                    : "fiados";
+
+            controller.visualizarRelatorio(
+                    tipo,
+                    campoInicio.getText(),
+                    campoFinal.getText(),
+                    tabela);
+        });
+    }
+
     private void configurarTabela(JTable tabela) {
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         tabela.setRowHeight(60);
@@ -207,7 +222,7 @@ public class TelaRelatorios extends JFrame {
         header.setPreferredSize(new Dimension(0, 50));
         header.setBorder(BorderFactory.createEmptyBorder());
         header.setDefaultRenderer(new HeaderRenderer(tabela));
-        
+
         PaddedCellRenderer.apply(tabela, 0, SwingConstants.CENTER);
         PaddedCellRenderer.apply(tabela, 1, SwingConstants.LEFT);
         PaddedCellRenderer.apply(tabela, 2, SwingConstants.CENTER);
@@ -316,7 +331,7 @@ public class TelaRelatorios extends JFrame {
             return showingPlaceholder ? "" : super.getText();
         }
     }
-    
+
     static class RoundedRadioButton extends JRadioButton {
         public RoundedRadioButton(String text) {
             super(text);
@@ -327,7 +342,7 @@ public class TelaRelatorios extends JFrame {
             setFocusPainted(false);
         }
     }
-    
+
     static class HeaderRenderer implements TableCellRenderer {
         DefaultTableCellRenderer renderer;
 
@@ -337,7 +352,8 @@ public class TelaRelatorios extends JFrame {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
             Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
             ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
             return c;
