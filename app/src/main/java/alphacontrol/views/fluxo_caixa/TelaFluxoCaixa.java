@@ -9,9 +9,9 @@ import java.util.List;
 import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
-import alphacontrol.views.components.Navbar; 
+import alphacontrol.views.components.Navbar;
 import alphacontrol.views.fluxo_caixa.ModalEntrada;
-import alphacontrol.views.fluxo_caixa.ModalSaida; 
+import alphacontrol.views.fluxo_caixa.ModalSaida;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -27,8 +27,8 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
-    private static final Color VERDE_OLIVA = new Color(101, 125, 64); 
-    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); 
+    private static final Color VERDE_OLIVA = new Color(101, 125, 64);
+    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
     private static final Color AZUL_ACAO = new Color(0, 100, 200);
 
     private JTable tabelaEntradas;
@@ -36,15 +36,12 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblTotalEntradas;
     private JLabel lblTotalSaidas;
     private JLabel lblSaldo;
-    
-    private JComboBox<String> cmbMes;
-    private JTextField txtAno;
-    
+
     private FluxoCaixaController controller;
     private TelaPrincipalController mainController;
 
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
-          this.mainController = mainController;
+        this.mainController = mainController;
         this.controller = mainController.getFluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,92 +65,73 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 0, 20, 0);
         painelPrincipal.add(titulo, gbc);
-        
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weighty = 0; 
-        gbc.insets = new Insets(0, 0, 20, 0);
-        painelPrincipal.add(criarPainelFiltro(), gbc);
-        
+
         gbc.gridy = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weighty = 0; 
+        gbc.weighty = 0;
         gbc.insets = new Insets(0, 0, 30, 0);
         painelPrincipal.add(criarPainelResumo(), gbc);
-        
-        JPanel painelTabelas = new JPanel(new GridBagLayout());
+
+        JPanel painelTabelas = new JPanel(new GridLayout(1, 2, 30, 0));
         painelTabelas.setOpaque(false);
 
-        JPanel painelTabelas = new JPanel(new GridLayout(1, 2, 30, 0)); 
-        painelTabelas.setOpaque(false);
-        
         JPanel painelEntradas = criarPainelEntradas();
         JPanel painelSaidas = criarPainelSaidas();
-        
+
         painelTabelas.add(painelEntradas);
         painelTabelas.add(painelSaidas);
 
         GridBagConstraints gbcTabelas = new GridBagConstraints();
         gbcTabelas.gridy = 0;
-        gbcTabelas.fill = GridBagConstraints.BOTH; 
-        gbcTabelas.weighty = 1.0; 
+        gbcTabelas.fill = GridBagConstraints.BOTH;
+        gbcTabelas.weighty = 1.0;
         gbcTabelas.insets = new Insets(0, 15, 0, 15);
 
         gbcTabelas.gridx = 0;
-        gbcTabelas.weightx = 0.5; 
+        gbcTabelas.weightx = 0.5;
         painelTabelas.add(painelEntradas, gbcTabelas);
 
         gbcTabelas.gridx = 1;
-        gbcTabelas.weightx = 0.5; 
+        gbcTabelas.weightx = 0.5;
         painelTabelas.add(painelSaidas, gbcTabelas);
 
         gbc.gridx = 0;
-        gbc.gridy = 3; 
+        gbc.gridy = 3;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0; 
+        gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 0, 0, 0);
         painelPrincipal.add(painelTabelas, gbc);
+
+        // Painel inferior com os botões principais
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 10));
+        painelBotoes.setOpaque(false);
+
+        JButton btnAddEntrada = new RoundedButton("Adicionar Entrada", VERDE_OLIVA, Color.WHITE, 220, 45);
+        btnAddEntrada.addActionListener(e -> {
+            ModalEntrada modal = new ModalEntrada(this, controller);
+            modal.setVisible(true);
+            atualizarTudo();
+        });
+
+        JButton btnAddSaida = new RoundedButton("Adicionar Saída", VERMELHO_TERROSO, Color.WHITE, 220, 45);
+        btnAddSaida.addActionListener(e -> {
+            ModalSaida modal = new ModalSaida(this, controller);
+            modal.setVisible(true);
+            atualizarTudo();
+        });
+
+        painelBotoes.add(btnAddEntrada);
+        painelBotoes.add(btnAddSaida);
+
+        // adicionar abaixo das tabelas
+        gbc.gridy = 4;
+        gbc.insets = new Insets(20, 0, 20, 0);
+        gbc.weighty = 0;
+        painelPrincipal.add(painelBotoes, gbc);
 
         add(painelPrincipal);
 
         atualizarTudo();
-    }
-    
-    private JPanel criarPainelFiltro() {
-        JPanel painelFiltro = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        painelFiltro.setOpaque(false);
-        
-        JLabel lblMes = new JLabel("Mês:");
-        lblMes.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblMes.setForeground(MARROM_ESCURO);
-        
-        String[] meses = {
-            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        };
-        cmbMes = new JComboBox<>(meses);
-        cmbMes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        cmbMes.setPreferredSize(new Dimension(150, 40));
-        cmbMes.setSelectedIndex(LocalDate.now().getMonthValue() - 1);
-        
-        JLabel lblAno = new JLabel("Ano:");
-        lblAno.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblAno.setForeground(MARROM_ESCURO);
-        
-        txtAno = new JTextField(String.valueOf(LocalDate.now().getYear()));
-        txtAno.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtAno.setPreferredSize(new Dimension(80, 40));
-        
-        JButton btnFiltrar = new RoundedButton("Filtrar", MARROM_MEDIO, Color.WHITE, 120, 40);
-        btnFiltrar.addActionListener(e -> atualizarTudo());
-        
-        painelFiltro.add(lblMes);
-        painelFiltro.add(cmbMes);
-        painelFiltro.add(lblAno);
-        painelFiltro.add(txtAno);
-        painelFiltro.add(btnFiltrar);
-        
-        return painelFiltro;
     }
 
     private JPanel criarPainelResumo() {
@@ -205,13 +183,12 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.gridy = 1;
         lblSaldo = new JLabel("R$ 0,00");
         lblSaldo.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblSaldo.setForeground(MARROM_ESCURO); 
+        lblSaldo.setForeground(MARROM_ESCURO);
         lblSaldo.setHorizontalAlignment(SwingConstants.CENTER);
         painelResumo.add(lblSaldo, gbc);
 
         return painelResumo;
     }
-
 
     private JPanel criarPainelEntradas() {
         JPanel painel = new RoundedPanel(15);
@@ -221,7 +198,7 @@ public class TelaFluxoCaixa extends JFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.weightx = 1.0; 
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
@@ -249,11 +226,10 @@ public class TelaFluxoCaixa extends JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int linha = tabelaEntradas.rowAtPoint(evt.getPoint());
                 int coluna = tabelaEntradas.columnAtPoint(evt.getPoint());
-                if (linha < 0) return;
-                
-                int mes = cmbMes.getSelectedIndex() + 1;
-                int ano = Integer.parseInt(txtAno.getText());
-                List<MovimentacaoCaixa> lista = controller.listarEntradas(mes, ano);
+                if (linha < 0)
+                    return;
+
+                List<MovimentacaoCaixa> lista = controller.listarEntradas();
 
                 if (coluna == 3) {
                     MovimentacaoCaixa mov = lista.get(linha);
@@ -277,35 +253,22 @@ public class TelaFluxoCaixa extends JFrame {
         });
 
         configurarTabela(tabelaEntradas, VERDE_OLIVA);
-        
+
         gbc.gridy = 1;
-        gbc.weighty = 0; 
+        gbc.weighty = 0;
         gbc.insets = new Insets(10, 10, 0, 10);
         painel.add(tabelaEntradas.getTableHeader(), gbc);
 
         JScrollPane scroll = new JScrollPane(tabelaEntradas);
-        scroll.setColumnHeaderView(null); 
+        scroll.setColumnHeaderView(null);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
 
         gbc.gridy = 2;
-        gbc.weighty = 1.0; 
+        gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 10, 10, 10);
         gbc.fill = GridBagConstraints.BOTH;
         painel.add(scroll, gbc);
-
-        JButton btnAdd = new RoundedButton("Adicionar Entrada", VERDE_OLIVA, Color.WHITE, 220, 45);
-        btnAdd.addActionListener(e -> {
-            ModalEntrada modal = new ModalEntrada(this, controller);
-            modal.setVisible(true);
-            atualizarTudo();
-        });
-        gbc.gridy = 3;
-        gbc.weighty = 0; 
-        gbc.fill = GridBagConstraints.NONE; 
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(20, 0, 0, 0); 
-        painel.add(btnAdd, gbc);
 
         return painel;
     }
@@ -318,7 +281,7 @@ public class TelaFluxoCaixa extends JFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.weightx = 1.0; 
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
@@ -346,11 +309,10 @@ public class TelaFluxoCaixa extends JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int linha = tabelaSaidas.rowAtPoint(evt.getPoint());
                 int coluna = tabelaSaidas.columnAtPoint(evt.getPoint());
-                if (linha < 0) return;
+                if (linha < 0)
+                    return;
 
-                int mes = cmbMes.getSelectedIndex() + 1;
-                int ano = Integer.parseInt(txtAno.getText());
-                List<MovimentacaoCaixa> lista = controller.listarSaidas(mes, ano);
+                List<MovimentacaoCaixa> lista = controller.listarSaidas();
 
                 if (coluna == 3) {
                     MovimentacaoCaixa mov = lista.get(linha);
@@ -372,37 +334,25 @@ public class TelaFluxoCaixa extends JFrame {
                 }
             }
         });
-
         configurarTabela(tabelaSaidas, VERMELHO_TERROSO);
 
-        gbc.gridy = 1;
-        gbc.weighty = 0; 
-        gbc.insets = new Insets(10, 10, 0, 10);
-        painel.add(tabelaSaidas.getTableHeader(), gbc);
-
         JScrollPane scroll = new JScrollPane(tabelaSaidas);
-        scroll.setColumnHeaderView(null);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
 
+        // HEADER DA TABELA (linha 1)
+        gbc.gridy = 1;
+        gbc.weighty = 0;
+        gbc.insets = new Insets(10, 10, 0, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        painel.add(tabelaSaidas.getTableHeader(), gbc);
+
+        // SCROLL DA TABELA (linha 2)
         gbc.gridy = 2;
-        gbc.weighty = 1.0; 
+        gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 10, 10, 10);
         gbc.fill = GridBagConstraints.BOTH;
         painel.add(scroll, gbc);
-
-        JButton btnAdd = new RoundedButton("Adicionar Saída", VERMELHO_TERROSO, Color.WHITE, 220, 45);
-        btnAdd.addActionListener(e -> {
-            ModalSaida modal = new ModalSaida(this, controller);
-            modal.setVisible(true);
-            atualizarTudo();
-        });
-        gbc.gridy = 3;
-        gbc.weighty = 0; 
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(20, 0, 0, 0); 
-        painel.add(btnAdd, gbc);
 
         return painel;
     }
@@ -426,7 +376,7 @@ public class TelaFluxoCaixa extends JFrame {
         header.setPreferredSize(new Dimension(0, 50));
         header.setBorder(BorderFactory.createEmptyBorder());
         header.setDefaultRenderer(new HeaderRenderer(tabela));
-        
+
         PaddedCellRenderer textRenderer = new PaddedCellRenderer();
         textRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -452,38 +402,26 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.getColumnModel().getColumn(4).setPreferredWidth(100);
         tabela.getColumnModel().getColumn(4).setMaxWidth(100);
     }
-    
+
     private void atualizarTudo() {
-        int mes = cmbMes.getSelectedIndex() + 1;
-        int ano;
-        try {
-            ano = Integer.parseInt(txtAno.getText());
-            if (ano < 2000 || ano > 3000) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Ano inválido. Insira um ano válido (ex: 2024).", "Erro de Filtro", JOptionPane.ERROR_MESSAGE);
-            txtAno.setText(String.valueOf(LocalDate.now().getYear()));
-            ano = LocalDate.now().getYear();
-        }
-        
-        recarregarTabelaEntradas(mes, ano);
-        recarregarTabelaSaidas(mes, ano);
-        atualizarSaldo(mes, ano);
+
+        recarregarTabelaEntradas();
+        recarregarTabelaSaidas();
+        atualizarSaldo();
     }
 
-    private void atualizarSaldo(int mes, int ano) {
+    private void atualizarSaldo() {
         DecimalFormat formatador = new DecimalFormat("R$ #,##0.00");
-        
-        double[] totais = controller.calcularTotais(mes, ano);
+
+        double[] totais = controller.calcularTotais();
         double totalEntradas = totais[0];
         double totalSaidas = totais[1];
         double saldo = totalEntradas - totalSaidas;
-        
+
         lblTotalEntradas.setText(formatador.format(totalEntradas));
         lblTotalSaidas.setText(formatador.format(totalSaidas));
         lblSaldo.setText(formatador.format(saldo));
-        
+
         if (saldo < 0) {
             lblSaldo.setForeground(VERMELHO_TERROSO);
         } else if (saldo > 0) {
@@ -493,11 +431,11 @@ public class TelaFluxoCaixa extends JFrame {
         }
     }
 
-    private void recarregarTabelaEntradas(int mes, int ano) {
+    private void recarregarTabelaEntradas() {
         DefaultTableModel modelo = (DefaultTableModel) tabelaEntradas.getModel();
         modelo.setRowCount(0);
 
-        List<MovimentacaoCaixa> entradas = controller.listarEntradas(mes, ano);
+        List<MovimentacaoCaixa> entradas = controller.listarEntradas();
         for (MovimentacaoCaixa m : entradas) {
             modelo.addRow(new Object[] {
                     m.getNome(),
@@ -509,11 +447,11 @@ public class TelaFluxoCaixa extends JFrame {
         }
     }
 
-    private void recarregarTabelaSaidas(int mes, int ano) {
+    private void recarregarTabelaSaidas() {
         DefaultTableModel modelo = (DefaultTableModel) tabelaSaidas.getModel();
         modelo.setRowCount(0);
 
-        List<MovimentacaoCaixa> saidas = controller.listarSaidas(mes, ano);
+        List<MovimentacaoCaixa> saidas = controller.listarSaidas();
         for (MovimentacaoCaixa m : saidas) {
             modelo.addRow(new Object[] {
                     m.getNome(),
@@ -523,18 +461,6 @@ public class TelaFluxoCaixa extends JFrame {
                     "Excluir"
             });
         }
-    }
-    
-    private void atualizarSaldo() {
-        atualizarTudo();
-    }
-    
-    private void recarregarTabelaEntradas() {
-        atualizarTudo();
-    }
-    
-    private void recarregarTabelaSaidas() {
-        atualizarTudo();
     }
 
     static class RoundedPanel extends JPanel {
@@ -588,8 +514,6 @@ public class TelaFluxoCaixa extends JFrame {
         }
     }
 
-
-
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
             setBorder(new EmptyBorder(5, 15, 5, 15));
@@ -599,9 +523,9 @@ public class TelaFluxoCaixa extends JFrame {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
-            
+
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
+
             if (isSelected) {
                 c.setBackground(table.getSelectionBackground());
                 c.setForeground(table.getSelectionForeground());
@@ -617,7 +541,7 @@ public class TelaFluxoCaixa extends JFrame {
             return c;
         }
     }
-    
+
     static class HeaderRenderer implements TableCellRenderer {
         DefaultTableCellRenderer renderer;
 
@@ -627,7 +551,8 @@ public class TelaFluxoCaixa extends JFrame {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
             Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
             ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
             return c;
@@ -635,7 +560,7 @@ public class TelaFluxoCaixa extends JFrame {
     }
 
     static class ActionCellRenderer extends DefaultTableCellRenderer {
-        
+
         public ActionCellRenderer() {
             setHorizontalAlignment(SwingConstants.CENTER);
             setBorder(new EmptyBorder(5, 15, 5, 15));
@@ -644,7 +569,7 @@ public class TelaFluxoCaixa extends JFrame {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
-            
+
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             c.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -660,29 +585,12 @@ public class TelaFluxoCaixa extends JFrame {
             } else {
                 c.setBackground(table.getBackground());
             }
-            
+
             ((JComponent) c).setToolTipText(value.toString());
-            
+
             return c;
         }
     }
-    
-    static class HeaderRenderer implements TableCellRenderer {
-        DefaultTableCellRenderer renderer;
-
-        public HeaderRenderer(JTable table) {
-            renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
-            renderer.setHorizontalAlignment(SwingConstants.CENTER);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-            Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-            ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
-            return c;
-        }
-    }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -691,7 +599,7 @@ public class TelaFluxoCaixa extends JFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
             try {
                 TelaFluxoCaixa tela = new TelaFluxoCaixa(null);
                 tela.setVisible(true);

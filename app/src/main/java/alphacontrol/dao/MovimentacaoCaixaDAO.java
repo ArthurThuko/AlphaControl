@@ -20,12 +20,12 @@ public class MovimentacaoCaixaDAO {
 
     private void criarTabelaSeNaoExistir() {
         String sql = "CREATE TABLE IF NOT EXISTS movimentacaocaixa ("
-                 + "idMovimentacaoCaixa INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                 + "nome TEXT NOT NULL,"
-                 + "tipo TEXT NOT NULL,"
-                 + "valor REAL NOT NULL,"
-                 + "data TEXT NOT NULL"
-                 + ");";
+                + "idMovimentacaoCaixa INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + "nome TEXT NOT NULL,"
+                + "tipo TEXT NOT NULL,"
+                + "valor REAL NOT NULL,"
+                + "data TEXT NOT NULL"
+                + ");";
 
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
@@ -77,43 +77,14 @@ public class MovimentacaoCaixaDAO {
         }
     }
 
-    public List<MovimentacaoCaixa> listar(int mes, int ano) {
-        List<MovimentacaoCaixa> lista = new ArrayList<>();
-        
-        String sql = "SELECT * FROM movimentacaocaixa " +
-                     "WHERE MONTH(STR_TO_DATE(data, '%d/%m/%Y')) = ? " +
-                     "AND YEAR(STR_TO_DATE(data, '%d/%m/%Y')) = ? " +
-                     "ORDER BY STR_TO_DATE(data, '%d/%m/%Y') DESC";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setInt(1, mes);
-            stmt.setInt(2, ano);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    MovimentacaoCaixa e = new MovimentacaoCaixa(
-                            rs.getInt("idMovimentacaoCaixa"),
-                            rs.getString("nome"),
-                            rs.getString("tipo"),
-                            rs.getDouble("valor"),
-                            rs.getString("data"));
-                    lista.add(e);
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro ao filtrar movimentações por data: " + e.getMessage());
-        }
-        return lista;
-    }
-    
     public List<MovimentacaoCaixa> listar() {
-         List<MovimentacaoCaixa> lista = new ArrayList<>();
-         String sql = "SELECT * FROM movimentacaocaixa ORDER BY STR_TO_DATE(data, '%d/%m/%Y') DESC";
-         try (PreparedStatement stmt = connection.prepareStatement(sql);
-              ResultSet rs = stmt.executeQuery()) {
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        String sql = "SELECT * FROM movimentacaocaixa " +
+                "ORDER BY STR_TO_DATE(data, '%d/%m/%Y') DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 MovimentacaoCaixa e = new MovimentacaoCaixa(
@@ -124,9 +95,13 @@ public class MovimentacaoCaixaDAO {
                         rs.getString("data"));
                 lista.add(e);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Erro ao listar movimentações: " + e.getMessage());
         }
+
         return lista;
     }
 }
