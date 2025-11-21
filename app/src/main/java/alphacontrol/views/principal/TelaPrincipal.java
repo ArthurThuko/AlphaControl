@@ -138,46 +138,4 @@ public class TelaPrincipal extends JFrame {
         btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
         btnSair.addActionListener(e -> controller.logout());
     }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Connection conexao = Conexao.getConexao();
-
-                ProdutoDAO produtoDAO = new ProdutoDAO(conexao);
-                ClienteDAO clienteDAO = new ClienteDAO(conexao);
-                FiadoDAO fiadoDAO = new FiadoDAO(conexao);
-
-                ProdutoController produtoController = new ProdutoController(produtoDAO);
-                ClienteController clienteController = new ClienteController(clienteDAO);
-                
-                FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(conexao);
-                
-                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
-                PdvController pdvController = new PdvController(produtoController, clienteController, fluxoCaixaController);
-
-                TelaPrincipalController principalController = new TelaPrincipalController(
-                        produtoController, 
-                        clienteController, 
-                        pdvController, 
-                        fiadoController,
-                        fluxoCaixaController
-                );
-                
-                TelaPrincipal tela = new TelaPrincipal(principalController);
-                principalController.setView(tela); 
-                tela.setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro ao iniciar: " + e.getMessage());
-            }
-        });
-    }
 }
