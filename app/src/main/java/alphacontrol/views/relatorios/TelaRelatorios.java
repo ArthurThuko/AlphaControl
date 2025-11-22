@@ -384,10 +384,4 @@ public class TelaRelatorios extends JFrame {
             table.getColumnModel().getColumn(col).setCellRenderer(new PaddedCellRenderer(alignment));
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new TelaRelatorios(null).setVisible(true);
-        });
-    }
 }

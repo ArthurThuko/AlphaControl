@@ -582,21 +582,4 @@ public class TelaFluxoCaixa extends JFrame {
             return c;
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                TelaFluxoCaixa tela = new TelaFluxoCaixa(null);
-                tela.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }
