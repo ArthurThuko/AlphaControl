@@ -51,11 +51,6 @@ public class MovimentacaoCaixaDAO {
             return false;
         }
 
-        if (!mov.getTipo().equalsIgnoreCase("Entrada") && !mov.getTipo().equalsIgnoreCase("Saída")) {
-            JOptionPane.showMessageDialog(null, "O tipo deve ser 'Entrada' ou 'Saída'!");
-            return false;
-        }
-
         // Valor
         if (mov.getValor() <= 0) {
             JOptionPane.showMessageDialog(null, "O valor deve ser maior que zero!");
