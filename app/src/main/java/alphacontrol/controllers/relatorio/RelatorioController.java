@@ -9,6 +9,8 @@ import alphacontrol.views.relatorios.TelaRelatorios;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -112,36 +114,38 @@ public class RelatorioController {
         List<Venda> lista = dao.listarVendas(toSqlDate(inicio), toSqlDate(fim));
 
         DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "ID", "Cliente", "Total", "Data" }, 0);
+                new Object[] { "ID", "Total", "Data", "Forma de Pagamento" }, 0);
 
         for (Venda v : lista) {
             modelo.addRow(new Object[] {
                     v.getVendaId(),
                     v.getTotal(),
-                    v.getDataVenda()
+                    v.getDataVenda(),
+                    v.getFormaPagamento().getNome()
             });
         }
 
         tabela.setModel(modelo);
     }
 
-    private void carregarFluxo(Date inicio, Date fim, JTable tabela) {
-        List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
+        private void carregarFluxo(Date inicio, Date fim, JTable tabela) {
+            List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
 
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "ID", "Tipo", "Valor", "Data" }, 0);
+            DefaultTableModel modelo = new DefaultTableModel(
+                    new Object[] { "ID", "Nome", "Tipo", "Valor", "Data" }, 0);
 
-        for (MovimentacaoCaixa m : lista) {
-            modelo.addRow(new Object[] {
-                    m.getId(),
-                    m.getTipo(),
-                    m.getValor(),
-                    m.getData()
-            });
+            for (MovimentacaoCaixa m : lista) {
+                modelo.addRow(new Object[] {
+                        m.getId(),
+                        m.getNome(),
+                        m.getTipo(),
+                        m.getValor(),
+                        m.getData()
+                });
+            }
+
+            tabela.setModel(modelo);
         }
-
-        tabela.setModel(modelo);
-    }
 
     private void carregarFiados(Date inicio, Date fim, JTable tabela) {
         // converte para LocalDateTime antes de chamar o DAO

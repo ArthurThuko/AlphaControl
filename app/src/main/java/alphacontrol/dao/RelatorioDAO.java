@@ -26,7 +26,7 @@ public class RelatorioDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 MovimentacaoCaixa mov = new MovimentacaoCaixa();
-                mov.setId(rs.getInt("id"));
+                mov.setId(rs.getInt("idMovimentacaoCaixa"));
                 mov.setNome(rs.getString("nome"));
                 mov.setTipo(rs.getString("tipo"));
                 mov.setValor(rs.getDouble("valor"));
@@ -55,9 +55,14 @@ public class RelatorioDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Venda v = new Venda();
-                v.setVendaId(rs.getInt("id"));
+                v.setVendaId(rs.getInt("venda_id"));
                 v.setDataVenda(rs.getDate("data_venda"));
                 v.setTotal(rs.getDouble("total"));
+
+                String formaPg = rs.getString("forma_pagamento");
+                FormaPagamento fp = new FormaPagamento(formaPg);
+
+                v.setFormaPagamento(fp);
                 lista.add(v);
             }
         } catch (SQLException e) {
@@ -76,7 +81,6 @@ public class RelatorioDAO {
         try (Connection conn = Conexao.getConexao();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Converte LocalDateTime → Timestamp do JDBC
             stmt.setTimestamp(1, Timestamp.valueOf(inicio));
             stmt.setTimestamp(2, Timestamp.valueOf(fim));
 
@@ -88,7 +92,9 @@ public class RelatorioDAO {
                 f.setClienteId(rs.getInt("cliente_id"));
                 f.setValor(rs.getDouble("valor"));
 
-                // Converte Timestamp → LocalDateTime
+                int vendaId = rs.getInt("venda_id");
+                f.setVendaId(rs.wasNull() ? null : vendaId);
+
                 Timestamp ts = rs.getTimestamp("data");
                 if (ts != null) {
                     f.setData(ts.toLocalDateTime());
@@ -106,9 +112,9 @@ public class RelatorioDAO {
 
     public List<ProdutoMaisVendido> listarProdutosMaisVendidos(Date inicio, Date fim) {
         String sql = "SELECT p.nome, SUM(iv.quantidade) AS total " +
-                "FROM itens_venda iv " +
-                "JOIN produtos p ON p.id = iv.produto_id " +
-                "JOIN vendas v ON v.id = iv.venda_id " +
+                "FROM item_venda iv " +
+                "JOIN produtos p ON p.produto_id = iv.produto_id " +
+                "JOIN venda v ON v.venda_id = iv.venda_id " +
                 "WHERE v.data_venda BETWEEN ? AND ? " +
                 "GROUP BY p.nome " +
                 "ORDER BY total DESC";

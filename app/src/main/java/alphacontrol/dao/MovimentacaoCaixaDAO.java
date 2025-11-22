@@ -1,6 +1,7 @@
 package alphacontrol.dao;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import alphacontrol.models.MovimentacaoCaixa;
@@ -24,13 +25,23 @@ public class MovimentacaoCaixaDAO {
                 + "nome TEXT NOT NULL,"
                 + "tipo TEXT NOT NULL,"
                 + "valor REAL NOT NULL,"
-                + "data TEXT NOT NULL"
+                + "data DATE NOT NULL"
                 + ");";
 
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao criar tabela movimentacaocaixa: " + e.getMessage());
+        }
+    }
+
+    private String paraDataSql(String dataBR) {
+        try {
+            SimpleDateFormat br = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sql = new SimpleDateFormat("yyyy-MM-dd");
+            return sql.format(br.parse(dataBR));
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -41,7 +52,7 @@ public class MovimentacaoCaixaDAO {
             stmt.setString(1, movimentacao.getNome());
             stmt.setString(2, movimentacao.getTipo());
             stmt.setDouble(3, movimentacao.getValor());
-            stmt.setString(4, movimentacao.getData());
+            stmt.setString(4, paraDataSql(movimentacao.getData()));
             stmt.executeUpdate();
 
         } catch (SQLException e) {
