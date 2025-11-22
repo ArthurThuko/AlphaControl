@@ -51,11 +51,6 @@ public class MovimentacaoCaixaDAO {
             return false;
         }
 
-        // Tipo
-        if (mov.getTipo() == null || mov.getTipo().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "O campo TIPO é obrigatório!");
-            return false;
-        }
         if (!mov.getTipo().equalsIgnoreCase("Entrada") && !mov.getTipo().equalsIgnoreCase("Saída")) {
             JOptionPane.showMessageDialog(null, "O tipo deve ser 'Entrada' ou 'Saída'!");
             return false;

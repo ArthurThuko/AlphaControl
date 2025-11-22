@@ -6,20 +6,15 @@ import alphacontrol.dao.ClienteDAO;
 import alphacontrol.models.Fiado;
 import alphacontrol.models.Cliente;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class FiadoController {
 
     private FiadoDAO fiadoDAO;
     private ClienteDAO clienteDAO;
-    private FluxoCaixaController fluxoCaixaController;
-
     public FiadoController(FiadoDAO fiadoDAO, ClienteDAO clienteDAO, FluxoCaixaController fluxoCaixaController) {
         this.fiadoDAO = fiadoDAO;
         this.clienteDAO = clienteDAO;
-        this.fluxoCaixaController = fluxoCaixaController;
     }
 
     // MÉTODO QUE ESTAVA FALTANDO
@@ -38,10 +33,7 @@ public class FiadoController {
         fiadoDAO.pagarParcial(clienteId, valorPago);
         clienteDAO.atualizarDebito(clienteId, -valorPago);
         
-        Cliente cliente = clienteDAO.buscarPorId(clienteId);
-        String dataHoje = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String nomeEntrada = "Pgto. Parcial Fiado: " + cliente.getNome();
-        fluxoCaixaController.adicionarEntrada(nomeEntrada, valorPago, dataHoje);
+        clienteDAO.buscarPorId(clienteId);
     }
 
     // MÉTODO QUE ESTAVA FALTANDO
@@ -51,9 +43,5 @@ public class FiadoController {
         
         fiadoDAO.quitarTudo(clienteId);
         clienteDAO.atualizarDebito(clienteId, -valorTotal);
-        
-        String dataHoje = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String nomeEntrada = "Pgto. Total Fiado: " + cliente.getNome();
-        fluxoCaixaController.adicionarEntrada(nomeEntrada, valorTotal, dataHoje);
     }
 }
