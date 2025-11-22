@@ -1,6 +1,7 @@
 package alphacontrol.dao;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,62 @@ public class MovimentacaoCaixaDAO {
         }
     }
 
+    // ============================
+    //   VALIDAÇÕES DOS CAMPOS
+    // ============================
+    private boolean validar(MovimentacaoCaixa mov) {
+
+        // Nome
+        if (mov.getNome() == null || mov.getNome().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "O campo NOME é obrigatório!");
+            return false;
+        }
+        if (mov.getNome().length() < 2) {
+            JOptionPane.showMessageDialog(null, "O nome deve ter pelo menos 2 caracteres!");
+            return false;
+        }
+
+        // Tipo
+        if (mov.getTipo() == null || mov.getTipo().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "O campo TIPO é obrigatório!");
+            return false;
+        }
+        if (!mov.getTipo().equalsIgnoreCase("Entrada") && !mov.getTipo().equalsIgnoreCase("Saída")) {
+            JOptionPane.showMessageDialog(null, "O tipo deve ser 'Entrada' ou 'Saída'!");
+            return false;
+        }
+
+        // Valor
+        if (mov.getValor() <= 0) {
+            JOptionPane.showMessageDialog(null, "O valor deve ser maior que zero!");
+            return false;
+        }
+
+        // Data
+        if (mov.getData() == null || mov.getData().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "O campo DATA é obrigatório!");
+            return false;
+        }
+
+        if (!validarDataBR(mov.getData())) {
+            JOptionPane.showMessageDialog(null, "A data deve estar no formato DD/MM/AAAA!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarDataBR(String data) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false); // garante validade real
+        try {
+            sdf.parse(data);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
     private String paraDataSql(String dataBR) {
         try {
             SimpleDateFormat br = new SimpleDateFormat("dd/MM/yyyy");
@@ -46,6 +103,11 @@ public class MovimentacaoCaixaDAO {
     }
 
     public void inserir(MovimentacaoCaixa movimentacao) {
+
+        if (!validar(movimentacao)) {
+            return; // Evita inserir dados inválidos
+        }
+
         String sql = "INSERT INTO movimentacaocaixa (nome, tipo, valor, data) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -57,22 +119,29 @@ public class MovimentacaoCaixaDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao inserir movimentação: " + e.getMessage());
         }
     }
 
     public void atualizar(MovimentacaoCaixa movimentacao) {
+
+        if (!validar(movimentacao)) {
+            return; // Evita atualizar com dados inválidos
+        }
+
         String sql = "UPDATE movimentacaocaixa SET nome=?, tipo=?, valor=?, data=? WHERE idMovimentacaoCaixa=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, movimentacao.getNome());
             stmt.setString(2, movimentacao.getTipo());
             stmt.setDouble(3, movimentacao.getValor());
-            stmt.setString(4, movimentacao.getData());
+            stmt.setString(4, paraDataSql(movimentacao.getData()));
             stmt.setInt(5, movimentacao.getId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar movimentação: " + e.getMessage());
         }
     }
 
@@ -85,6 +154,7 @@ public class MovimentacaoCaixaDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao deletar movimentação: " + e.getMessage());
         }
     }
 

@@ -22,6 +22,7 @@ import java.sql.*;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -33,8 +34,10 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
@@ -138,6 +141,7 @@ public class TelaPDV extends JFrame {
         modelo = new DefaultTableModel(colunas, 0);
         tabelaProdutos = new JTable(modelo);
         configurarTabela(tabelaProdutos);
+        centralizarColunas(tabelaProdutos);
 
         JScrollPane scrollTabela = new JScrollPane(tabelaProdutos);
         scrollTabela.getViewport().setBackground(BEGE_CLARO);
@@ -171,9 +175,24 @@ public class TelaPDV extends JFrame {
         gbcCarrinho.fill = GridBagConstraints.BOTH;
         gbcCarrinho.weighty = 1.0;
 
-        String[] colunasCarrinho = { "Produto", "Qtd", "Subtotal" };
-        modeloCarrinho = new DefaultTableModel(colunasCarrinho, 0);
+        // ADDED: coluna Remover
+        String[] colunasCarrinho = { "Produto", "Qtd", "Subtotal", "Remover" };
+
+        // cria modelo com apenas a coluna "Remover" editável
+        modeloCarrinho = new DefaultTableModel(colunasCarrinho, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 3; // somente coluna Remover clicável
+            }
+        };
+
         tabelaCarrinho = new JTable(modeloCarrinho);
+
+        // configurar renderer/editor para a coluna Remover (índice 3)
+        // deve ser feito após criar a tabela
+        tabelaCarrinho.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
+        tabelaCarrinho.getColumnModel().getColumn(3).setCellEditor(new ButtonEditor(modeloCarrinho, carrinho));
+
         configurarTabela(tabelaCarrinho);
         tabelaCarrinho.setRowHeight(35);
 
@@ -274,6 +293,15 @@ public class TelaPDV extends JFrame {
         }
     }
 
+    private void centralizarColunas(JTable tabela) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+    }
+
     private void adicionarProdutoAoCarrinho(int row) {
         String nome = (String) modelo.getValueAt(row, 0);
         Produto produto = produtoController.buscarPorNome(nome);
@@ -312,10 +340,12 @@ public class TelaPDV extends JFrame {
             double subtotal = item.getQuantidade() * item.getValorUnitario();
             total += subtotal;
 
+            // ADDED: coluna Remover com texto (o renderer/editor mostrará o botão)
             modeloCarrinho.addRow(new Object[] {
                     item.getProduto().getNome(),
                     item.getQuantidade(),
-                    subtotal
+                    subtotal,
+                    "Remover"
             });
         }
 
@@ -326,6 +356,18 @@ public class TelaPDV extends JFrame {
         if (carrinho.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Carrinho vazio!");
             return;
+        }
+
+        // ADDED: verificação final de estoque antes de registrar venda
+        for (ItemVenda item : carrinho) {
+            Produto p = item.getProduto();
+            if (item.getQuantidade() > p.getQntEstoque()) {
+                JOptionPane.showMessageDialog(this,
+                        "O produto \"" + p.getNome() + "\" possui apenas "
+                                + p.getQntEstoque() + " unidades no estoque.\n" +
+                                "A quantidade no carrinho é: " + item.getQuantidade());
+                return;
+            }
         }
 
         Venda venda = new Venda();
@@ -464,6 +506,78 @@ public class TelaPDV extends JFrame {
 
             g2.dispose();
             super.paintComponent(g);
+        }
+    }
+
+    // ==== RENDERIZA O BOTÃO NA TABELA ====
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+
+        public ButtonRenderer() {
+            setText("Remover");
+            setForeground(Color.WHITE);
+            setBackground(new Color(200, 70, 70));
+            setOpaque(true);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setFont(new Font("Segoe UI", Font.BOLD, 12));
+        }
+
+        @Override
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    // ==== EDITOR DO BOTÃO (AÇÃO DE REMOVER) ====
+    class ButtonEditor extends DefaultCellEditor {
+
+        private JButton button;
+        private boolean clicked;
+        private int row;
+        private List<ItemVenda> carrinhoRef;
+
+        public ButtonEditor(DefaultTableModel modelo, List<ItemVenda> carrinho) {
+            super(new JTextField());
+            this.carrinhoRef = carrinho;
+
+            button = new JButton("Remover");
+            button.setOpaque(true);
+            button.setForeground(Color.WHITE);
+            button.setBackground(new Color(200, 70, 70));
+            button.setFocusPainted(false);
+            button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+            // Ao clicar, paramos a edição (getCellEditorValue será chamado)
+            button.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object obj,
+                boolean selected, int row, int col) {
+            this.row = row;
+            this.clicked = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (clicked) {
+                // remove item da lista real
+                if (row >= 0 && row < carrinhoRef.size()) {
+                    carrinhoRef.remove(row);
+                    // atualiza a tabela e total (reconstrói o modelo a partir da lista)
+                    atualizarCarrinho();
+                }
+            }
+            clicked = false;
+            return "Remover";
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
         }
     }
 }

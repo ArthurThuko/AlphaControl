@@ -22,7 +22,7 @@ public class ModalBuscaCliente extends JDialog {
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
     private static final Color VERDE_MUSGO = new Color(119, 140, 85);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
-    
+
     private JTable tabela;
     private DefaultTableModel modelo;
     private JTextField txtPesquisa;
@@ -36,14 +36,14 @@ public class ModalBuscaCliente extends JDialog {
         setSize(800, 600);
         setLocationRelativeTo(owner);
         setUndecorated(true);
-        setBackground(new Color(0,0,0,0));
+        setBackground(new Color(0, 0, 0, 0));
 
         RoundedPanel painelPrincipal = new RoundedPanel(15);
         painelPrincipal.setBackground(BEGE_FUNDO);
         painelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
         painelPrincipal.setLayout(new GridBagLayout());
         setContentPane(painelPrincipal);
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 20, 15, 20);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -57,21 +57,35 @@ public class ModalBuscaCliente extends JDialog {
         gbc.gridwidth = 2;
         painelPrincipal.add(lblTitulo, gbc);
 
+        gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 0.8;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
         txtPesquisa = new RoundedTextField("Digite o nome ou CPF...", 25);
         txtPesquisa.setPreferredSize(new Dimension(400, 45));
         painelPrincipal.add(txtPesquisa, gbc);
 
+        // Botão Pesquisar (ao lado)
         gbc.gridx = 1;
-        gbc.weightx = 0.2;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.LINE_START;
         btnPesquisar = new RoundedButton("Pesquisar", VERDE_MUSGO, Color.WHITE, 150, 45);
         painelPrincipal.add(btnPesquisar, gbc);
 
-        String[] colunas = {"ID", "Nome", "CPF", "Telefone"};
+        // Botão Fechar (ao lado do Pesquisar)
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        gbc.insets = new Insets(0, 10, 0, 0); // Espaço entre os botões
+        JButton btnFechar = new RoundedButton("Fechar", new Color(200, 0, 0), Color.WHITE, 150, 45);
+        btnFechar.addActionListener(e -> dispose());
+        painelPrincipal.add(btnFechar, gbc);
+
+        String[] colunas = { "ID", "Nome", "CPF", "Telefone" };
         modelo = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -80,11 +94,11 @@ public class ModalBuscaCliente extends JDialog {
         };
         tabela = new JTable(modelo);
         configurarTabela();
-        
+
         JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
-        
+
         RoundedPanel painelTabela = new RoundedPanel(15);
         painelTabela.setLayout(new BorderLayout());
         painelTabela.setBackground(BEGE_CLARO);
@@ -100,7 +114,7 @@ public class ModalBuscaCliente extends JDialog {
         painelPrincipal.add(painelTabela, gbc);
 
         btnSelecionar = new RoundedButton("Selecionar", VERDE_OLIVA, Color.WHITE, 150, 45);
-        
+
         gbc.gridy = 3;
         gbc.weighty = 0;
         gbc.fill = GridBagConstraints.NONE;
@@ -110,7 +124,7 @@ public class ModalBuscaCliente extends JDialog {
 
         new ModalBuscaClienteController(this, clienteController);
     }
-    
+
     private void configurarTabela() {
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         tabela.setRowHeight(40);
@@ -121,44 +135,60 @@ public class ModalBuscaCliente extends JDialog {
         tabela.setSelectionForeground(MARROM_ESCURO);
         tabela.setShowGrid(false);
         tabela.setIntercellSpacing(new Dimension(0, 0));
-        
+
         JTableHeader header = tabela.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 16));
         header.setBackground(MARROM_MEDIO);
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(0, 45));
-        
+
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
         colId.setMaxWidth(0);
         colId.setPreferredWidth(0);
-        
+
         TableColumnModel colModel = tabela.getColumnModel();
         colModel.getColumn(1).setPreferredWidth(300);
         colModel.getColumn(2).setPreferredWidth(150);
         colModel.getColumn(3).setPreferredWidth(150);
     }
-    
-    public JTable getTabela() { return tabela; }
-    public DefaultTableModel getModelo() { return modelo; }
-    public JTextField getTxtPesquisa() { return txtPesquisa; }
-    public JButton getBtnPesquisar() { return btnPesquisar; }
-    public JButton getBtnSelecionar() { return btnSelecionar; }
+
+    public JTable getTabela() {
+        return tabela;
+    }
+
+    public DefaultTableModel getModelo() {
+        return modelo;
+    }
+
+    public JTextField getTxtPesquisa() {
+        return txtPesquisa;
+    }
+
+    public JButton getBtnPesquisar() {
+        return btnPesquisar;
+    }
+
+    public JButton getBtnSelecionar() {
+        return btnSelecionar;
+    }
 
     public void setClienteSelecionado(Cliente cliente) {
         this.clienteSelecionado = cliente;
     }
-    
+
     public Cliente getClienteSelecionado() {
         return this.clienteSelecionado;
     }
 
     static class RoundedPanel extends JPanel {
         private final int cornerRadius;
+
         public RoundedPanel(int radius) {
             this.cornerRadius = radius;
             setOpaque(false);
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -173,6 +203,7 @@ public class ModalBuscaCliente extends JDialog {
 
     static class RoundedButton extends JButton {
         private final Color backgroundColor, hoverColor;
+
         public RoundedButton(String text, Color bg, Color fg, int w, int h) {
             super(text);
             backgroundColor = bg;
@@ -185,6 +216,7 @@ public class ModalBuscaCliente extends JDialog {
             setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -199,6 +231,7 @@ public class ModalBuscaCliente extends JDialog {
     static class RoundedTextField extends JTextField implements FocusListener {
         private final String placeholder;
         private boolean showingPlaceholder;
+
         public RoundedTextField(String placeholder, int columns) {
             super(placeholder, columns);
             this.placeholder = placeholder;
@@ -209,17 +242,19 @@ public class ModalBuscaCliente extends JDialog {
             setOpaque(false);
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE); 
+            g2.setColor(Color.WHITE);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.setColor(MARROM_CLARO);
             g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.dispose();
             super.paintComponent(g);
         }
+
         @Override
         public void focusGained(FocusEvent e) {
             if (showingPlaceholder) {
@@ -228,6 +263,7 @@ public class ModalBuscaCliente extends JDialog {
                 showingPlaceholder = false;
             }
         }
+
         @Override
         public void focusLost(FocusEvent e) {
             if (getText().isEmpty()) {
@@ -236,6 +272,7 @@ public class ModalBuscaCliente extends JDialog {
                 showingPlaceholder = true;
             }
         }
+
         @Override
         public String getText() {
             return showingPlaceholder ? "" : super.getText();

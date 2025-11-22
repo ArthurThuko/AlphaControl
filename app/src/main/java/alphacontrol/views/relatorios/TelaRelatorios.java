@@ -127,23 +127,30 @@ public class TelaRelatorios extends JFrame {
         gbc.gridy = 1;
 
         gbc.gridx = 0;
+        gbc.weightx = 0;
         JLabel lblInicio = new JLabel("Data Início:");
         lblInicio.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblInicio.setForeground(MARROM_ESCURO);
         painelFiltros.add(lblInicio, gbc);
 
         gbc.gridx = 1;
+        gbc.weightx = 0.5;
+        gbc.ipadx = 200;
         campoInicio = new RoundedTextField("dd/mm/aaaa");
-        campoInicio.setPreferredSize(new Dimension(200, 45));
+        campoInicio.setPreferredSize(new Dimension(100, 45));
         painelFiltros.add(campoInicio, gbc);
 
         gbc.gridx = 2;
+        gbc.weightx = 0;
+        gbc.ipadx = 0;
         JLabel lblFinal = new JLabel("Data Final:");
         lblFinal.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblFinal.setForeground(MARROM_ESCURO);
         painelFiltros.add(lblFinal, gbc);
 
         gbc.gridx = 3;
+        gbc.weightx = 0.5;
+        gbc.ipadx = 200;
         campoFinal = new RoundedTextField("dd/mm/aaaa");
         campoFinal.setPreferredSize(new Dimension(200, 45));
         painelFiltros.add(campoFinal, gbc);
@@ -264,20 +271,28 @@ public class TelaRelatorios extends JFrame {
             setFont(new Font("Segoe UI", Font.BOLD, 16));
             setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            // impede corte do texto e do fundo
+            setMargin(new Insets(8, 0, 8, 0));
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            if (getModel().isRollover()) {
-                g2.setColor(hoverColor);
-            } else {
-                g2.setColor(backgroundColor);
-            }
+
+            g2.setColor(getModel().isRollover() ? hoverColor : backgroundColor);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
+
+            // desenha o texto CENTRALIZADO sem cortar
+            FontMetrics fm = g2.getFontMetrics();
+            int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+            int textY = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+
+            g2.setColor(getForeground());
+            g2.drawString(getText(), textX, textY);
+
             g2.dispose();
-            super.paintComponent(g);
         }
     }
 

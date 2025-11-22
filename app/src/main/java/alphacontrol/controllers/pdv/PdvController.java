@@ -35,6 +35,20 @@ public class PdvController {
             return;
         }
 
+        // Verificação final de estoque
+for (ItemVenda item : itens) {
+    Produto p = item.getProduto();
+
+    if (item.getQuantidade() > p.getQntEstoque()) {
+        JOptionPane.showMessageDialog(null,
+                "O produto \"" + p.getNome() + "\" possui apenas "
+                + p.getQntEstoque() + " em estoque.\n"
+                + "A quantidade no carrinho é: " + item.getQuantidade());
+        return;
+    }
+}
+
+
         try {
             int idVendaGerado = pdvDAO.registrarVenda(venda);
 
