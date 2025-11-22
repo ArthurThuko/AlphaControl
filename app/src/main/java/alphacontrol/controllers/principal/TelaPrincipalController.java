@@ -1,7 +1,6 @@
 package alphacontrol.controllers.principal;
 
 import javax.swing.*;
-import java.awt.*;
 
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
@@ -10,7 +9,6 @@ import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.views.estoque.TelaEstoque;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
-import alphacontrol.views.login.TelaLogin;
 import alphacontrol.views.pdv.TelaPDV;
 import alphacontrol.views.relatorios.TelaRelatorios;
 import alphacontrol.views.fiado.TelaFiado;

@@ -10,21 +10,15 @@ import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
 import alphacontrol.views.components.Navbar;
-import alphacontrol.views.fluxo_caixa.ModalEntrada;
-import alphacontrol.views.fluxo_caixa.ModalSaida;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 
 public class TelaFluxoCaixa extends JFrame {
 
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
-    private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
@@ -38,10 +32,7 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblSaldo;
 
     private FluxoCaixaController controller;
-    private TelaPrincipalController mainController;
-
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
-        this.mainController = mainController;
         this.controller = mainController.getFluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

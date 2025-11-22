@@ -1,16 +1,14 @@
 package alphacontrol.controllers.fiado;
 
-import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.models.Fiado;
-import alphacontrol.models.Cliente; // Importar o modelo Cliente
-import javax.swing.JOptionPane;
-import java.sql.SQLException; // Importar SQLException
+import alphacontrol.models.Cliente;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List; // Importar List
+import java.util.List;
 
 public class FiadoController {
 

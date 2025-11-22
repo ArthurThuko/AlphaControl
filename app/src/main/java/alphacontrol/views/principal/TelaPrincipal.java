@@ -1,21 +1,11 @@
 package alphacontrol.views.principal;
 
-import alphacontrol.controllers.cliente.ClienteController;
-import alphacontrol.controllers.fiado.FiadoController;
-import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.controllers.fluxo.FluxoCaixaController;
-import alphacontrol.dao.ClienteDAO;
-import alphacontrol.dao.FiadoDAO;
-import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
-import alphacontrol.views.conexao.Conexao;
 
 import java.awt.*;
-import java.sql.Connection;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
@@ -28,11 +18,7 @@ public class TelaPrincipal extends JFrame {
     private JButton btnFluxoCaixa;
     private JButton btnSair;
     
-    private TelaPrincipalController controller;
-
     public TelaPrincipal(TelaPrincipalController controller) {
-        this.controller = controller;
-
         setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -122,8 +108,6 @@ public class TelaPrincipal extends JFrame {
     }
 
     public void setController(TelaPrincipalController controller) {
-        this.controller = controller;
-        
         for(ActionListener al : btnEstoque.getActionListeners()) btnEstoque.removeActionListener(al);
         for(ActionListener al : btnPdv.getActionListeners()) btnPdv.removeActionListener(al);
         for(ActionListener al : btnFiados.getActionListeners()) btnFiados.removeActionListener(al);

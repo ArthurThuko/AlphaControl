@@ -12,7 +12,6 @@ import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.dao.ClienteDAO; 
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
-import alphacontrol.dao.PDVDAO;
 import alphacontrol.models.LoginService;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
@@ -49,7 +48,6 @@ public class LoginController {
                 ClienteDAO clienteDAO = new ClienteDAO(connection);
                 ClienteController clienteController = new ClienteController(clienteDAO);
                 
-                PDVDAO pdvDAO = new PDVDAO(connection);
                 FiadoDAO fiadoDAO = new FiadoDAO(connection);
                 
                 FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(connection);

@@ -9,7 +9,6 @@ import alphacontrol.views.relatorios.TelaRelatorios;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

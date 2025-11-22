@@ -6,9 +6,7 @@ import alphacontrol.controllers.produto.*;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
-import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.views.components.AvisoEstoqueMinimo; 
-import java.sql.Connection;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -29,7 +27,6 @@ public class TelaEstoque extends JFrame {
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
     private static final Color VERDE_MUSGO = new Color(119, 140, 85); 
-    private static final Color COBRE_SUAVE = new Color(198, 134, 78); 
     private static final Color VERDE_OLIVA = new Color(101, 125, 64); 
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90); 
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); 
@@ -349,28 +346,6 @@ public class TelaEstoque extends JFrame {
         colModel.getColumn(6).setMaxWidth(260);
     }
 
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Connection connection = null; 
-                
-                ProdutoDAO dao = new ProdutoDAO(connection);
-                ProdutoController controller = new ProdutoController(dao);
-                new TelaEstoque(null).setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro crítico ao iniciar: " + e.getMessage());
-            }
-        });
-    }
-
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
         public PaddedCellRenderer() {
             setBorder(new EmptyBorder(5, 15, 5, 15));
@@ -574,14 +549,10 @@ public class TelaEstoque extends JFrame {
     
     static class QuantityCellEditor extends AbstractCellEditor implements TableCellEditor {
         private QuantityPanel panel = new QuantityPanel();
-        private JTable table;
         private int row;
         
-        private final TelaEstoque telaEstoque; 
 
         public QuantityCellEditor(TelaEstoque telaEstoque) { 
-            this.telaEstoque = telaEstoque;
-
             panel.btnMinus.addActionListener(e -> {
                 Integer novaQtd = telaEstoque.decrementarEstoqueNaLinha(row);
                 
@@ -612,7 +583,6 @@ public class TelaEstoque extends JFrame {
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            this.table = table;
             this.row = row;
             panel.lblQuantity.setText(value.toString());
             panel.setBackground(table.getSelectionBackground());
@@ -658,10 +628,8 @@ public class TelaEstoque extends JFrame {
     static class ActionsCellEditor extends AbstractCellEditor implements TableCellEditor {
         private ActionsPanel panel = new ActionsPanel();
         private int row;
-        private final TelaEstoque telaEstoque; 
 
         public ActionsCellEditor(JTable table, TelaEstoque telaEstoque) {
-            this.telaEstoque = telaEstoque;
 
             panel.btnEdit.addActionListener(e -> {
                 fireEditingStopped(); 

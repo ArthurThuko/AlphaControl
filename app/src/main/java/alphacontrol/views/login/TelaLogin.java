@@ -16,7 +16,6 @@ public class TelaLogin extends JFrame {
     private JPasswordField txtSenha;
     private JButton btnLogin;
     private JButton btnLimpar;
-    private LoginController controller;
     private JCheckBox cbMostrarSenha;
     private char defaultEcho;
 
@@ -141,7 +140,7 @@ public class TelaLogin extends JFrame {
         });
 
         
-        controller = new LoginController(this); 
+        new LoginController(this); 
 
         add(painelPrincipal);
         setVisible(true);
