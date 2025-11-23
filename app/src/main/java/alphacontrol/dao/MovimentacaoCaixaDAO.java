@@ -37,7 +37,7 @@ public class MovimentacaoCaixaDAO {
     }
 
     // ============================
-    //   VALIDAÇÕES DOS CAMPOS
+    // VALIDAÇÕES DOS CAMPOS
     // ============================
     private boolean validar(MovimentacaoCaixa mov) {
 
@@ -151,19 +151,31 @@ public class MovimentacaoCaixaDAO {
     public List<MovimentacaoCaixa> listar() {
         List<MovimentacaoCaixa> lista = new ArrayList<>();
 
-        String sql = "SELECT * FROM movimentacaocaixa " +
-                "ORDER BY STR_TO_DATE(data, '%d/%m/%Y') DESC";
+        String sql = "SELECT * FROM movimentacaocaixa ORDER BY data DESC";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat brFormat = new SimpleDateFormat("dd/MM/yyyy");
+
             while (rs.next()) {
+                String dataSql = rs.getString("data");
+                String dataBR = "";
+
+                try {
+                    dataBR = brFormat.format(sqlFormat.parse(dataSql));
+                } catch (ParseException ex) {
+                    dataBR = dataSql; // fallback
+                }
+
                 MovimentacaoCaixa e = new MovimentacaoCaixa(
                         rs.getInt("idMovimentacaoCaixa"),
                         rs.getString("nome"),
                         rs.getString("tipo"),
                         rs.getDouble("valor"),
-                        rs.getString("data"));
+                        dataBR);
+
                 lista.add(e);
             }
 
