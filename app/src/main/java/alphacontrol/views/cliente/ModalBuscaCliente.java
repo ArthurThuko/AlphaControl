@@ -63,7 +63,7 @@ public class ModalBuscaCliente extends JDialog {
         gbc.weightx = 0.8;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
-        txtPesquisa = new RoundedTextField("Digite o nome ou CPF...", 25);
+        txtPesquisa = new RoundedTextField("Digite o nome...", 25);
         txtPesquisa.setPreferredSize(new Dimension(400, 45));
         painelPrincipal.add(txtPesquisa, gbc);
 
