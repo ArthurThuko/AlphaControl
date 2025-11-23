@@ -1,20 +1,25 @@
-package alphacontrol.models;   
+package alphacontrol.models;
 
 import java.util.Date;
 
-public class Venda{
+public class Venda {
 
     private int vendaId;
-    private Date dataVenda;
-    private double total;
+    private String cliente;
     private FormaPagamento formaPagamento;
+    private double total;
+    private Date dataVenda;
 
-    public Venda(int vendaId, Date dataVenda, double total, FormaPagamento formaPagamento) {
+    // Construtor corrigido e compatível com o DAO
+    public Venda(int vendaId, String cliente, FormaPagamento formaPagamento, double total, Date dataVenda) {
         this.vendaId = vendaId;
-        this.dataVenda = dataVenda;
-        this.total = total;
+        this.cliente = cliente;
         this.formaPagamento = formaPagamento;
+        this.total = total;
+        this.dataVenda = dataVenda;
     }
+
+    public Venda(){}
 
     public int getVendaId() {
         return vendaId;
@@ -24,20 +29,12 @@ public class Venda{
         this.vendaId = vendaId;
     }
 
-    public Date getDataVenda() {
-        return dataVenda;
+    public String getCliente() {
+        return cliente;
     }
 
-    public void setDataVenda(Date dataVenda) {
-        this.dataVenda = dataVenda;
-    }
-
-    public double getTotal() {
-        return total;
-    }
-
-    public void setTotal(double total) {
-        this.total = total;
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
     }
 
     public FormaPagamento getFormaPagamento() {
@@ -48,4 +45,20 @@ public class Venda{
         this.formaPagamento = formaPagamento;
     }
 
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public Date getDataVenda() {
+        return dataVenda;
+    }
+
+    public void setDataVenda(Date dataVenda) {
+        this.dataVenda = dataVenda;
+    }
 }
+

@@ -4,8 +4,7 @@ public class FormaPagamento {
     private int formaPagamentoId;
     private String nome;
 
-    public FormaPagamento(int formaPagamentoId, String nome) {
-        this.formaPagamentoId = formaPagamentoId;
+    public FormaPagamento(String nome) {
         this.nome = nome;
     }
 
@@ -24,4 +23,10 @@ public class FormaPagamento {
     public void setNome(String nome) {
         this.nome = nome;
     }
+
+    @Override
+    public String toString() {
+        return nome;
+    }
+
 }

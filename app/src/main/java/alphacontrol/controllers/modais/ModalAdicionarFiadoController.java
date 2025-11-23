@@ -7,10 +7,8 @@ import alphacontrol.models.Fiado;
 import alphacontrol.views.fiado.ModalAdicionarFiado;
 import alphacontrol.views.cliente.ModalBuscaCliente;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ModalAdicionarFiadoController {
 

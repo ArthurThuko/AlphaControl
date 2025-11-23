@@ -4,7 +4,6 @@ package alphacontrol.views.cliente;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class TelaCliente extends JFrame {
     private JTextField campoPesquisa;
@@ -56,7 +55,6 @@ public class TelaCliente extends JFrame {
 
     // ==== Botões ====
     private class BotoesRenderer extends JPanel implements TableCellRenderer{
-        private final JPanel painel = new JPanel();
         private final JButton btnDetalhes = new JButton("Detalhes");
         private final JButton btnExcluir = new JButton("Excluir");
 
@@ -112,9 +110,5 @@ public class TelaCliente extends JFrame {
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaCliente().setVisible(true));
     }
 }

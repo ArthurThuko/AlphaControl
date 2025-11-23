@@ -6,9 +6,7 @@ import alphacontrol.controllers.produto.*;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
-import alphacontrol.dao.ProdutoDAO;
-import alphacontrol.views.components.AvisoEstoqueMinimo; 
-import java.sql.Connection;
+import alphacontrol.views.components.AvisoEstoqueMinimo;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -17,7 +15,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.EventObject;
 import java.util.List;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 
 public class TelaEstoque extends JFrame {
 
@@ -28,35 +26,34 @@ public class TelaEstoque extends JFrame {
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
-    private static final Color VERDE_MUSGO = new Color(119, 140, 85); 
-    private static final Color COBRE_SUAVE = new Color(198, 134, 78); 
-    private static final Color VERDE_OLIVA = new Color(101, 125, 64); 
-    private static final Color DOURADO_SUAVE = new Color(226, 180, 90); 
-    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62); 
+    private static final Color VERDE_MUSGO = new Color(119, 140, 85);
+    private static final Color VERDE_OLIVA = new Color(101, 125, 64);
+    private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
+    private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
 
     private final TelaPrincipalController mainController;
     private final ProdutoController controller;
     private final JTable tabela;
     private final DefaultTableModel modelo;
     private final JTextField txtPesquisa;
-    
-    private List<Produto> listaProdutosAtual; 
-    private AvisoEstoqueMinimo avisoEstoque; 
+
+    private List<Produto> listaProdutosAtual;
+    private AvisoEstoqueMinimo avisoEstoque;
 
     public TelaEstoque(TelaPrincipalController mainController) {
         this.mainController = mainController;
-        this.controller = mainController.getProdutoController(); 
-        this.listaProdutosAtual = new ArrayList<>(); 
+        this.controller = mainController.getProdutoController();
+        this.listaProdutosAtual = new ArrayList<>();
 
         setTitle("Estoque");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
-        
+
         JFrame estaTela = this;
         Navbar navbar = new Navbar(estaTela, this.mainController, "Estoque");
         setJMenuBar(navbar);
-        
+
         getContentPane().setBackground(BEGE_FUNDO);
 
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
@@ -69,16 +66,11 @@ public class TelaEstoque extends JFrame {
         titulo.setForeground(MARROM_ESCURO);
         titulo.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
-        gbc.gridy = 0; 
+        gbc.gridy = 0;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 15, 0); 
+        gbc.insets = new Insets(10, 0, 15, 0);
         painelPrincipal.add(titulo, gbc);
-        
-        avisoEstoque = new AvisoEstoqueMinimo();
-        gbc.gridy = 1; 
-        gbc.insets = new Insets(0, 0, 15, 0);
-        painelPrincipal.add(avisoEstoque, gbc);
 
         JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         painelBusca.setBackground(BEGE_FUNDO);
@@ -91,7 +83,7 @@ public class TelaEstoque extends JFrame {
 
         btnAdd.addActionListener(e -> abrirModalAdicionar());
         btnPesquisar.addActionListener(e -> pesquisar());
-        
+
         painelBusca.add(txtPesquisa);
         painelBusca.add(btnPesquisar);
 
@@ -101,15 +93,21 @@ public class TelaEstoque extends JFrame {
 
         JPanel painelTopo = new JPanel(new BorderLayout());
         painelTopo.setBackground(BEGE_FUNDO);
+
         painelTopo.add(painelBusca, BorderLayout.WEST);
         painelTopo.add(painelAdd, BorderLayout.EAST);
 
-        gbc.gridy = 2; 
-        gbc.insets = new Insets(0, 0, 20, 0);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 15, 0);
         painelPrincipal.add(painelTopo, gbc);
 
+        avisoEstoque = new AvisoEstoqueMinimo();
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 0, 15, 0);
+        painelPrincipal.add(avisoEstoque, gbc);
+
         String[] colunas = { "ID", "Nome", "Qtd.", "Categoria", "Preço de Custo (R$)", "Valor Venda (R$)", "Ações" };
-        
+
         modelo = new DefaultTableModel(null, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -118,8 +116,8 @@ public class TelaEstoque extends JFrame {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 2) { 
-                    return Integer.class; 
+                if (columnIndex == 2) {
+                    return Integer.class;
                 }
                 return String.class;
             }
@@ -138,7 +136,7 @@ public class TelaEstoque extends JFrame {
         painelTabela.setBorder(new EmptyBorder(1, 1, 1, 1));
         painelTabela.add(scroll, BorderLayout.CENTER);
 
-        gbc.gridy = 3; 
+        gbc.gridy = 3;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -149,99 +147,99 @@ public class TelaEstoque extends JFrame {
 
         atualizarTabela();
     }
-    
+
     private void checarEstoqueMinimo(List<Produto> produtos) {
         if (produtos == null) {
-            avisoEstoque.setAviso(new ArrayList<>()); 
+            avisoEstoque.setAviso(new ArrayList<>());
             return;
         }
-        
+
         List<Produto> produtosComEstoqueBaixo = new ArrayList<>();
         for (Produto p : produtos) {
             if (p.isEstoqueBaixo()) {
                 produtosComEstoqueBaixo.add(p);
             }
         }
-        
+
         avisoEstoque.setAviso(produtosComEstoqueBaixo);
     }
-    
+
     private void atualizarTabela() {
-        modelo.setRowCount(0); 
-        this.listaProdutosAtual = controller.listar(); 
-        
-        checarEstoqueMinimo(this.listaProdutosAtual); 
-        
-        for (Produto p : this.listaProdutosAtual) { 
-            modelo.addRow(new Object[]{
-                p.getProdutoId(),  
-                p.getNome(),   
-                p.getQntEstoque(), 
-                p.getCategoria(),  
-                p.getValorCompra(),
-                p.getValorVenda(), 
-                ""          
+        modelo.setRowCount(0);
+        this.listaProdutosAtual = controller.listar();
+
+        checarEstoqueMinimo(this.listaProdutosAtual);
+
+        for (Produto p : this.listaProdutosAtual) {
+            modelo.addRow(new Object[] {
+                    p.getProdutoId(),
+                    p.getNome(),
+                    p.getQntEstoque(),
+                    p.getCategoria(),
+                    p.getValorCompra(),
+                    p.getValorVenda(),
+                    ""
             });
         }
     }
-    
+
     private void pesquisar() {
-        modelo.setRowCount(0); 
-        this.listaProdutosAtual = controller.pesquisar(txtPesquisa.getText()); 
-        
-        checarEstoqueMinimo(this.listaProdutosAtual); 
-        
-        for (Produto p : this.listaProdutosAtual) { 
-            modelo.addRow(new Object[]{
-                p.getProdutoId(), p.getNome(), p.getQntEstoque(),
-                p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
+        modelo.setRowCount(0);
+        this.listaProdutosAtual = controller.pesquisar(txtPesquisa.getText());
+
+        checarEstoqueMinimo(this.listaProdutosAtual);
+
+        for (Produto p : this.listaProdutosAtual) {
+            modelo.addRow(new Object[] {
+                    p.getProdutoId(), p.getNome(), p.getQntEstoque(),
+                    p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
             });
         }
     }
-    
+
     private void abrirModalAdicionar() {
         ModalAdicionarProduto modal = new ModalAdicionarProduto(this);
         new ModalAdicionarProdutoController(controller, modal);
-        modal.setVisible(true); 
-        atualizarTabela(); 
+        modal.setVisible(true);
+        atualizarTabela();
     }
-    
+
     private void abrirModalEditar(int row) {
         Produto produtoParaEditar = getProdutoFromRow(row);
-        
-        if (produtoParaEditar == null) { 
+
+        if (produtoParaEditar == null) {
             JOptionPane.showMessageDialog(this, "Erro: Não foi possível encontrar o produto selecionado.");
             return;
         }
-        
+
         ModalEditarProduto modal = new ModalEditarProduto(this);
-        modal.setProduto(produtoParaEditar); 
-        
+        modal.setProduto(produtoParaEditar);
+
         new ModalEditarProdutoController(controller, modal);
-        modal.setVisible(true); 
-        atualizarTabela(); 
+        modal.setVisible(true);
+        atualizarTabela();
     }
-    
+
     private void deletarProduto(int row) {
         int id = (int) modelo.getValueAt(row, 0);
         String nome = (String) modelo.getValueAt(row, 1);
-        
+
         try {
             controller.deletar(id, nome);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao deletar: " + e.getMessage());
         }
-        
+
         atualizarTabela();
     }
-    
+
     private Produto getProdutoFromRow(int row) {
         if (row < 0 || row >= modelo.getRowCount()) {
             return null;
         }
-        
-        int id = (int) modelo.getValueAt(row, 0); 
-        
+
+        int id = (int) modelo.getValueAt(row, 0);
+
         if (listaProdutosAtual != null) {
             for (Produto p : listaProdutosAtual) {
                 if (p.getProdutoId() == id) {
@@ -249,26 +247,26 @@ public class TelaEstoque extends JFrame {
                         p.setQntEstoque((Integer) modelo.getValueAt(row, 2));
                     } catch (Exception e) {
                     }
-                    return p; 
+                    return p;
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     private Integer incrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
-        if (produto == null) { 
-             JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para incrementar.");
-             return null;
+        if (produto == null) {
+            JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para incrementar.");
+            return null;
         }
-        
+
         try {
-            controller.incrementarEstoque(produto); 
-            
-            checarEstoqueMinimo(this.listaProdutosAtual); 
-            
+            controller.incrementarEstoque(produto);
+
+            checarEstoqueMinimo(this.listaProdutosAtual);
+
             return produto.getQntEstoque();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao incrementar estoque: " + e.getMessage());
@@ -278,17 +276,17 @@ public class TelaEstoque extends JFrame {
 
     private Integer decrementarEstoqueNaLinha(int row) {
         Produto produto = getProdutoFromRow(row);
-         if (produto == null) { 
-             JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para decrementar.");
-             return null;
+        if (produto == null) {
+            JOptionPane.showMessageDialog(this, "Erro ao encontrar produto para decrementar.");
+            return null;
         }
-         
+
         try {
-            boolean atualizou = controller.decrementarEstoque(produto); 
+            boolean atualizou = controller.decrementarEstoque(produto);
             if (atualizou) {
-                
+
                 checarEstoqueMinimo(this.listaProdutosAtual);
-                
+
                 return produto.getQntEstoque();
             }
             return null;
@@ -319,19 +317,19 @@ public class TelaEstoque extends JFrame {
         header.setDefaultRenderer(new HeaderRenderer(tabela));
 
         PaddedCellRenderer paddedRenderer = new PaddedCellRenderer();
-        for (int i = 1; i < tabela.getColumnCount(); i++) { 
-            if (i != 2 && i != 6) { 
+        for (int i = 1; i < tabela.getColumnCount(); i++) {
+            if (i != 2 && i != 6) {
                 tabela.getColumnModel().getColumn(i).setCellRenderer(paddedRenderer);
             }
         }
-        
+
         TableColumn colQtd = tabela.getColumn("Qtd.");
         colQtd.setCellRenderer(new QuantityCellRenderer());
-        colQtd.setCellEditor(new QuantityCellEditor(this)); 
+        colQtd.setCellEditor(new QuantityCellEditor(this));
 
         TableColumn colAcoes = tabela.getColumn("Ações");
         colAcoes.setCellRenderer(new ActionsCellRenderer());
-        colAcoes.setCellEditor(new ActionsCellEditor(tabela, this)); 
+        colAcoes.setCellEditor(new ActionsCellEditor(tabela, this));
 
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
@@ -339,36 +337,14 @@ public class TelaEstoque extends JFrame {
         colId.setPreferredWidth(0);
 
         TableColumnModel colModel = tabela.getColumnModel();
-        colModel.getColumn(1).setPreferredWidth(350); 
-        colModel.getColumn(2).setMinWidth(190);       
-        colModel.getColumn(2).setMaxWidth(220);       
-        colModel.getColumn(3).setPreferredWidth(200); 
-        colModel.getColumn(4).setPreferredWidth(200); 
-        colModel.getColumn(5).setPreferredWidth(180); 
-        colModel.getColumn(6).setMinWidth(250);       
+        colModel.getColumn(1).setPreferredWidth(350);
+        colModel.getColumn(2).setMinWidth(190);
+        colModel.getColumn(2).setMaxWidth(220);
+        colModel.getColumn(3).setPreferredWidth(200);
+        colModel.getColumn(4).setPreferredWidth(200);
+        colModel.getColumn(5).setPreferredWidth(180);
+        colModel.getColumn(6).setMinWidth(250);
         colModel.getColumn(6).setMaxWidth(260);
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Connection connection = null; 
-                
-                ProdutoDAO dao = new ProdutoDAO(connection);
-                ProdutoController controller = new ProdutoController(dao);
-                new TelaEstoque(null).setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro crítico ao iniciar: " + e.getMessage());
-            }
-        });
     }
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
@@ -378,7 +354,8 @@ public class TelaEstoque extends JFrame {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setVerticalAlignment(SwingConstants.CENTER);
             if (isSelected) {
@@ -493,7 +470,7 @@ public class TelaEstoque extends JFrame {
             return showingPlaceholder ? "" : super.getText();
         }
     }
-    
+
     static class HeaderRenderer implements TableCellRenderer {
         DefaultTableCellRenderer renderer;
 
@@ -503,13 +480,14 @@ public class TelaEstoque extends JFrame {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
             Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
             ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
             return c;
         }
     }
-    
+
     static class CellButton extends JButton {
         public CellButton(String text, Color background, Color foreground) {
             super(text);
@@ -544,15 +522,15 @@ public class TelaEstoque extends JFrame {
         public JLabel lblQuantity = new JLabel("0", SwingConstants.CENTER);
 
         public QuantityPanel() {
-            super(new BorderLayout(15, 0)); 
+            super(new BorderLayout(15, 0));
             setOpaque(true);
-            
+
             lblQuantity.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            
-            Dimension btnSize = new Dimension(50, 45); 
+
+            Dimension btnSize = new Dimension(50, 45);
             btnMinus.setPreferredSize(btnSize);
             btnPlus.setPreferredSize(btnSize);
-            
+
             add(btnMinus, BorderLayout.WEST);
             add(lblQuantity, BorderLayout.CENTER);
             add(btnPlus, BorderLayout.EAST);
@@ -561,7 +539,8 @@ public class TelaEstoque extends JFrame {
 
     static class QuantityCellRenderer extends QuantityPanel implements TableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
             } else {
@@ -571,36 +550,31 @@ public class TelaEstoque extends JFrame {
             return this;
         }
     }
-    
+
     static class QuantityCellEditor extends AbstractCellEditor implements TableCellEditor {
         private QuantityPanel panel = new QuantityPanel();
-        private JTable table;
         private int row;
-        
-        private final TelaEstoque telaEstoque; 
 
-        public QuantityCellEditor(TelaEstoque telaEstoque) { 
-            this.telaEstoque = telaEstoque;
-
+        public QuantityCellEditor(TelaEstoque telaEstoque) {
             panel.btnMinus.addActionListener(e -> {
                 Integer novaQtd = telaEstoque.decrementarEstoqueNaLinha(row);
-                
+
                 if (novaQtd != null) {
                     panel.lblQuantity.setText(novaQtd.toString());
-                    fireEditingStopped(); 
+                    fireEditingStopped();
                 }
             });
 
             panel.btnPlus.addActionListener(e -> {
                 Integer novaQtd = telaEstoque.incrementarEstoqueNaLinha(row);
-                
+
                 if (novaQtd != null) {
                     panel.lblQuantity.setText(novaQtd.toString());
                     fireEditingStopped();
                 }
             });
         }
-        
+
         @Override
         public Object getCellEditorValue() {
             try {
@@ -611,8 +585,8 @@ public class TelaEstoque extends JFrame {
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            this.table = table;
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                int column) {
             this.row = row;
             panel.lblQuantity.setText(value.toString());
             panel.setBackground(table.getSelectionBackground());
@@ -633,7 +607,7 @@ public class TelaEstoque extends JFrame {
             super(new FlowLayout(FlowLayout.CENTER, 10, 0));
             setOpaque(true);
             setAlignmentY(Component.CENTER_ALIGNMENT);
-            
+
             Dimension btnSize = new Dimension(100, 40);
             btnEdit.setPreferredSize(btnSize);
             btnDelete.setPreferredSize(btnSize);
@@ -645,7 +619,8 @@ public class TelaEstoque extends JFrame {
 
     static class ActionsCellRenderer extends ActionsPanel implements TableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
             } else {
@@ -658,24 +633,23 @@ public class TelaEstoque extends JFrame {
     static class ActionsCellEditor extends AbstractCellEditor implements TableCellEditor {
         private ActionsPanel panel = new ActionsPanel();
         private int row;
-        private final TelaEstoque telaEstoque; 
 
         public ActionsCellEditor(JTable table, TelaEstoque telaEstoque) {
-            this.telaEstoque = telaEstoque;
 
             panel.btnEdit.addActionListener(e -> {
-                fireEditingStopped(); 
-                telaEstoque.abrirModalEditar(this.row); 
+                fireEditingStopped();
+                telaEstoque.abrirModalEditar(this.row);
             });
 
             panel.btnDelete.addActionListener(e -> {
-                fireEditingStopped(); 
-                telaEstoque.deletarProduto(this.row); 
+                fireEditingStopped();
+                telaEstoque.deletarProduto(this.row);
             });
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                int column) {
             this.row = row;
             panel.setBackground(table.getSelectionBackground());
             return panel;
@@ -683,7 +657,7 @@ public class TelaEstoque extends JFrame {
 
         @Override
         public Object getCellEditorValue() {
-            return ""; 
+            return "";
         }
 
         @Override

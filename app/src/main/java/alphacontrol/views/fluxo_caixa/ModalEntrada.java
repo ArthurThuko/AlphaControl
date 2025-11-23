@@ -4,7 +4,6 @@ import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.models.MovimentacaoCaixa;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -83,7 +82,8 @@ public class ModalEntrada extends JDialog {
         gbc.weightx = 1;
         gbc.gridwidth = 2;
 
-        JLabel titulo = new JLabel(movimentacaoEditando == null ? "Adicionar Entrada" : "Editar Entrada", SwingConstants.CENTER);
+        JLabel titulo = new JLabel(movimentacaoEditando == null ? "Adicionar Entrada" : "Editar Entrada",
+                SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
         titulo.setForeground(MARROM_ESCURO);
         painel.add(titulo, gbc);
@@ -107,7 +107,12 @@ public class ModalEntrada extends JDialog {
         return painel;
     }
 
-    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc, Color fundo, Color borda, Color texto) {
+    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
+        return criarCampo(label, painel, gbc, BEGE_CLARO, MARROM_CLARO, MARROM_ESCURO);
+    }
+
+    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc, Color fundo, Color borda,
+            Color texto) {
         gbc.gridx = 0;
         gbc.weightx = 0.3;
         JLabel lbl = new JLabel(label, SwingConstants.RIGHT);
@@ -190,7 +195,8 @@ public class ModalEntrada extends JDialog {
 
             dispose();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Valor inválido! Use ponto para decimais (ex: 50.25).", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Valor inválido! Use ponto para decimais (ex: 50.25).", "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

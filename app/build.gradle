@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
     implementation 'com.mysql:mysql-connector-j:9.5.0'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
 }
 
 application {

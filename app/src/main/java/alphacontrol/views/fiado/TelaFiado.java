@@ -6,13 +6,9 @@ import alphacontrol.controllers.modais.ModalAdicionarClienteController;
 import alphacontrol.controllers.modais.ModalEditarFiadoController;
 import alphacontrol.controllers.modais.ModalQuitarDividaController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Cliente;
 import alphacontrol.views.cliente.ModalAdicionarCliente;
 import alphacontrol.views.components.Navbar;
-import alphacontrol.views.fiado.ModalAdicionarFiado;
-import alphacontrol.views.fiado.ModalEditarFiado;
-import alphacontrol.views.fiado.ModalQuitarDivida;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,8 +17,6 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
@@ -45,11 +39,9 @@ public class TelaFiado extends JFrame {
     private JTable tabela;
     private ClienteController clienteController;
     private FiadoController fiadoController;
-    private TelaPrincipalController mainController;
     private JTextField txtPesquisa;
 
     public TelaFiado(TelaPrincipalController mainController) {
-        this.mainController = mainController;
         this.clienteController = mainController.getClienteController();
         this.fiadoController = mainController.getFiadoController();
 
@@ -452,7 +444,6 @@ public class TelaFiado extends JFrame {
 
     static class ActionsCellEditor extends AbstractCellEditor implements TableCellEditor {
         private ActionsPanel panel = new ActionsPanel();
-        private JTable table;
         private int row;
         private TelaFiado telaFiado;
         private ClienteController clienteController;
@@ -460,7 +451,6 @@ public class TelaFiado extends JFrame {
 
         public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController cController,
                 FiadoController fController) {
-            this.table = table;
             this.telaFiado = parentFrame;
             this.clienteController = cController;
             this.fiadoController = fController;

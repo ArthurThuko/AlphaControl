@@ -1,21 +1,11 @@
 package alphacontrol.views.principal;
 
-import alphacontrol.controllers.cliente.ClienteController;
-import alphacontrol.controllers.fiado.FiadoController;
-import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.controllers.fluxo.FluxoCaixaController;
-import alphacontrol.dao.ClienteDAO;
-import alphacontrol.dao.FiadoDAO;
-import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
-import alphacontrol.views.conexao.Conexao;
 
 import java.awt.*;
-import java.sql.Connection;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
@@ -28,11 +18,7 @@ public class TelaPrincipal extends JFrame {
     private JButton btnFluxoCaixa;
     private JButton btnSair;
     
-    private TelaPrincipalController controller;
-
     public TelaPrincipal(TelaPrincipalController controller) {
-        this.controller = controller;
-
         setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -64,12 +50,12 @@ public class TelaPrincipal extends JFrame {
         btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
         btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
 
-        configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icon_estoque.png");
-        configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icon_pdv.png");
-        configurarBotaoComIcone(btnFiados, "/alphacontrol/img/icon_fiado.png");
-        configurarBotaoComIcone(btnRelatorios, "/alphacontrol/img/icon_relatorio.png");
-        configurarBotaoComIcone(btnFluxoCaixa, "/alphacontrol/img/icon_caixa.png");
-        configurarBotaoComIcone(btnSair, "/alphacontrol/img/icon_sair.png");
+        configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icons/Icon_Estoque.png");
+        configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icons/Icon_PDV.png");
+        configurarBotaoComIcone(btnFiados, "/alphacontrol/img/icons/Icon_Fiado.png");
+        configurarBotaoComIcone(btnRelatorios, "/alphacontrol/img/icons/Icon_Relatorio.png");
+        configurarBotaoComIcone(btnFluxoCaixa, "/alphacontrol/img/icons/Icon_FluxoCaixa.png");
+        configurarBotaoComIcone(btnSair, "/alphacontrol/img/icons/Icon_Sair.png");
 
         if (controller != null) {
             btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
@@ -115,15 +101,13 @@ public class TelaPrincipal extends JFrame {
             System.err.println("Erro ao carregar ícone: " + iconPath);
         }
         
-        botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 24));
+        botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 25));
         botao.setVerticalTextPosition(SwingConstants.BOTTOM);
         botao.setHorizontalTextPosition(SwingConstants.CENTER);
         botao.setIconTextGap(15);
     }
 
     public void setController(TelaPrincipalController controller) {
-        this.controller = controller;
-        
         for(ActionListener al : btnEstoque.getActionListeners()) btnEstoque.removeActionListener(al);
         for(ActionListener al : btnPdv.getActionListeners()) btnPdv.removeActionListener(al);
         for(ActionListener al : btnFiados.getActionListeners()) btnFiados.removeActionListener(al);
@@ -137,47 +121,5 @@ public class TelaPrincipal extends JFrame {
         btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
         btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
         btnSair.addActionListener(e -> controller.logout());
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Connection conexao = Conexao.getConexao();
-
-                ProdutoDAO produtoDAO = new ProdutoDAO(conexao);
-                ClienteDAO clienteDAO = new ClienteDAO(conexao);
-                FiadoDAO fiadoDAO = new FiadoDAO(conexao);
-
-                ProdutoController produtoController = new ProdutoController(produtoDAO);
-                ClienteController clienteController = new ClienteController(clienteDAO);
-                
-                FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(conexao);
-                
-                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
-                PdvController pdvController = new PdvController(produtoController, clienteController, fluxoCaixaController);
-
-                TelaPrincipalController principalController = new TelaPrincipalController(
-                        produtoController, 
-                        clienteController, 
-                        pdvController, 
-                        fiadoController,
-                        fluxoCaixaController
-                );
-                
-                TelaPrincipal tela = new TelaPrincipal(principalController);
-                principalController.setView(tela); 
-                tela.setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro ao iniciar: " + e.getMessage());
-            }
-        });
     }
 }

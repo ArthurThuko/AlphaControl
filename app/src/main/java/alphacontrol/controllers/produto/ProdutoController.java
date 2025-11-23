@@ -40,6 +40,22 @@ public class ProdutoController {
             produtoDAO.deletarProduto(id);
         }
     }
+
+    public Produto buscarPorNome(String nome) {
+    try {
+        List<Produto> resultados = produtoDAO.pesquisarProdutos(nome);
+
+        if (resultados.isEmpty()) {
+            return null; // Nenhum produto encontrado
+        }
+
+        return resultados.get(0); // Retorna o primeiro encontrado
+    } catch (SQLException e) {
+        mostrarErro("Erro ao buscar produto: " + e.getMessage());
+        return null;
+    }
+}
+
     
     public List<Produto> listar() {
         try {

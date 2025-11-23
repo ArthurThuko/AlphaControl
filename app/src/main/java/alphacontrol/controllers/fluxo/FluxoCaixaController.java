@@ -22,18 +22,6 @@ public class FluxoCaixaController {
         movimentacaoCaixaDAO.inserir(new MovimentacaoCaixa(nome, "saida", valor, data));
     }
 
-    public List<MovimentacaoCaixa> listarEntradas(int mes, int ano) {
-        return movimentacaoCaixaDAO.listar(mes, ano).stream()
-                .filter(m -> "entrada".equals(m.getTipo()))
-                .collect(Collectors.toList());
-    }
-
-    public List<MovimentacaoCaixa> listarSaidas(int mes, int ano) {
-        return movimentacaoCaixaDAO.listar(mes, ano).stream()
-                .filter(m -> "saida".equals(m.getTipo()))
-                .collect(Collectors.toList());
-    }
-    
     public List<MovimentacaoCaixa> listarEntradas() {
         return movimentacaoCaixaDAO.listar().stream()
                 .filter(m -> "entrada".equals(m.getTipo()))
@@ -54,8 +42,8 @@ public class FluxoCaixaController {
         movimentacaoCaixaDAO.atualizar(new MovimentacaoCaixa(id, nome, tipo, valor, data));
     }
 
-    public double[] calcularTotais(int mes, int ano) {
-        List<MovimentacaoCaixa> lista = movimentacaoCaixaDAO.listar(mes, ano);
+    public double[] calcularTotais() {
+        List<MovimentacaoCaixa> lista = movimentacaoCaixaDAO.listar();
 
         double totalEntradas = lista.stream()
                 .filter(m -> "entrada".equals(m.getTipo()))
