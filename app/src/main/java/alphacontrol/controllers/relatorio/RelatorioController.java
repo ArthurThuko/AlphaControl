@@ -8,6 +8,7 @@ import alphacontrol.models.Venda;
 import alphacontrol.views.relatorios.TelaRelatorios;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.text.ParseException;
@@ -15,6 +16,11 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class RelatorioController {
 
@@ -107,6 +113,14 @@ public class RelatorioController {
         }
 
         tabela.setModel(modelo);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
     }
 
     private void carregarVendas(Date inicio, Date fim, JTable tabela) {
@@ -125,26 +139,42 @@ public class RelatorioController {
         }
 
         tabela.setModel(modelo);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
     }
 
-        private void carregarFluxo(Date inicio, Date fim, JTable tabela) {
-            List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
+    private void carregarFluxo(Date inicio, Date fim, JTable tabela) {
+        List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
 
-            DefaultTableModel modelo = new DefaultTableModel(
-                    new Object[] { "ID", "Nome", "Tipo", "Valor", "Data" }, 0);
+        DefaultTableModel modelo = new DefaultTableModel(
+                new Object[] { "ID", "Nome", "Tipo", "Valor", "Data" }, 0);
 
-            for (MovimentacaoCaixa m : lista) {
-                modelo.addRow(new Object[] {
-                        m.getId(),
-                        m.getNome(),
-                        m.getTipo(),
-                        m.getValor(),
-                        m.getData()
-                });
-            }
-
-            tabela.setModel(modelo);
+        for (MovimentacaoCaixa m : lista) {
+            modelo.addRow(new Object[] {
+                    m.getId(),
+                    m.getNome(),
+                    m.getTipo(),
+                    m.getValor(),
+                    m.getData()
+            });
         }
+
+        tabela.setModel(modelo);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+    }
 
     private void carregarFiados(Date inicio, Date fim, JTable tabela) {
         // converte para LocalDateTime antes de chamar o DAO
@@ -167,6 +197,14 @@ public class RelatorioController {
         }
 
         tabela.setModel(modelo);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
     }
 
     // ---------------------------------------------------------
@@ -182,4 +220,71 @@ public class RelatorioController {
             return null;
         }
     }
+
+    public void gerarPdf(JTable tabela, String caminho) {
+        try {
+            // Criar documento
+            PDDocument document = new PDDocument();
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            PDPageContentStream stream = new PDPageContentStream(document, page);
+
+            // Título
+            stream.beginText();
+            stream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+            stream.newLineAtOffset(50, 750);
+            stream.showText("Relatório");
+            stream.endText();
+
+            // Cabeçalhos da tabela
+            float y = 700;
+            stream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+
+            for (int i = 0; i < tabela.getColumnCount(); i++) {
+                stream.beginText();
+                stream.newLineAtOffset(50 + (i * 150), y);
+                stream.showText(tabela.getColumnName(i));
+                stream.endText();
+            }
+
+            // Linhas da tabela
+            stream.setFont(PDType1Font.HELVETICA, 12);
+            y -= 20;
+
+            for (int row = 0; row < tabela.getRowCount(); row++) {
+                for (int col = 0; col < tabela.getColumnCount(); col++) {
+
+                    Object value = tabela.getValueAt(row, col);
+                    String texto = value == null ? "" : value.toString();
+
+                    stream.beginText();
+                    stream.newLineAtOffset(50 + (col * 150), y);
+                    stream.showText(texto);
+                    stream.endText();
+                }
+                y -= 20;
+            }
+
+            stream.close();
+            document.save(caminho);
+            document.close();
+
+            JOptionPane.showMessageDialog(null, "PDF gerado com sucesso!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao gerar PDF: " + e.getMessage());
+        }
+    }
+
+    public void baixarPDF(JTable tabela) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new java.io.File("relatorio.pdf"));
+
+        if (chooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
+            String caminho = chooser.getSelectedFile().getAbsolutePath();
+            gerarPdf(tabela, caminho);
+        }
+    }
+
 }
