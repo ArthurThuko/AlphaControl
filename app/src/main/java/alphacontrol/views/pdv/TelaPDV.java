@@ -97,6 +97,8 @@ public class TelaPDV extends JFrame {
         setTitle("PDV - Ponto de Venda");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setResizable(false);
+        setUndecorated(true);
         getContentPane().setBackground(BEGE_FUNDO);
         setLayout(new BorderLayout());
 
