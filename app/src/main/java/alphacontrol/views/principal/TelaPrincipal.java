@@ -17,11 +17,13 @@ public class TelaPrincipal extends JFrame {
     private JButton btnRelatorios;
     private JButton btnFluxoCaixa;
     private JButton btnSair;
-    
+
     public TelaPrincipal(TelaPrincipalController controller) {
         setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setResizable(false);
+        setUndecorated(true);
 
         Color COR_BOTAO_FUNDO = new Color(205, 170, 125);
         Color COR_BOTAO_SAIR_FUNDO = new Color(170, 125, 95);
@@ -69,7 +71,7 @@ public class TelaPrincipal extends JFrame {
         JPanel painelBotoes = new JPanel(new GridLayout(3, 2, 40, 40));
         painelBotoes.setOpaque(false);
         painelBotoes.setPreferredSize(new Dimension(900, 700));
-        
+
         painelBotoes.add(btnEstoque);
         painelBotoes.add(btnPdv);
         painelBotoes.add(btnFiados);
@@ -94,13 +96,13 @@ public class TelaPrincipal extends JFrame {
             Image img = iconeOriginal.getImage();
             Image imgRedimensionada = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
             ImageIcon icone = new ImageIcon(imgRedimensionada);
-            
+
             botao.setIcon(icone);
-            
+
         } catch (Exception e) {
             System.err.println("Erro ao carregar ícone: " + iconPath);
         }
-        
+
         botao.setFont(Estilos.FONTE_LABEL.deriveFont(Font.BOLD, 25));
         botao.setVerticalTextPosition(SwingConstants.BOTTOM);
         botao.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -108,12 +110,18 @@ public class TelaPrincipal extends JFrame {
     }
 
     public void setController(TelaPrincipalController controller) {
-        for(ActionListener al : btnEstoque.getActionListeners()) btnEstoque.removeActionListener(al);
-        for(ActionListener al : btnPdv.getActionListeners()) btnPdv.removeActionListener(al);
-        for(ActionListener al : btnFiados.getActionListeners()) btnFiados.removeActionListener(al);
-        for(ActionListener al : btnRelatorios.getActionListeners()) btnRelatorios.removeActionListener(al);
-        for(ActionListener al : btnFluxoCaixa.getActionListeners()) btnFluxoCaixa.removeActionListener(al);
-        for(ActionListener al : btnSair.getActionListeners()) btnSair.removeActionListener(al);
+        for (ActionListener al : btnEstoque.getActionListeners())
+            btnEstoque.removeActionListener(al);
+        for (ActionListener al : btnPdv.getActionListeners())
+            btnPdv.removeActionListener(al);
+        for (ActionListener al : btnFiados.getActionListeners())
+            btnFiados.removeActionListener(al);
+        for (ActionListener al : btnRelatorios.getActionListeners())
+            btnRelatorios.removeActionListener(al);
+        for (ActionListener al : btnFluxoCaixa.getActionListeners())
+            btnFluxoCaixa.removeActionListener(al);
+        for (ActionListener al : btnSair.getActionListeners())
+            btnSair.removeActionListener(al);
 
         btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
         btnPdv.addActionListener(e -> controller.abrirTelaPDV());

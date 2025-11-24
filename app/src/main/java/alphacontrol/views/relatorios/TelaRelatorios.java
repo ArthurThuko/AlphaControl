@@ -41,6 +41,8 @@
             setTitle("Relatórios");
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setResizable(false);
+            setUndecorated(true);
             setLocationRelativeTo(null);
 
             setJMenuBar(new Navbar(this, this.mainController, "Relatório"));

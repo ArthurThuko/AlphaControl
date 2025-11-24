@@ -37,6 +37,8 @@ public class TelaFluxoCaixa extends JFrame {
         setTitle("Fluxo de Caixa = AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setResizable(false);
+        setUndecorated(true);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BEGE_FUNDO);
 
