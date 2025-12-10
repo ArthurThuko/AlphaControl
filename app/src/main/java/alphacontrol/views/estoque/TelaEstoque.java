@@ -48,9 +48,6 @@ public class TelaEstoque extends JFrame {
         setTitle("Estoque");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setResizable(false);
-        setUndecorated(true);
-        setLocationRelativeTo(null);
 
         JFrame estaTela = this;
         Navbar navbar = new Navbar(estaTela, this.mainController, "Estoque");

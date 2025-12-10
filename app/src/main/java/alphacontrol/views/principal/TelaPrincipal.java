@@ -22,8 +22,6 @@ public class TelaPrincipal extends JFrame {
         setTitle("Tela Principal - AlphaControl");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setResizable(false);
-        setUndecorated(true);
 
         Color COR_BOTAO_FUNDO = new Color(205, 170, 125);
         Color COR_BOTAO_SAIR_FUNDO = new Color(170, 125, 95);
@@ -46,37 +44,25 @@ public class TelaPrincipal extends JFrame {
         painelPrincipal.add(lblTitulo, gbc);
 
         btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
-        btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
         btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
-        btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
-        btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
         btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
 
         configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icons/Icon_Estoque.png");
-        configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icons/Icon_PDV.png");
         configurarBotaoComIcone(btnFiados, "/alphacontrol/img/icons/Icon_Fiado.png");
-        configurarBotaoComIcone(btnRelatorios, "/alphacontrol/img/icons/Icon_Relatorio.png");
-        configurarBotaoComIcone(btnFluxoCaixa, "/alphacontrol/img/icons/Icon_FluxoCaixa.png");
         configurarBotaoComIcone(btnSair, "/alphacontrol/img/icons/Icon_Sair.png");
 
         if (controller != null) {
             btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
-            btnPdv.addActionListener(e -> controller.abrirTelaPDV());
             btnFiados.addActionListener(e -> controller.abrirTelaFiado());
-            btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
-            btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
             btnSair.addActionListener(e -> controller.logout());
         }
 
-        JPanel painelBotoes = new JPanel(new GridLayout(3, 2, 40, 40));
+        JPanel painelBotoes = new JPanel(new GridLayout(2, 2, 40, 40));
         painelBotoes.setOpaque(false);
-        painelBotoes.setPreferredSize(new Dimension(900, 700));
+        painelBotoes.setPreferredSize(new Dimension(1200, 700));
 
         painelBotoes.add(btnEstoque);
-        painelBotoes.add(btnPdv);
         painelBotoes.add(btnFiados);
-        painelBotoes.add(btnRelatorios);
-        painelBotoes.add(btnFluxoCaixa);
         painelBotoes.add(btnSair);
 
         gbc.gridy = 1;
@@ -94,7 +80,7 @@ public class TelaPrincipal extends JFrame {
         try {
             ImageIcon iconeOriginal = new ImageIcon(getClass().getResource(iconPath));
             Image img = iconeOriginal.getImage();
-            Image imgRedimensionada = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+            Image imgRedimensionada = img.getScaledInstance(128, 128, Image.SCALE_SMOOTH);
             ImageIcon icone = new ImageIcon(imgRedimensionada);
 
             botao.setIcon(icone);
@@ -124,10 +110,7 @@ public class TelaPrincipal extends JFrame {
             btnSair.removeActionListener(al);
 
         btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
-        btnPdv.addActionListener(e -> controller.abrirTelaPDV());
         btnFiados.addActionListener(e -> controller.abrirTelaFiado());
-        btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
-        btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
         btnSair.addActionListener(e -> controller.logout());
     }
 }

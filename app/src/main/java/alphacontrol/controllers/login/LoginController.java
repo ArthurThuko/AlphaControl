@@ -5,10 +5,8 @@ import alphacontrol.views.login.TelaLogin;
 import alphacontrol.views.principal.TelaPrincipal;
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
-import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.controllers.fluxo.FluxoCaixaController; 
 import alphacontrol.dao.ClienteDAO; 
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
@@ -49,19 +47,13 @@ public class LoginController {
                 ClienteController clienteController = new ClienteController(clienteDAO);
                 
                 FiadoDAO fiadoDAO = new FiadoDAO(connection);
+                                
+                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO);
                 
-                FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(connection);
-                
-                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
-                
-                PdvController pdvController = new PdvController(produtoController);
-
                 TelaPrincipalController principalController = new TelaPrincipalController(
                     produtoController, 
                     clienteController, 
-                    pdvController, 
-                    fiadoController,
-                    fluxoCaixaController
+                    fiadoController
                 );
                 
                 TelaPrincipal telaPrincipal = new TelaPrincipal(principalController);

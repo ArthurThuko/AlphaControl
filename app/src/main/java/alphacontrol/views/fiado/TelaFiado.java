@@ -48,9 +48,6 @@ public class TelaFiado extends JFrame {
         setTitle("Fiados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setResizable(false);
-        setUndecorated(true);
-        setLocationRelativeTo(null);
 
         setJMenuBar(new Navbar(this, mainController, "Fiado"));
 

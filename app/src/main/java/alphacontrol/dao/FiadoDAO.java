@@ -27,13 +27,11 @@ public class FiadoDAO {
         String sql = "CREATE TABLE IF NOT EXISTS fiado ("
                  + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
                  + "cliente_id INTEGER NOT NULL,"
-                 + "venda_id INTEGER,"
                  + "valor REAL NOT NULL,"
                  + "data DATETIME NOT NULL,"
                  + "status TEXT NOT NULL,"
-                 + "FOREIGN KEY (cliente_id) REFERENCES cliente(id),"
-                 + "FOREIGN KEY (venda_id) REFERENCES venda(venda_id)"
-                 + ");";
+                 + "FOREIGN KEY (cliente_id) REFERENCES cliente(id)"
+                 + ")";
 
         try (Statement stmt = conexao.createStatement()) {
             stmt.execute(sql);
@@ -43,16 +41,10 @@ public class FiadoDAO {
     }
 
     public void inserir(Fiado fiado) throws SQLException {
-        String sql = "INSERT INTO fiado (cliente_id, venda_id, valor, data, status) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO fiado (cliente_id, valor, data, status) VALUES (?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, fiado.getClienteId());
-            
-            if (fiado.getVendaId() != null) {
-                pstmt.setInt(2, fiado.getVendaId());
-            } else {
-                pstmt.setNull(2, java.sql.Types.INTEGER);
-            }
             
             pstmt.setDouble(3, fiado.getValor());
             pstmt.setTimestamp(4, Timestamp.valueOf(fiado.getData()));
@@ -98,7 +90,6 @@ public class FiadoDAO {
         Fiado fiado = new Fiado();
         fiado.setId(rs.getInt("id"));
         fiado.setClienteId(rs.getInt("cliente_id"));
-        fiado.setVendaId(rs.getObject("venda_id") != null ? rs.getInt("venda_id") : null);
         fiado.setValor(rs.getDouble("valor"));
         fiado.setData(rs.getTimestamp("data").toLocalDateTime());
         fiado.setStatus(rs.getString("status"));

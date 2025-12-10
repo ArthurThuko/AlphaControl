@@ -2,10 +2,7 @@ package alphacontrol.views.components;
 
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.views.estoque.TelaEstoque;
-import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
-import alphacontrol.views.pdv.TelaPDV;
 import alphacontrol.views.principal.TelaPrincipal;
-import alphacontrol.views.relatorios.TelaRelatorios;
 import alphacontrol.views.fiado.TelaFiado;
 
 import javax.swing.*;
@@ -29,9 +26,6 @@ public class Navbar extends JMenuBar {
 
         NavItem navPrincipal = new NavItem("Principal", "Principal".equals(activeItem));
         NavItem navEstoque = new NavItem("Estoque", "Estoque".equals(activeItem));
-        NavItem navPDV = new NavItem("PDV", "PDV".equals(activeItem));
-        NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa", "Fluxo de Caixa".equals(activeItem));
-        NavItem navRelatorio = new NavItem("Relatório", "Relatório".equals(activeItem));
         NavItem navFiado = new NavItem("Fiado", "Fiado".equals(activeItem));
         NavItem navSair = new NavItem("Sair", false);
 
@@ -45,27 +39,6 @@ public class Navbar extends JMenuBar {
         navEstoque.addActionListener(e -> {
             if (!"Estoque".equals(activeItem)) {
                 new TelaEstoque(mainController).setVisible(true);
-                currentScreen.dispose();
-            }
-        });
-
-        navPDV.addActionListener(e -> {
-            if (!"PDV".equals(activeItem)) {
-                new TelaPDV(mainController).setVisible(true);
-                currentScreen.dispose();
-            }
-        });
-
-        navFluxoCaixa.addActionListener(e -> {
-            if (!"Fluxo de Caixa".equals(activeItem)) {
-                new TelaFluxoCaixa(mainController).setVisible(true);
-                currentScreen.dispose();
-            }
-        });
-
-        navRelatorio.addActionListener(e -> {
-            if (!"Relatórios".equals(activeItem)) {
-                new TelaRelatorios(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
@@ -92,9 +65,6 @@ public class Navbar extends JMenuBar {
 
         add(navPrincipal);
         add(navEstoque);
-        add(navPDV);
-        add(navFluxoCaixa);
-        add(navRelatorio);
         add(navFiado);
         
         add(Box.createHorizontalGlue());
