@@ -8,14 +8,12 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class ModalAdicionarProduto extends JDialog {
-    
+
     private final JTextField txtNome;
-    private final JTextField txtCategoria;
-    private final JTextField txtCompra;
-    private final JTextField txtVenda;
     private final JTextField txtQnt;
-    private final JTextField txtQntMinima; 
-    
+    private final JTextField txtPrecoUnid;
+    private final JTextField txtPrecoCaixa;
+
     private final JButton btnSalvar;
 
     private Point mouseClickPoint;
@@ -76,27 +74,6 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridy++;
 
         gbc.gridx = 0;
-        painel.add(criarLabel("Categoria:", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtCategoria = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtCategoria, gbc);
-        gbc.gridy++;
-        
-        gbc.gridx = 0;
-        painel.add(criarLabel("Preço de Custo (R$):", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtCompra = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtCompra, gbc);
-        gbc.gridy++;
-
-        gbc.gridx = 0;
-        painel.add(criarLabel("Valor Venda (R$):", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtVenda = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtVenda, gbc);
-        gbc.gridy++;
-        
-        gbc.gridx = 0;
         painel.add(criarLabel("Quantidade:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtQnt = criarCampo(begeClaro, marromClaro, marromEscuro);
@@ -104,10 +81,17 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridy++;
         
         gbc.gridx = 0;
-        painel.add(criarLabel("Alerta Estoque Min.:", marromEscuro), gbc);
+        painel.add(criarLabel("Preço de Unidade (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
-        txtQntMinima = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtQntMinima, gbc);
+        txtPrecoUnid = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtPrecoUnid, gbc);
+        gbc.gridy++;
+
+        gbc.gridx = 0;
+        painel.add(criarLabel("Preço de Caixa (R$):", marromEscuro), gbc);
+        gbc.gridx = 1;
+        txtPrecoCaixa = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtPrecoCaixa, gbc);
         gbc.gridy++;
 
         btnSalvar = new JButton("Salvar") {
@@ -158,11 +142,11 @@ public class ModalAdicionarProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 650);
+        setSize(500, 500);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
-    
+
     private JTextField criarCampo(Color fundo, Color borda, Color texto) {
         JTextField campo = new JTextField() {
             @Override
@@ -183,7 +167,7 @@ public class ModalAdicionarProduto extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-    
+
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
@@ -191,19 +175,16 @@ public class ModalAdicionarProduto extends JDialog {
         return lbl;
     }
 
-    public JButton getBtnSalvar() { 
-        return btnSalvar; 
+    public JButton getBtnSalvar() {
+        return btnSalvar;
     }
 
     public Produto getProdutoFromFields() {
         return new Produto(
-            txtNome.getText(),
-            txtCategoria.getText(),
-            Double.parseDouble(txtCompra.getText()),
-            Double.parseDouble(txtVenda.getText()),
-            Integer.parseInt(txtQnt.getText()),
-            Integer.parseInt(txtQntMinima.getText())
-        );
+                txtNome.getText(),
+                Integer.parseInt(txtQnt.getText()),
+                Double.parseDouble(txtPrecoUnid.getText()),
+                Double.parseDouble(txtPrecoCaixa.getText()));
     }
 
     public void mostrarErro(String msg) {

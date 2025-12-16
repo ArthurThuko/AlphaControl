@@ -6,7 +6,6 @@ import alphacontrol.controllers.produto.*;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.Produto;
 import alphacontrol.views.components.Navbar;
-import alphacontrol.views.components.AvisoEstoqueMinimo;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -38,7 +37,6 @@ public class TelaEstoque extends JFrame {
     private final JTextField txtPesquisa;
 
     private List<Produto> listaProdutosAtual;
-    private AvisoEstoqueMinimo avisoEstoque;
 
     public TelaEstoque(TelaPrincipalController mainController) {
         this.mainController = mainController;
@@ -100,17 +98,12 @@ public class TelaEstoque extends JFrame {
         gbc.insets = new Insets(0, 0, 15, 0);
         painelPrincipal.add(painelTopo, gbc);
 
-        avisoEstoque = new AvisoEstoqueMinimo();
-        gbc.gridy = 2;
-        gbc.insets = new Insets(0, 0, 15, 0);
-        painelPrincipal.add(avisoEstoque, gbc);
-
-        String[] colunas = { "ID", "Nome", "Qtd.", "Categoria", "Preço de Custo (R$)", "Valor Venda (R$)", "Ações" };
+        String[] colunas = { "ID", "Nome", "Qtd.", "Preço de Unidade (R$)", "Preço de Caixa (R$)", "Ações" };
 
         modelo = new DefaultTableModel(null, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2 || column == 6;
+                return column == 2 || column == 5;
             }
 
             @Override
@@ -147,36 +140,17 @@ public class TelaEstoque extends JFrame {
         atualizarTabela();
     }
 
-    private void checarEstoqueMinimo(List<Produto> produtos) {
-        if (produtos == null) {
-            avisoEstoque.setAviso(new ArrayList<>());
-            return;
-        }
-
-        List<Produto> produtosComEstoqueBaixo = new ArrayList<>();
-        for (Produto p : produtos) {
-            if (p.isEstoqueBaixo()) {
-                produtosComEstoqueBaixo.add(p);
-            }
-        }
-
-        avisoEstoque.setAviso(produtosComEstoqueBaixo);
-    }
-
     private void atualizarTabela() {
         modelo.setRowCount(0);
         this.listaProdutosAtual = controller.listar();
-
-        checarEstoqueMinimo(this.listaProdutosAtual);
 
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
                     p.getProdutoId(),
                     p.getNome(),
                     p.getQntEstoque(),
-                    p.getCategoria(),
-                    p.getValorCompra(),
-                    p.getValorVenda(),
+                    p.getPrecoUnid(),
+                    p.getPrecoCaixa(), 
                     ""
             });
         }
@@ -186,12 +160,10 @@ public class TelaEstoque extends JFrame {
         modelo.setRowCount(0);
         this.listaProdutosAtual = controller.pesquisar(txtPesquisa.getText());
 
-        checarEstoqueMinimo(this.listaProdutosAtual);
-
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
                     p.getProdutoId(), p.getNome(), p.getQntEstoque(),
-                    p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
+                    p.getPrecoUnid(), p.getPrecoCaixa(), ""
             });
         }
     }
@@ -264,8 +236,6 @@ public class TelaEstoque extends JFrame {
         try {
             controller.incrementarEstoque(produto);
 
-            checarEstoqueMinimo(this.listaProdutosAtual);
-
             return produto.getQntEstoque();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao incrementar estoque: " + e.getMessage());
@@ -283,9 +253,6 @@ public class TelaEstoque extends JFrame {
         try {
             boolean atualizou = controller.decrementarEstoque(produto);
             if (atualizou) {
-
-                checarEstoqueMinimo(this.listaProdutosAtual);
-
                 return produto.getQntEstoque();
             }
             return null;
@@ -317,33 +284,36 @@ public class TelaEstoque extends JFrame {
 
         PaddedCellRenderer paddedRenderer = new PaddedCellRenderer();
         for (int i = 1; i < tabela.getColumnCount(); i++) {
-            if (i != 2 && i != 6) {
+            if (i != 2 && i != 5) { // ❗ Qtd (2) e Ações (5)
                 tabela.getColumnModel().getColumn(i).setCellRenderer(paddedRenderer);
             }
         }
 
+        // QTD
         TableColumn colQtd = tabela.getColumn("Qtd.");
         colQtd.setCellRenderer(new QuantityCellRenderer());
         colQtd.setCellEditor(new QuantityCellEditor(this));
 
+        // AÇÕES
         TableColumn colAcoes = tabela.getColumn("Ações");
         colAcoes.setCellRenderer(new ActionsCellRenderer());
         colAcoes.setCellEditor(new ActionsCellEditor(tabela, this));
 
+        // ID oculto
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
         colId.setMaxWidth(0);
         colId.setPreferredWidth(0);
 
+        // Larguras
         TableColumnModel colModel = tabela.getColumnModel();
-        colModel.getColumn(1).setPreferredWidth(350);
-        colModel.getColumn(2).setMinWidth(190);
+        colModel.getColumn(1).setPreferredWidth(350); // Nome
+        colModel.getColumn(2).setMinWidth(190); // Qtd
         colModel.getColumn(2).setMaxWidth(220);
-        colModel.getColumn(3).setPreferredWidth(200);
-        colModel.getColumn(4).setPreferredWidth(200);
-        colModel.getColumn(5).setPreferredWidth(180);
-        colModel.getColumn(6).setMinWidth(250);
-        colModel.getColumn(6).setMaxWidth(260);
+        colModel.getColumn(3).setPreferredWidth(200); // Preço Unid
+        colModel.getColumn(4).setPreferredWidth(200); // Preço Caixa
+        colModel.getColumn(5).setMinWidth(250); // Ações
+        colModel.getColumn(5).setMaxWidth(260);
     }
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {

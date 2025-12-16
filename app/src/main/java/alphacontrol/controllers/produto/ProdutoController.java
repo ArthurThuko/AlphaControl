@@ -14,8 +14,8 @@ public class ProdutoController {
     }
 
     public void adicionar(Produto produto) throws SQLException {
-        if (produto.getNome().isEmpty() || produto.getCategoria().isEmpty()) {
-            throw new SQLException("Nome e Categoria são obrigatórios.");
+        if (produto.getNome().isEmpty()) {
+            throw new SQLException("Nome é obrigatórios.");
         }
         produtoDAO.adicionarProduto(produto);
     }
@@ -46,10 +46,10 @@ public class ProdutoController {
         List<Produto> resultados = produtoDAO.pesquisarProdutos(nome);
 
         if (resultados.isEmpty()) {
-            return null; // Nenhum produto encontrado
+            return null;
         }
 
-        return resultados.get(0); // Retorna o primeiro encontrado
+        return resultados.get(0);
     } catch (SQLException e) {
         mostrarErro("Erro ao buscar produto: " + e.getMessage());
         return null;

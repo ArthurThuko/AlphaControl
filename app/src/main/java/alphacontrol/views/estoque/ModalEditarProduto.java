@@ -11,7 +11,7 @@ public class ModalEditarProduto extends JDialog {
 
     private Point mouseClickPoint;
     public JTextField[] campos;
-    
+
     private final JButton botaoSalvar;
     private int produtoId;
 
@@ -38,7 +38,9 @@ public class ModalEditarProduto extends JDialog {
         painel.setBackground(new Color(0, 0, 0, 0));
 
         painel.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { mouseClickPoint = e.getPoint(); }
+            public void mousePressed(MouseEvent e) {
+                mouseClickPoint = e.getPoint();
+            }
         });
         painel.addMouseMotionListener(new MouseAdapter() {
             public void mouseDragged(MouseEvent e) {
@@ -63,8 +65,8 @@ public class ModalEditarProduto extends JDialog {
         gbc.gridy++;
 
         String[] labels = {
-                "Nome:", "Quantidade:", "Alerta Estoque Min.:",
-                "Categoria:", "Preço de Custo (R$):", "Valor Venda (R$):"
+                "Nome:", "Quantidade:",
+                "Preço de Unidade (R$):", "Preço de Caixa (R$):"
         };
         campos = new JTextField[labels.length];
 
@@ -98,7 +100,7 @@ public class ModalEditarProduto extends JDialog {
         botaoSalvar.setFocusPainted(false);
         botaoSalvar.setContentAreaFilled(false);
         botaoSalvar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        
+
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         painel.add(botaoSalvar, gbc);
@@ -131,7 +133,7 @@ public class ModalEditarProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 650);
+        setSize(500, 500);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
@@ -156,35 +158,31 @@ public class ModalEditarProduto extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-    
+
     public JButton getBtnSalvar() {
         return botaoSalvar;
     }
 
     public void setProduto(Produto p) {
-        this.produtoId = p.getProdutoId(); 
-        
+        this.produtoId = p.getProdutoId();
+
         campos[0].setText(p.getNome());
         campos[1].setText(String.valueOf(p.getQntEstoque()));
-        campos[2].setText(String.valueOf(p.getQntMinima()));
-        campos[3].setText(p.getCategoria());
-        campos[4].setText(String.valueOf(p.getValorCompra()));
-        campos[5].setText(String.valueOf(p.getValorVenda()));
+        campos[2].setText(String.valueOf(p.getPrecoUnid()));
+        campos[3].setText(String.valueOf(p.getPrecoCaixa()));
     }
 
     public Produto getProdutoFromFields() {
         Produto p = new Produto(
-            campos[0].getText(), 
-            campos[3].getText(), 
-            Double.parseDouble(campos[4].getText()), 
-            Double.parseDouble(campos[5].getText()), 
-            Integer.parseInt(campos[1].getText()),
-            Integer.parseInt(campos[2].getText())
-        );
-        p.setProdutoId(this.produtoId); 
+                campos[0].getText(),
+                Integer.parseInt(campos[1].getText()),
+                Double.parseDouble(campos[2].getText()),
+                Double.parseDouble(campos[3].getText()));
+
+        p.setProdutoId(this.produtoId);
         return p;
     }
-    
+
     public void mostrarErro(String msg) {
         JOptionPane.showMessageDialog(this, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
