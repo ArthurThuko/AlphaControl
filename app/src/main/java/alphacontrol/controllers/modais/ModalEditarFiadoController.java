@@ -30,12 +30,9 @@ public class ModalEditarFiadoController {
             Cliente dadosEditados = view.getDadosEditadosDosCampos();
             
             clienteOriginal.setNome(dadosEditados.getNome());
-            clienteOriginal.setCpf(dadosEditados.getCpf());
             clienteOriginal.setTelefone(dadosEditados.getTelefone());
-            clienteOriginal.setCep(dadosEditados.getCep());
             clienteOriginal.setRua(dadosEditados.getRua());
             clienteOriginal.setBairro(dadosEditados.getBairro());
-            clienteOriginal.setNumeroCasa(dadosEditados.getNumeroCasa());
 
             clienteController.atualizar(clienteOriginal);
             JOptionPane.showMessageDialog(view, "Cliente atualizado com sucesso!");

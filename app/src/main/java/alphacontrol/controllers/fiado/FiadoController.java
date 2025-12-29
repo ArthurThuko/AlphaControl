@@ -18,7 +18,7 @@ public class FiadoController {
 
     public void adicionarFiado(Fiado fiado) throws SQLException {
         fiadoDAO.inserir(fiado);
-        clienteDAO.atualizarDebito(fiado.getClienteId(), fiado.getValor());
+        clienteDAO.quitarDivida(fiado.getClienteId(), fiado.getValor());
     }
     
     public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
@@ -27,7 +27,7 @@ public class FiadoController {
 
     public void pagarFiado(int clienteId, double valorPago) throws SQLException {
         fiadoDAO.pagarParcial(clienteId, valorPago);
-        clienteDAO.atualizarDebito(clienteId, -valorPago);
+        clienteDAO.quitarDivida(clienteId, -valorPago);
         
         clienteDAO.buscarPorId(clienteId);
     }
@@ -37,6 +37,6 @@ public class FiadoController {
         double valorTotal = cliente.getDebito();
         
         fiadoDAO.quitarTudo(clienteId);
-        clienteDAO.atualizarDebito(clienteId, -valorTotal);
+        clienteDAO.quitarDivida(clienteId, -valorTotal);
     }
 }

@@ -58,7 +58,7 @@ public class TelaFiado extends JFrame {
         RoundedPanel painelCentral = new RoundedPanel(15);
         painelCentral.setBackground(BEGE_CLARO);
         painelCentral.setLayout(new GridBagLayout());
-        painelCentral.setPreferredSize(null); // permite redimensionar automaticamente
+        painelCentral.setPreferredSize(null);
 
         GridBagConstraints gbcFundo = new GridBagConstraints();
         gbcFundo.fill = GridBagConstraints.BOTH;
@@ -66,7 +66,6 @@ public class TelaFiado extends JFrame {
         gbcFundo.weighty = 1.0;
         painelFundo.add(painelCentral, gbcFundo);
 
-        // Configuração principal do painel interno
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -101,20 +100,20 @@ public class TelaFiado extends JFrame {
 
         JPanel painelAdd = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         painelAdd.setOpaque(false);
-        JButton btnCriarFiado = new RoundedButton("Criar Fiado", VERDE_OLIVA, Color.WHITE, 220, 45);
-        btnCriarFiado.addActionListener(e -> abrirModalAdicionarFiado());
+        JButton btnCriarCliente = new RoundedButton("Criar Cliente", VERDE_OLIVA, Color.WHITE, 220, 45);
+        btnCriarCliente.addActionListener(e -> abrirModalAdicionarCliente());
 
-        painelAdd.add(btnCriarFiado);
+        painelAdd.add(btnCriarCliente);
 
         gbc.gridx = 1;
         painelCentral.add(painelAdd, gbc);
 
-        String[] colunas = { "ID", "Nome", "Endereço", "Telefone", "Débito", "Ações" };
+        String[] colunas = { "ID", "Nome", "Rua", "Bairro", "Telefone", "Débito", "Ações" };
 
         modelo = new DefaultTableModel(null, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5;
+                return column == 6;
             }
         };
 
@@ -149,10 +148,9 @@ public class TelaFiado extends JFrame {
 
     private void abrirModalAdicionarFiado() {
         ModalAdicionarFiado modal = new ModalAdicionarFiado(
-                this, 
-                this.fiadoController, 
-                this.clienteController
-        );
+                this,
+                this.fiadoController,
+                this.clienteController);
         modal.setVisible(true);
         atualizarTabela();
     }
@@ -172,16 +170,15 @@ public class TelaFiado extends JFrame {
         modelo.setRowCount(0);
         List<Cliente> clientes = clienteController.pesquisar(txtPesquisa.getText());
         for (Cliente c : clientes) {
-            if (c.getDebito() > 0) {
-                modelo.addRow(new Object[]{
-                        c.getId(),
-                        c.getNome(),
-                        c.getEnderecoCompleto(),
-                        c.getTelefone(),
-                        c.getDebito(),
-                        ""
-                });
-            }
+            modelo.addRow(new Object[] {
+                    c.getId(),
+                    c.getNome(),
+                    c.getRua(),
+                    c.getBairro(),
+                    c.getTelefone(),
+                    c.getDebito(),
+                    ""
+            });
         }
     }
 
@@ -207,9 +204,10 @@ public class TelaFiado extends JFrame {
         PaddedCellRenderer leftRenderer = new PaddedCellRenderer(SwingConstants.LEFT);
 
         tabela.getColumnModel().getColumn(1).setCellRenderer(leftRenderer);
-        tabela.getColumnModel().getColumn(2).setCellRenderer(leftRenderer);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
         tabela.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-        tabela.getColumnModel().getColumn(4).setCellRenderer(new CurrencyRenderer());
+        tabela.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+        tabela.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
 
         tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
         tabela.getColumn("Ações")
@@ -221,12 +219,13 @@ public class TelaFiado extends JFrame {
         colId.setPreferredWidth(0);
 
         TableColumnModel colModel = tabela.getColumnModel();
-        colModel.getColumn(1).setPreferredWidth(350);
-        colModel.getColumn(2).setPreferredWidth(250);
+        colModel.getColumn(1).setPreferredWidth(200);
+        colModel.getColumn(2).setPreferredWidth(150);
         colModel.getColumn(3).setPreferredWidth(150);
-        colModel.getColumn(4).setPreferredWidth(120);
-        colModel.getColumn(5).setMinWidth(350);
-        colModel.getColumn(5).setMaxWidth(360);
+        colModel.getColumn(4).setPreferredWidth(150);
+        colModel.getColumn(5).setPreferredWidth(120);
+        colModel.getColumn(6).setMinWidth(450);
+        colModel.getColumn(6).setMaxWidth(550);
     }
 
     static class CurrencyRenderer extends DefaultTableCellRenderer {
@@ -408,23 +407,31 @@ public class TelaFiado extends JFrame {
     }
 
     static class ActionsPanel extends JPanel {
-        public JButton btnVer = new CellButton("Ver Débitos", VERDE_MUSGO, Color.WHITE);
+
+        public JButton btnVer = new CellButton("Débitos", VERDE_MUSGO, Color.WHITE);
         public JButton btnEditar = new CellButton("Editar", DOURADO_SUAVE, MARROM_ESCURO);
         public JButton btnPagar = new CellButton("Quitar", VERDE_OLIVA, Color.WHITE);
+        public JButton btnAdicionar = new CellButton("ADD", MARROM_MEDIO, Color.WHITE);
 
         public ActionsPanel() {
-            super(new FlowLayout(FlowLayout.CENTER, 10, 0));
             setOpaque(true);
-            setAlignmentY(Component.CENTER_ALIGNMENT);
+            setLayout(new GridBagLayout());
+
+            JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+            buttons.setOpaque(false);
 
             Dimension btnSize = new Dimension(100, 40);
             btnVer.setPreferredSize(btnSize);
             btnEditar.setPreferredSize(btnSize);
             btnPagar.setPreferredSize(btnSize);
+            btnAdicionar.setPreferredSize(btnSize);
 
-            add(btnVer);
-            add(btnEditar);
-            add(btnPagar);
+            buttons.add(btnEditar);
+            buttons.add(btnVer);
+            buttons.add(btnPagar);
+            buttons.add(btnAdicionar);
+
+            add(buttons);
         }
     }
 
@@ -461,7 +468,7 @@ public class TelaFiado extends JFrame {
             });
 
             panel.btnEditar.addActionListener(e -> {
-                int id = (int) table.getValueAt(row, 0);
+                int id = Integer.parseInt(table.getValueAt(row, 0).toString());
                 Cliente cliente = clienteController.buscarPorId(id);
 
                 if (cliente == null) {
@@ -479,7 +486,7 @@ public class TelaFiado extends JFrame {
 
             panel.btnPagar.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
-                double valor = (double) table.getValueAt(row, 4);
+                double valor = (double) table.getValueAt(row, 5);
 
                 if (valor == 0) {
                     JOptionPane.showMessageDialog(table, "Cliente não possui débitos.");
@@ -497,8 +504,28 @@ public class TelaFiado extends JFrame {
                 ModalQuitarDivida modal = new ModalQuitarDivida(this.telaFiado, cliente, this.fiadoController);
                 new ModalQuitarDividaController(modal);
                 modal.setVisible(true);
-                
+
                 this.telaFiado.atualizarTabela();
+                fireEditingStopped();
+            });
+
+            panel.btnAdicionar.addActionListener(e -> {
+                int id = (int) table.getValueAt(row, 0);
+
+                Cliente cliente = clienteController.buscarPorId(id);
+                if (cliente == null) {
+                    JOptionPane.showMessageDialog(table, "Cliente não encontrado.");
+                    fireEditingStopped();
+                    return;
+                }
+
+                ModalAdicionarFiado modal = new ModalAdicionarFiado(
+                        telaFiado,
+                        fiadoController,
+                        clienteController);
+
+                modal.setVisible(true);
+                telaFiado.atualizarTabela();
                 fireEditingStopped();
             });
         }
@@ -535,18 +562,14 @@ public class TelaFiado extends JFrame {
             setBackground(header.getBackground());
             setFont(header.getFont());
             setBorder(new EmptyBorder(0, 15, 0, 15));
-            setHorizontalAlignment(SwingConstants.LEFT);
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             setText(value.toString());
-            if (column == 3 || column == 4) {
-                setHorizontalAlignment(SwingConstants.CENTER);
-            } else {
-                setHorizontalAlignment(SwingConstants.LEFT);
-            }
+
             return this;
         }
     }

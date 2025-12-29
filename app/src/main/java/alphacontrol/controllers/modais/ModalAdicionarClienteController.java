@@ -42,7 +42,6 @@ public class ModalAdicionarClienteController {
                 JOptionPane.showMessageDialog(view, "Cliente adicionado com sucesso!");
             } else {
                 dadosDosCampos.setId(clienteParaEditar.getId());
-                dadosDosCampos.setEnderecoId(clienteParaEditar.getEnderecoId());
                 dadosDosCampos.setDebito(clienteParaEditar.getDebito());
 
                 clienteController.atualizar(dadosDosCampos);

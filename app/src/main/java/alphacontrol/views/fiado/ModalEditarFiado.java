@@ -11,15 +11,12 @@ import java.awt.geom.RoundRectangle2D;
 import java.text.ParseException;
 
 public class ModalEditarFiado extends JDialog {
-    
+
     private final JTextField txtNome;
-    private final JFormattedTextField txtCpf;
     private final JFormattedTextField txtTelefone;
-    private final JFormattedTextField txtCep;
     private final JTextField txtRua;
     private final JTextField txtBairro;
-    private final JTextField txtNumero;
-    
+
     private final JButton btnSalvar;
     private final JLabel titulo;
     private Cliente cliente;
@@ -83,13 +80,6 @@ public class ModalEditarFiado extends JDialog {
         gbc.gridy++;
 
         gbc.gridx = 0;
-        painel.add(criarLabel("CPF:", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtCpf = criarCampoFormatado(begeClaro, marromClaro, marromEscuro, createFormatter("###.###.###-##"));
-        painel.add(txtCpf, gbc);
-        gbc.gridy++;
-        
-        gbc.gridx = 0;
         painel.add(criarLabel("Telefone:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtTelefone = criarCampoFormatado(begeClaro, marromClaro, marromEscuro, createFormatter("(##) #####-####"));
@@ -97,31 +87,17 @@ public class ModalEditarFiado extends JDialog {
         gbc.gridy++;
 
         gbc.gridx = 0;
-        painel.add(criarLabel("CEP:", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtCep = criarCampoFormatado(begeClaro, marromClaro, marromEscuro, createFormatter("#####-###"));
-        painel.add(txtCep, gbc);
-        gbc.gridy++;
-        
-        gbc.gridx = 0;
         painel.add(criarLabel("Rua:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtRua = criarCampoTexto(begeClaro, marromClaro, marromEscuro);
         painel.add(txtRua, gbc);
         gbc.gridy++;
-        
+
         gbc.gridx = 0;
         painel.add(criarLabel("Bairro:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtBairro = criarCampoTexto(begeClaro, marromClaro, marromEscuro);
         painel.add(txtBairro, gbc);
-        gbc.gridy++;
-
-        gbc.gridx = 0;
-        painel.add(criarLabel("Número:", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtNumero = criarCampoTexto(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtNumero, gbc);
         gbc.gridy++;
 
         btnSalvar = new JButton("Salvar") {
@@ -169,23 +145,20 @@ public class ModalEditarFiado extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 750); 
+        setSize(500, 500);
         setLocationRelativeTo(parent);
         setResizable(false);
-        
+
         preencherCampos();
     }
-    
+
     private void preencherCampos() {
         txtNome.setText(cliente.getNome());
-        txtCpf.setText(cliente.getCpf());
         txtTelefone.setText(cliente.getTelefone());
-        txtCep.setText(cliente.getCep());
         txtRua.setText(cliente.getRua());
         txtBairro.setText(cliente.getBairro());
-        txtNumero.setText(cliente.getNumeroCasa());
     }
-    
+
     private MaskFormatter createFormatter(String s) {
         MaskFormatter formatter = null;
         try {
@@ -218,7 +191,7 @@ public class ModalEditarFiado extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-    
+
     private JTextField criarCampoTexto(Color fundo, Color borda, Color texto) {
         JTextField campo = new JTextField() {
             @Override
@@ -239,20 +212,12 @@ public class ModalEditarFiado extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-    
+
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
         lbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
         return lbl;
-    }
-    
-    private String getUnmaskedText(JFormattedTextField field) {
-        Object value = field.getValue();
-        if (value != null) {
-            return value.toString().replaceAll("[^0-9]", "");
-        }
-        return field.getText().replaceAll("[^0-9]", "");
     }
 
     public boolean validarCampos() {
@@ -261,52 +226,24 @@ public class ModalEditarFiado extends JDialog {
             txtNome.requestFocus();
             return false;
         }
-        
-        if (getUnmaskedText(txtCpf).length() != 11) {
-            mostrarErro("O CPF está incompleto. Deve conter 11 dígitos.");
-            txtCpf.requestFocus();
-            return false;
-        }
-        
-        if (getUnmaskedText(txtTelefone).length() < 10) {
-            mostrarErro("O Telefone está incompleto.");
-            txtTelefone.requestFocus();
-            return false;
-        }
-        
-        if (getUnmaskedText(txtCep).length() != 8) {
-            mostrarErro("O CEP está incompleto. Deve conter 8 dígitos.");
-            txtCep.requestFocus();
-            return false;
-        }
-
-        if (txtNumero.getText().trim().isEmpty()) {
-            mostrarErro("O campo Número é obrigatório.");
-            txtNumero.requestFocus();
-            return false;
-        }
 
         return true;
     }
 
-    public JButton getBtnSalvar() { 
-        return btnSalvar; 
+    public JButton getBtnSalvar() {
+        return btnSalvar;
     }
-    
+
     public Cliente getClienteOriginal() {
         return this.cliente;
     }
 
     public Cliente getDadosEditadosDosCampos() throws ParseException {
         return new Cliente(
-            txtNome.getText(),
-            txtCpf.getText(),
-            txtTelefone.getText(),
-            txtCep.getText(),
-            txtRua.getText(),
-            txtBairro.getText(),
-            txtNumero.getText()
-        );
+                txtNome.getText(),
+                txtTelefone.getText(),
+                txtRua.getText(),
+                txtBairro.getText());
     }
 
     public void mostrarErro(String msg) {

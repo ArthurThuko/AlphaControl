@@ -30,7 +30,7 @@ public class FiadoDAO {
                  + "valor REAL NOT NULL,"
                  + "data DATETIME NOT NULL,"
                  + "status TEXT NOT NULL,"
-                 + "FOREIGN KEY (cliente_id) REFERENCES cliente(id)"
+                 + "FOREIGN KEY (cliente_id) REFERENCES clientes(id)"
                  + ")";
 
         try (Statement stmt = conexao.createStatement()) {

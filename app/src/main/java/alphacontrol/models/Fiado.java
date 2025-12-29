@@ -6,7 +6,6 @@ public class Fiado {
 
     private int id;
     private int clienteId;
-    private Integer vendaId;
     private double valor;
     private LocalDateTime data;
     private String status;
@@ -28,14 +27,6 @@ public class Fiado {
 
     public void setClienteId(int clienteId) {
         this.clienteId = clienteId;
-    }
-
-    public Integer getVendaId() {
-        return vendaId;
-    }
-
-    public void setVendaId(Integer vendaId) {
-        this.vendaId = vendaId;
     }
 
     public double getValor() {

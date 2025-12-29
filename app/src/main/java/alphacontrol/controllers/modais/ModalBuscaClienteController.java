@@ -42,7 +42,6 @@ public class ModalBuscaClienteController {
                 modelo.addRow(new Object[]{
                     c.getId(),
                     c.getNome(),
-                    c.getCpf(),
                     c.getTelefone()
                 });
             }
