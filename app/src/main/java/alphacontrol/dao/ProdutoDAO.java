@@ -18,8 +18,7 @@ public class ProdutoDAO {
                     produto_id INT PRIMARY KEY AUTO_INCREMENT,
                     nome VARCHAR(255) NOT NULL,
                     qnt_estoque INT NOT NULL DEFAULT 0,
-                    preco_unid DECIMAL(10,2) NOT NULL,
-                    preco_caixa DECIMAL(10,2) NOT NULL
+                    preco DECIMAL(10,2) NOT NULL
                 )
             """;
             stmt.executeUpdate(sql);
@@ -30,15 +29,14 @@ public class ProdutoDAO {
 
     public void adicionarProduto(Produto produto) throws SQLException {
         String sql = """
-            INSERT INTO produtos (nome, qnt_estoque, preco_unid, preco_caixa)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO produtos (nome, qnt_estoque, preco)
+            VALUES (?, ?, ?)
         """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());
             stmt.setInt(2, produto.getQntEstoque());
-            stmt.setDouble(3, produto.getPrecoUnid());
-            stmt.setDouble(4, produto.getPrecoCaixa());
+            stmt.setDouble(3, produto.getPreco());
             stmt.executeUpdate();
         }
     }
@@ -55,8 +53,7 @@ public class ProdutoDAO {
                         rs.getInt("produto_id"),
                         rs.getString("nome"),
                         rs.getInt("qnt_estoque"),
-                        rs.getDouble("preco_unid"),
-                        rs.getDouble("preco_caixa")
+                        rs.getDouble("preco")
                 );
                 produtos.add(produto);
             }
@@ -77,8 +74,7 @@ public class ProdutoDAO {
                             rs.getInt("produto_id"),
                             rs.getString("nome"),
                             rs.getInt("qnt_estoque"),
-                            rs.getDouble("preco_unid"),
-                            rs.getDouble("preco_caixa")
+                            rs.getDouble("preco")
                     );
                     produtos.add(produto);
                 }
@@ -90,16 +86,15 @@ public class ProdutoDAO {
     public void atualizarProduto(Produto produto) throws SQLException {
         String sql = """
             UPDATE produtos
-            SET nome = ?, qnt_estoque = ?, preco_unid = ?, preco_caixa = ?
+            SET nome = ?, qnt_estoque = ?, preco = ?
             WHERE produto_id = ?
         """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());
             stmt.setInt(2, produto.getQntEstoque());
-            stmt.setDouble(3, produto.getPrecoUnid());
-            stmt.setDouble(4, produto.getPrecoCaixa());
-            stmt.setInt(5, produto.getProdutoId());
+            stmt.setDouble(3, produto.getPreco());
+            stmt.setInt(4, produto.getProdutoId());
             stmt.executeUpdate();
         }
     }

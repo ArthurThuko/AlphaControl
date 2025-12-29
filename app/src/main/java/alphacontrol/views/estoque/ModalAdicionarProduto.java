@@ -11,8 +11,7 @@ public class ModalAdicionarProduto extends JDialog {
 
     private final JTextField txtNome;
     private final JTextField txtQnt;
-    private final JTextField txtPrecoUnid;
-    private final JTextField txtPrecoCaixa;
+    private final JTextField txtPreco;
 
     private final JButton btnSalvar;
 
@@ -81,17 +80,10 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridy++;
         
         gbc.gridx = 0;
-        painel.add(criarLabel("Preço de Unidade (R$):", marromEscuro), gbc);
+        painel.add(criarLabel("Preço (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
-        txtPrecoUnid = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtPrecoUnid, gbc);
-        gbc.gridy++;
-
-        gbc.gridx = 0;
-        painel.add(criarLabel("Preço de Caixa (R$):", marromEscuro), gbc);
-        gbc.gridx = 1;
-        txtPrecoCaixa = criarCampo(begeClaro, marromClaro, marromEscuro);
-        painel.add(txtPrecoCaixa, gbc);
+        txtPreco = criarCampo(begeClaro, marromClaro, marromEscuro);
+        painel.add(txtPreco, gbc);
         gbc.gridy++;
 
         btnSalvar = new JButton("Salvar") {
@@ -183,8 +175,8 @@ public class ModalAdicionarProduto extends JDialog {
         return new Produto(
                 txtNome.getText(),
                 Integer.parseInt(txtQnt.getText()),
-                Double.parseDouble(txtPrecoUnid.getText()),
-                Double.parseDouble(txtPrecoCaixa.getText()));
+                Double.parseDouble(txtPreco.getText())
+                );
     }
 
     public void mostrarErro(String msg) {

@@ -98,12 +98,12 @@ public class TelaEstoque extends JFrame {
         gbc.insets = new Insets(0, 0, 15, 0);
         painelPrincipal.add(painelTopo, gbc);
 
-        String[] colunas = { "ID", "Nome", "Qtd.", "Preço de Unidade (R$)", "Preço de Caixa (R$)", "Ações" };
+        String[] colunas = { "ID", "Nome", "Qtd.", "Preço (R$)", "Ações" };
 
         modelo = new DefaultTableModel(null, colunas) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2 || column == 5;
+                return column == 2 || column == 4;
             }
 
             @Override
@@ -149,8 +149,7 @@ public class TelaEstoque extends JFrame {
                     p.getProdutoId(),
                     p.getNome(),
                     p.getQntEstoque(),
-                    p.getPrecoUnid(),
-                    p.getPrecoCaixa(), 
+                    p.getPreco(),
                     ""
             });
         }
@@ -163,7 +162,7 @@ public class TelaEstoque extends JFrame {
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
                     p.getProdutoId(), p.getNome(), p.getQntEstoque(),
-                    p.getPrecoUnid(), p.getPrecoCaixa(), ""
+                    p.getPreco(), ""
             });
         }
     }
@@ -310,10 +309,9 @@ public class TelaEstoque extends JFrame {
         colModel.getColumn(1).setPreferredWidth(350); // Nome
         colModel.getColumn(2).setMinWidth(190); // Qtd
         colModel.getColumn(2).setMaxWidth(220);
-        colModel.getColumn(3).setPreferredWidth(200); // Preço Unid
-        colModel.getColumn(4).setPreferredWidth(200); // Preço Caixa
-        colModel.getColumn(5).setMinWidth(250); // Ações
-        colModel.getColumn(5).setMaxWidth(260);
+        colModel.getColumn(3).setPreferredWidth(200); // Preco
+        colModel.getColumn(4).setMinWidth(250); // Ações
+        colModel.getColumn(4).setMaxWidth(260);
     }
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {

@@ -1,42 +1,51 @@
 package alphacontrol.views.fiado;
 
-import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
-import alphacontrol.controllers.modais.ModalAdicionarFiadoController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.models.Cliente;
+import alphacontrol.models.Produto;
+import alphacontrol.models.Fiado;
+import alphacontrol.models.FiadoItem;
+import java.time.LocalDateTime;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModalAdicionarFiado extends JDialog {
 
     private static final Color BEGE_FUNDO = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
-    private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
-    private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
-    private JTextField txtClienteNome;
-    private JButton btnBuscarCliente;
-    private JTextField txtValor;
-    private JButton btnSalvar;
-    private JButton btnAdicionarCliente;
-    private TelaFiado parentView;
-    private Cliente clienteSelecionado;
+    private final Cliente cliente;
+    private final FiadoController fiadoController;
+    private final ProdutoController produtoController;
 
-    public ModalAdicionarFiado(TelaFiado parent, FiadoController fiadoController, ClienteController clienteController) {
+    private JComboBox<Produto> cbProdutos;
+    private JSpinner spQuantidade;
+    private JTable tabelaItens;
+    private DefaultTableModel modelItens;
+
+    public ModalAdicionarFiado(
+            JFrame parent,
+            FiadoController fiadoController,
+            ProdutoController produtoController,
+            Cliente cliente) {
         super(parent, "Adicionar Fiado", true);
-        this.parentView = parent;
+        this.fiadoController = fiadoController;
+        this.produtoController = produtoController;
+        this.cliente = cliente;
 
         setUndecorated(true);
-        setSize(600, 380); // Altura ajustada
+        setSize(750, 520);
         setLocationRelativeTo(parent);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -53,6 +62,7 @@ public class ModalAdicionarFiado extends JDialog {
                 super.paintComponent(g);
             }
         };
+
         painelFundo.setOpaque(false);
         painelFundo.setBorder(new EmptyBorder(20, 25, 20, 25));
         setContentPane(painelFundo);
@@ -60,202 +70,198 @@ public class ModalAdicionarFiado extends JDialog {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
 
         JLabel lblTitulo = new JLabel("Registrar Fiado");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblTitulo.setForeground(MARROM_ESCURO);
         lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 3;
-        gbc.insets = new Insets(10, 10, 20, 10);
+        gbc.gridwidth = 4;
         painelFundo.add(lblTitulo, gbc);
 
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.3;
-        gbc.insets = new Insets(10, 10, 10, 10);
         JLabel lblCliente = new JLabel("Cliente:");
         lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblCliente.setForeground(MARROM_ESCURO);
+
+        JLabel lblNomeCliente = new JLabel(cliente.getNome());
+        lblNomeCliente.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblNomeCliente.setForeground(VERDE_OLIVA);
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
         painelFundo.add(lblCliente, gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.5;
-        txtClienteNome = new RoundedTextField("Nenhum cliente selecionado", 20);
-        txtClienteNome.setEditable(false);
-        txtClienteNome.setPreferredSize(new Dimension(200, 45));
-        painelFundo.add(txtClienteNome, gbc);
-        
-        gbc.gridx = 2;
-        gbc.weightx = 0.2;
-        gbc.fill = GridBagConstraints.NONE;
-        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 45);
-        painelFundo.add(btnBuscarCliente, gbc);
+        gbc.gridwidth = 3;
+        painelFundo.add(lblNomeCliente, gbc);
 
-        gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridx = 0;
         gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.3;
-        JLabel lblValor = new JLabel("Valor (R$):");
-        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        lblValor.setForeground(MARROM_ESCURO);
-        painelFundo.add(lblValor, gbc);
+        painelFundo.add(new JLabel("Produto:"), gbc);
+
+        cbProdutos = new JComboBox<>();
+        for (Produto p : produtoController.listar()) {
+            cbProdutos.addItem(p);
+        }
 
         gbc.gridx = 1;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.7;
-        txtValor = new RoundedTextField("0,00", 15);
-        txtValor.setPreferredSize(new Dimension(200, 45));
-        painelFundo.add(txtValor, gbc);
-        
-        JPanel painelBotoes = new JPanel(new GridBagLayout());
-        painelBotoes.setOpaque(false);
-        
-        GridBagConstraints gbcBotoes = new GridBagConstraints();
-        gbcBotoes.insets = new Insets(0, 10, 0, 10);
+        painelFundo.add(cbProdutos, gbc);
 
-        btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 140, 45);
-        btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 140, 45);
-        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 140, 45);
-        
-        btnCancelar.addActionListener(e -> dispose());
-        
-        gbcBotoes.gridx = 0;
-        painelBotoes.add(btnSalvar, gbcBotoes);
-        
-        gbcBotoes.gridx = 1;
-        painelBotoes.add(btnAdicionarCliente, gbcBotoes);
-        
-        gbcBotoes.gridx = 2;
-        painelBotoes.add(btnCancelar, gbcBotoes);
-        
-        gbc.gridx = 0;
+        gbc.gridx = 3;
+        spQuantidade = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
+        spQuantidade.setPreferredSize(new Dimension(80, 40));
+        painelFundo.add(spQuantidade, gbc);
+
         gbc.gridy = 3;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(25, 10, 10, 10);
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+
+        JButton btnAdicionar = new RoundedButton("Adicionar Item", DOURADO_SUAVE, Color.WHITE);
+        painelFundo.add(btnAdicionar, gbc);
+
+        modelItens = new DefaultTableModel(
+                new Object[] { "Produto", "Qtd", "Valor Unit.", "Subtotal" }, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+
+        tabelaItens = new JTable(modelItens);
+        tabelaItens.setRowHeight(28);
+
+        JScrollPane scroll = new JScrollPane(tabelaItens);
+        scroll.setPreferredSize(new Dimension(650, 180));
+
+        gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridwidth = 4;
+        painelFundo.add(scroll, gbc);
+
+        JPanel painelBotoes = new JPanel();
+        painelBotoes.setOpaque(false);
+
+        JButton btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE);
+        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE);
+
+        painelBotoes.add(btnSalvar);
+        painelBotoes.add(btnCancelar);
+
+        gbc.gridy = 5;
         painelFundo.add(painelBotoes, gbc);
 
-        new ModalAdicionarFiadoController(this, fiadoController, clienteController);
+        btnAdicionar.addActionListener(e -> adicionarItem());
+        btnSalvar.addActionListener(e -> salvarFiado());
+        btnCancelar.addActionListener(e -> dispose());
     }
 
-    public TelaFiado getParentView() {
-        return parentView;
-    }
+    private void adicionarItem() {
+        Produto produto = (Produto) cbProdutos.getSelectedItem();
+        int qtd = (int) spQuantidade.getValue();
 
-    public Cliente getClienteSelecionado() {
-        return clienteSelecionado;
-    }
+        for (int i = 0; i < modelItens.getRowCount(); i++) {
+            Produto pTabela = (Produto) modelItens.getValueAt(i, 0);
+            if (pTabela.getProdutoId() == produto.getProdutoId()) {
+                int qtdAtual = (int) modelItens.getValueAt(i, 1);
+                int novaQtd = qtdAtual + qtd;
+                double subtotal = novaQtd * produto.getPreco();
 
-    public void setClienteSelecionado(Cliente cliente) {
-        this.clienteSelecionado = cliente;
-        if (cliente != null) {
-            this.txtClienteNome.setText(cliente.getNome());
-            this.txtClienteNome.setForeground(MARROM_ESCURO);
-        } else {
-            this.txtClienteNome.setText("Nenhum cliente selecionado");
-            this.txtClienteNome.setForeground(CINZA_PLACEHOLDER);
+                modelItens.setValueAt(novaQtd, i, 1);
+                modelItens.setValueAt(subtotal, i, 3);
+                return;
+            }
         }
-    }
 
-    public JTextField getTxtValor() {
-        return txtValor;
-    }
-
-    public JButton getBtnSalvar() {
-        return btnSalvar;
-    }
-
-    public JButton getBtnAdicionarCliente() {
-        return btnAdicionarCliente;
+        modelItens.addRow(new Object[] {
+                produto,
+                qtd,
+                produto.getPreco(),
+                produto.getPreco() * qtd
+        });
     }
     
-    public JButton getBtnBuscarCliente() {
-        return btnBuscarCliente;
+    private void salvarFiado() {
+
+    if (modelItens.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this,
+                "Adicione ao menos um produto.",
+                "Aviso",
+                JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
-    static class RoundedTextField extends JTextField implements FocusListener {
-        private final String placeholder;
-        private boolean showingPlaceholder;
-        public RoundedTextField(String placeholder, int columns) {
-            super(placeholder, columns);
-            this.placeholder = placeholder;
-            this.showingPlaceholder = true;
-            addFocusListener(this);
-            setForeground(CINZA_PLACEHOLDER);
-            setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            setOpaque(false);
-            setBorder(new EmptyBorder(5, 15, 5, 15));
-        }
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            if (isEditable()) {
-                g2.setColor(Color.WHITE);
-            } else {
-                g2.setColor(new Color(235, 235, 235));
-            }
+    try {
+        // 1️⃣ Criar o FIADO
+        Fiado fiado = new Fiado();
+        fiado.setClienteId(cliente.getId());
+        fiado.setValor(calcularTotal());
+        fiado.setData(LocalDateTime.now());
+        fiado.setStatus("PENDENTE");
 
-            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
-            g2.setColor(MARROM_CLARO);
-            g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
-            g2.dispose();
-            super.paintComponent(g);
+        // 2️⃣ Criar LISTA DE ITENS
+        List<FiadoItem> itens = new ArrayList<>();
+
+        for (int i = 0; i < modelItens.getRowCount(); i++) {
+            Produto p = (Produto) modelItens.getValueAt(i, 0);
+
+            FiadoItem item = new FiadoItem();
+            item.setProdutoId(p.getProdutoId());
+            item.setQuantidade((int) modelItens.getValueAt(i, 1));
+            item.setValorUnitario((double) modelItens.getValueAt(i, 2));
+
+            itens.add(item);
         }
-        @Override
-        public void focusGained(FocusEvent e) {
-            if (showingPlaceholder) {
-                setText("");
-                setForeground(MARROM_ESCURO);
-                showingPlaceholder = false;
-            }
+
+        // 3️⃣ SALVAR TUDO DE UMA VEZ
+        fiadoController.inserirFiadoComItens(fiado, itens);
+
+        JOptionPane.showMessageDialog(this,
+                "Fiado registrado com sucesso!",
+                "Sucesso",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        dispose();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+                "Erro ao salvar fiado:\n" + e.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    private double calcularTotal() {
+        double total = 0;
+        for (int i = 0; i < modelItens.getRowCount(); i++) {
+            total += (double) modelItens.getValueAt(i, 3); // subtotal
         }
-        @Override
-        public void focusLost(FocusEvent e) {
-            if (getText().isEmpty()) {
-                setText(placeholder);
-                setForeground(CINZA_PLACEHOLDER);
-                showingPlaceholder = true;
-            }
-        }
-        @Override
-        public String getText() {
-            return (showingPlaceholder && isEditable()) ? "" : super.getText();
-        }
+        return total;
     }
 
     static class RoundedButton extends JButton {
-        private final Color backgroundColor, hoverColor;
-        public RoundedButton(String text, Color bg, Color fg, int w, int h) {
+        private final Color bg;
+
+        public RoundedButton(String text, Color bg, Color fg) {
             super(text);
-            backgroundColor = bg;
-            hoverColor = bg.brighter();
+            this.bg = bg;
             setForeground(fg);
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
             setFont(new Font("Segoe UI", Font.BOLD, 14));
-            setPreferredSize(new Dimension(w, h));
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setPreferredSize(new Dimension(160, 45));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getModel().isRollover() ? hoverColor : backgroundColor);
+            g2.setColor(bg);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
             g2.dispose();
             super.paintComponent(g);

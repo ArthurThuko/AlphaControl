@@ -9,6 +9,7 @@ import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.dao.ClienteDAO; 
 import alphacontrol.dao.FiadoDAO;
+import alphacontrol.dao.FiadoItemDAO;
 import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.LoginService;
 import java.sql.Connection;
@@ -47,8 +48,9 @@ public class LoginController {
                 ClienteController clienteController = new ClienteController(clienteDAO);
                 
                 FiadoDAO fiadoDAO = new FiadoDAO(connection);
+                FiadoItemDAO fiadoItemDAO = new FiadoItemDAO(connection);
                                 
-                FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO);
+                FiadoController fiadoController = new FiadoController(fiadoDAO, fiadoItemDAO, clienteDAO);
                 
                 TelaPrincipalController principalController = new TelaPrincipalController(
                     produtoController, 

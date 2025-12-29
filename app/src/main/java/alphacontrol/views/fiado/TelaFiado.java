@@ -2,6 +2,7 @@ package alphacontrol.views.fiado;
 
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.controllers.modais.ModalAdicionarClienteController;
 import alphacontrol.controllers.modais.ModalEditarFiadoController;
 import alphacontrol.controllers.modais.ModalQuitarDividaController;
@@ -39,11 +40,13 @@ public class TelaFiado extends JFrame {
     private JTable tabela;
     private ClienteController clienteController;
     private FiadoController fiadoController;
+    private ProdutoController produtoController;
     private JTextField txtPesquisa;
 
     public TelaFiado(TelaPrincipalController mainController) {
         this.clienteController = mainController.getClienteController();
         this.fiadoController = mainController.getFiadoController();
+        this.produtoController = mainController.getProdutoController();
 
         setTitle("Fiados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -146,15 +149,17 @@ public class TelaFiado extends JFrame {
         atualizarTabela();
     }
 
-    private void abrirModalAdicionarFiado() {
+    private void abrirModalAdicionarFiado(Cliente cliente) {
         ModalAdicionarFiado modal = new ModalAdicionarFiado(
                 this,
                 this.fiadoController,
-                this.clienteController);
+                this.produtoController,
+                cliente);
         modal.setVisible(true);
         atualizarTabela();
     }
 
+    
     private void abrirTelaDetalheFiado(int clienteId) {
         Cliente cliente = clienteController.buscarPorId(clienteId);
         if (cliente == null) {
@@ -211,7 +216,7 @@ public class TelaFiado extends JFrame {
 
         tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
         tabela.getColumn("Ações")
-                .setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController));
+                .setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController, produtoController));
 
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
@@ -454,12 +459,14 @@ public class TelaFiado extends JFrame {
         private TelaFiado telaFiado;
         private ClienteController clienteController;
         private FiadoController fiadoController;
+        private ProdutoController produtoController;
 
         public ActionsCellEditor(TelaFiado parentFrame, JTable table, ClienteController cController,
-                FiadoController fController) {
+                FiadoController fController, ProdutoController pController) {
             this.telaFiado = parentFrame;
             this.clienteController = cController;
             this.fiadoController = fController;
+            this.produtoController = pController;
 
             panel.btnVer.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
@@ -509,25 +516,27 @@ public class TelaFiado extends JFrame {
                 fireEditingStopped();
             });
 
-            panel.btnAdicionar.addActionListener(e -> {
-                int id = (int) table.getValueAt(row, 0);
+panel.btnAdicionar.addActionListener(e -> {
+    int id = (int) table.getValueAt(row, 0);
 
-                Cliente cliente = clienteController.buscarPorId(id);
-                if (cliente == null) {
-                    JOptionPane.showMessageDialog(table, "Cliente não encontrado.");
-                    fireEditingStopped();
-                    return;
-                }
+    Cliente cliente = clienteController.buscarPorId(id);
+    if (cliente == null) {
+        JOptionPane.showMessageDialog(table, "Cliente não encontrado.");
+        fireEditingStopped();
+        return;
+    }
 
-                ModalAdicionarFiado modal = new ModalAdicionarFiado(
-                        telaFiado,
-                        fiadoController,
-                        clienteController);
+    ModalAdicionarFiado modal = new ModalAdicionarFiado(
+            telaFiado,
+            fiadoController,
+            produtoController,
+            cliente
+    );
 
-                modal.setVisible(true);
-                telaFiado.atualizarTabela();
-                fireEditingStopped();
-            });
+    modal.setVisible(true);
+    telaFiado.atualizarTabela();
+    fireEditingStopped();
+});
         }
 
         @Override

@@ -4,24 +4,20 @@ public class Produto {
     private int produtoId;
     private String nome;
     private int qntEstoque;
-    private double precoUnid;
-    private double precoCaixa;
-    
-    public Produto(int produtoId, String nome, int qntEstoque, double precoUnid, double precoCaixa) {
+    private double preco;
+
+    public Produto(int produtoId, String nome, int qntEstoque, double preco) {
         this.produtoId = produtoId;
         this.nome = nome;
         this.qntEstoque = qntEstoque;
-        this.precoUnid = precoUnid;
-        this.precoCaixa = precoCaixa;
+        this.preco = preco;
     }
 
-    public Produto(String nome, int qntEstoque, double precoUnid, double precoCaixa) {
-    this.nome = nome;
-    this.qntEstoque = qntEstoque;
-    this.precoUnid = precoUnid;
-    this.precoCaixa = precoCaixa;
-}
-
+    public Produto(String nome, int qntEstoque, double preco) {
+        this.nome = nome;
+        this.qntEstoque = qntEstoque;
+        this.preco = preco;
+    }
 
     public int getProdutoId() {
         return produtoId;
@@ -47,20 +43,12 @@ public class Produto {
         this.qntEstoque = qntEstoque;
     }
 
-    public double getPrecoUnid() {
-        return precoUnid;
+    public double getPreco() {
+        return preco;
     }
 
-    public void setPrecoUnid(double precoUnid) {
-        this.precoUnid = precoUnid;
-    }
-
-    public double getPrecoCaixa() {
-        return precoCaixa;
-    }
-
-    public void setPrecoCaixa(double precoCaixa) {
-        this.precoCaixa = precoCaixa;
+    public void setPreco(double preco) {
+        this.preco = preco;
     }
 
     public void incrementarEstoque(int quantidade) {
@@ -68,6 +56,7 @@ public class Produto {
             throw new IllegalArgumentException("A quantidade para adicionar deve ser positiva.");
         this.qntEstoque += quantidade;
     }
+
     public void decrementarEstoque(int quantidade) {
         if (quantidade <= 0)
             throw new IllegalArgumentException("A quantidade para remover deve ser positiva.");

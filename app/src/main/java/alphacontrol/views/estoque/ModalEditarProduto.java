@@ -66,7 +66,7 @@ public class ModalEditarProduto extends JDialog {
 
         String[] labels = {
                 "Nome:", "Quantidade:",
-                "Preço de Unidade (R$):", "Preço de Caixa (R$):"
+                "Preço (R$):"
         };
         campos = new JTextField[labels.length];
 
@@ -168,16 +168,14 @@ public class ModalEditarProduto extends JDialog {
 
         campos[0].setText(p.getNome());
         campos[1].setText(String.valueOf(p.getQntEstoque()));
-        campos[2].setText(String.valueOf(p.getPrecoUnid()));
-        campos[3].setText(String.valueOf(p.getPrecoCaixa()));
+        campos[2].setText(String.valueOf(p.getPreco()));
     }
 
     public Produto getProdutoFromFields() {
         Produto p = new Produto(
                 campos[0].getText(),
                 Integer.parseInt(campos[1].getText()),
-                Double.parseDouble(campos[2].getText()),
-                Double.parseDouble(campos[3].getText()));
+                Double.parseDouble(campos[2].getText()));
 
         p.setProdutoId(this.produtoId);
         return p;

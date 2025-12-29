@@ -25,13 +25,13 @@ public class FiadoDAO {
 
     private void criarTabelaSeNaoExistir() {
         String sql = "CREATE TABLE IF NOT EXISTS fiado ("
-                 + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                 + "cliente_id INTEGER NOT NULL,"
-                 + "valor REAL NOT NULL,"
-                 + "data DATETIME NOT NULL,"
-                 + "status TEXT NOT NULL,"
-                 + "FOREIGN KEY (cliente_id) REFERENCES clientes(id)"
-                 + ")";
+                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + "cliente_id INTEGER NOT NULL,"
+                + "valor REAL NOT NULL,"
+                + "data DATETIME NOT NULL,"
+                + "status TEXT NOT NULL,"
+                + "FOREIGN KEY (cliente_id) REFERENCES clientes(id)"
+                + ")";
 
         try (Statement stmt = conexao.createStatement()) {
             stmt.execute(sql);
@@ -40,23 +40,33 @@ public class FiadoDAO {
         }
     }
 
-    public void inserir(Fiado fiado) throws SQLException {
+    public int inserir(Fiado fiado) throws SQLException {
+
         String sql = "INSERT INTO fiado (cliente_id, valor, data, status) VALUES (?, ?, ?, ?)";
-        
-        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+
+        try (PreparedStatement pstmt = conexao.prepareStatement(
+                sql, Statement.RETURN_GENERATED_KEYS)) {
+
             pstmt.setInt(1, fiado.getClienteId());
-            
-            pstmt.setDouble(3, fiado.getValor());
-            pstmt.setTimestamp(4, Timestamp.valueOf(fiado.getData()));
-            pstmt.setString(5, fiado.getStatus());
+            pstmt.setDouble(2, fiado.getValor());
+            pstmt.setTimestamp(3, Timestamp.valueOf(fiado.getData()));
+            pstmt.setString(4, fiado.getStatus());
+
             pstmt.executeUpdate();
+
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         }
+
+        return 0;
     }
-    
+
     public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
         List<Fiado> fiados = new ArrayList<>();
         String sql = "SELECT * FROM fiado WHERE cliente_id = ? ORDER BY data DESC";
-        
+
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, clienteId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -67,7 +77,7 @@ public class FiadoDAO {
         }
         return fiados;
     }
-    
+
     public void quitarTudo(int clienteId) throws SQLException {
         String sql = "UPDATE fiado SET status = 'QUITADO' WHERE cliente_id = ? AND status = 'PENDENTE'";
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
@@ -75,17 +85,17 @@ public class FiadoDAO {
             pstmt.executeUpdate();
         }
     }
-    
+
     public void pagarParcial(int clienteId, double valorPago) throws SQLException {
         Fiado pagamento = new Fiado();
         pagamento.setClienteId(clienteId);
         pagamento.setValor(valorPago);
         pagamento.setData(LocalDateTime.now());
         pagamento.setStatus("PAGAMENTO");
-        
+
         this.inserir(pagamento);
     }
-    
+
     private Fiado instanciarFiado(ResultSet rs) throws SQLException {
         Fiado fiado = new Fiado();
         fiado.setId(rs.getInt("id"));
