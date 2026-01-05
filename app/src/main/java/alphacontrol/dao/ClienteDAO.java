@@ -53,13 +53,17 @@ public class ClienteDAO {
                 ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
+                int id = rs.getInt("id");
+
                 Cliente c = new Cliente(
-                        rs.getInt("id"),
+                        id,
                         rs.getString("nome"),
                         rs.getString("telefone"),
                         rs.getString("rua"),
                         rs.getString("bairro"),
-                        rs.getDouble("debito"));
+                        0);
+
+                c.setDebito(calcularDebito(id)); // 🔥 aqui
                 clientes.add(c);
             }
         }
@@ -75,39 +79,22 @@ public class ClienteDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+                    int id = rs.getInt("id");
+
                     Cliente c = new Cliente(
-                            rs.getInt("id"),
+                            id,
                             rs.getString("nome"),
                             rs.getString("telefone"),
                             rs.getString("rua"),
                             rs.getString("bairro"),
-                            rs.getDouble("debito"));
+                            0);
+
+                    c.setDebito(calcularDebito(id)); // 🔥 aqui
                     clientes.add(c);
                 }
             }
         }
         return clientes;
-    }
-
-    public Cliente buscarPorId(int id) throws SQLException {
-        String sql = "SELECT * FROM clientes WHERE id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return new Cliente(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("telefone"),
-                            rs.getString("rua"),
-                            rs.getString("bairro"),
-                            rs.getDouble("debito"));
-                }
-            }
-        }
-        return null;
     }
 
     public void atualizar(Cliente cliente) throws SQLException {
@@ -137,21 +124,52 @@ public class ClienteDAO {
         }
     }
 
-    public void quitarDivida(int idCliente, double valorPago) throws SQLException {
+    public Cliente buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM clientes WHERE id = ?";
+        Cliente cliente = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                cliente = new Cliente(
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getString("telefone"),
+                        rs.getString("rua"),
+                        rs.getString("bairro"),
+                        0);
+
+                double debito = calcularDebito(id);
+                cliente.setDebito(debito);
+            }
+        }
+        return cliente;
+    }
+
+    public double calcularDebito(int clienteId) throws SQLException {
         String sql = """
-                    UPDATE clientes
-                    SET debito = CASE
-                        WHEN debito - ? < 0 THEN 0
-                        ELSE debito - ?
-                    END
-                    WHERE id = ?
+                    SELECT
+                        COALESCE(SUM(
+                            CASE
+                                WHEN status = 'PENDENTE' THEN valor
+                                WHEN status = 'PAGAMENTO' THEN -valor
+                                ELSE 0
+                            END
+                        ), 0) AS debito
+                    FROM fiado
+                    WHERE cliente_id = ?
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setDouble(1, valorPago);
-            stmt.setDouble(2, valorPago);
-            stmt.setInt(3, idCliente);
-            stmt.executeUpdate();
+            stmt.setInt(1, clienteId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("debito");
+            }
         }
+        return 0;
     }
 }

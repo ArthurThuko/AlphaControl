@@ -64,4 +64,9 @@ public class Produto {
             throw new IllegalStateException("Estoque insuficiente para realizar a operação.");
         this.qntEstoque -= quantidade;
     }
+
+    @Override
+public String toString() {
+    return nome; // ou getNome()
+}
 }

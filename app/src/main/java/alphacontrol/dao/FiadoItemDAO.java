@@ -54,17 +54,26 @@ public class FiadoItemDAO {
     }
 
     public List<FiadoItem> listarPorFiado(int fiadoId) throws SQLException {
-
         List<FiadoItem> itens = new ArrayList<>();
 
-        String sql = "SELECT * FROM fiado_item WHERE fiado_id = ?";
+        String sql = """
+                    SELECT *
+                    FROM fiado_item
+                    WHERE fiado_id = ?
+                """;
 
-        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
-            pstmt.setInt(1, fiadoId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    itens.add(instanciarItem(rs));
-                }
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, fiadoId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                FiadoItem item = new FiadoItem(
+                        rs.getInt("id"),
+                        rs.getInt("fiado_id"),
+                        rs.getInt("produto_id"),
+                        rs.getInt("quantidade"),
+                        rs.getDouble("valor_unitario"));
+                itens.add(item);
             }
         }
 

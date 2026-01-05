@@ -159,7 +159,6 @@ public class TelaFiado extends JFrame {
         atualizarTabela();
     }
 
-    
     private void abrirTelaDetalheFiado(int clienteId) {
         Cliente cliente = clienteController.buscarPorId(clienteId);
         if (cliente == null) {
@@ -167,7 +166,11 @@ public class TelaFiado extends JFrame {
             return;
         }
 
-        TelaDetalheFiado telaDetalhe = new TelaDetalheFiado(cliente, this.fiadoController, this);
+        TelaDetalheFiado telaDetalhe = new TelaDetalheFiado(
+                cliente,
+                fiadoController,
+                produtoController,
+                this);
         telaDetalhe.setVisible(true);
     }
 
@@ -212,11 +215,12 @@ public class TelaFiado extends JFrame {
         tabela.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
         tabela.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         tabela.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
-        tabela.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
+        tabela.getColumnModel().getColumn(5).setCellRenderer(new CurrencyRenderer());
 
         tabela.getColumn("Ações").setCellRenderer(new ActionsCellRenderer());
         tabela.getColumn("Ações")
-                .setCellEditor(new ActionsCellEditor(this, tabela, clienteController, fiadoController, produtoController));
+                .setCellEditor(
+                        new ActionsCellEditor(this, tabela, clienteController, fiadoController, produtoController));
 
         TableColumn colId = tabela.getColumnModel().getColumn(0);
         colId.setMinWidth(0);
@@ -238,7 +242,7 @@ public class TelaFiado extends JFrame {
 
         public CurrencyRenderer() {
             super();
-            setHorizontalAlignment(SwingConstants.RIGHT);
+            setHorizontalAlignment(SwingConstants.CENTER); // 🔥 CENTRALIZADO
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
 
@@ -252,9 +256,13 @@ public class TelaFiado extends JFrame {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            Component c = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
             if (!isSelected)
                 c.setBackground(table.getBackground());
 
@@ -493,7 +501,8 @@ public class TelaFiado extends JFrame {
 
             panel.btnPagar.addActionListener(e -> {
                 int id = (int) table.getValueAt(row, 0);
-                double valor = (double) table.getValueAt(row, 5);
+                Object valorObj = table.getValueAt(row, 5);
+                double valor = valorObj instanceof Number ? ((Number) valorObj).doubleValue() : 0;
 
                 if (valor == 0) {
                     JOptionPane.showMessageDialog(table, "Cliente não possui débitos.");
@@ -516,27 +525,26 @@ public class TelaFiado extends JFrame {
                 fireEditingStopped();
             });
 
-panel.btnAdicionar.addActionListener(e -> {
-    int id = (int) table.getValueAt(row, 0);
+            panel.btnAdicionar.addActionListener(e -> {
+                int id = (int) table.getValueAt(row, 0);
 
-    Cliente cliente = clienteController.buscarPorId(id);
-    if (cliente == null) {
-        JOptionPane.showMessageDialog(table, "Cliente não encontrado.");
-        fireEditingStopped();
-        return;
-    }
+                Cliente cliente = clienteController.buscarPorId(id);
+                if (cliente == null) {
+                    JOptionPane.showMessageDialog(table, "Cliente não encontrado.");
+                    fireEditingStopped();
+                    return;
+                }
 
-    ModalAdicionarFiado modal = new ModalAdicionarFiado(
-            telaFiado,
-            fiadoController,
-            produtoController,
-            cliente
-    );
+                ModalAdicionarFiado modal = new ModalAdicionarFiado(
+                        telaFiado,
+                        fiadoController,
+                        produtoController,
+                        cliente);
 
-    modal.setVisible(true);
-    telaFiado.atualizarTabela();
-    fireEditingStopped();
-});
+                modal.setVisible(true);
+                telaFiado.atualizarTabela();
+                fireEditingStopped();
+            });
         }
 
         @Override

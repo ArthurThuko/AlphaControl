@@ -26,38 +26,57 @@ public class FiadoController {
         this.clienteDAO = clienteDAO;
     }
 
-    public int inserirFiadoComItens(Fiado fiado, List<FiadoItem> itens) throws SQLException {
-        int fiadoId = fiadoDAO.inserir(fiado);
+    public int inserirFiadoComItens(Fiado fiado, List<FiadoItem> itens) {
+        try {
+            fiado.setStatus("PENDENTE");
+            int fiadoId = fiadoDAO.inserir(fiado);
 
-        for (FiadoItem item : itens) {
-            item.setFiadoId(fiadoId);
-            fiadoItemDAO.inserir(item);
+            for (FiadoItem item : itens) {
+                item.setFiadoId(fiadoId);
+                fiadoItemDAO.inserir(item);
+            }
+
+            return fiadoId;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao salvar fiado", e);
         }
-
-        clienteDAO.quitarDivida(fiado.getClienteId(), fiado.getValor());
-
-        return fiadoId;
-    }
-
-    public void adicionarFiado(Fiado fiado) throws SQLException {
-        fiadoDAO.inserir(fiado);
-        clienteDAO.quitarDivida(fiado.getClienteId(), fiado.getValor());
     }
 
     public List<Fiado> listarPorCliente(int clienteId) throws SQLException {
         return fiadoDAO.listarPorCliente(clienteId);
     }
 
+    public List<FiadoItem> listarItens(int fiadoId) {
+        try {
+            return fiadoItemDAO.listarPorFiado(fiadoId);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar itens do fiado", e);
+        }
+    }
+
     public void pagarFiado(int clienteId, double valorPago) throws SQLException {
-        fiadoDAO.pagarParcial(clienteId, valorPago);
-        clienteDAO.quitarDivida(clienteId, -valorPago);
+        Fiado pagamento = new Fiado();
+        pagamento.setClienteId(clienteId);
+        pagamento.setValor(valorPago);
+        pagamento.setStatus("PAGAMENTO");
+        pagamento.setData(java.time.LocalDateTime.now());
+
+        fiadoDAO.inserir(pagamento);
     }
 
     public void quitarDividaCompleta(int clienteId) throws SQLException {
-        Cliente cliente = clienteDAO.buscarPorId(clienteId);
-        double valorTotal = cliente.getDebito();
+        double saldo = clienteDAO.calcularDebito(clienteId);
 
-        fiadoDAO.quitarTudo(clienteId);
-        clienteDAO.quitarDivida(clienteId, -valorTotal);
+        if (saldo <= 0)
+            return;
+
+        Fiado pagamento = new Fiado();
+        pagamento.setClienteId(clienteId);
+        pagamento.setValor(saldo);
+        pagamento.setStatus("PAGAMENTO");
+        pagamento.setData(java.time.LocalDateTime.now());
+
+        fiadoDAO.inserir(pagamento);
     }
 }

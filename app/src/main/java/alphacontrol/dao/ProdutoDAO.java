@@ -14,13 +14,13 @@ public class ProdutoDAO {
 
         try (Statement stmt = connection.createStatement()) {
             String sql = """
-                CREATE TABLE IF NOT EXISTS produtos (
-                    produto_id INT PRIMARY KEY AUTO_INCREMENT,
-                    nome VARCHAR(255) NOT NULL,
-                    qnt_estoque INT NOT NULL DEFAULT 0,
-                    preco DECIMAL(10,2) NOT NULL
-                )
-            """;
+                        CREATE TABLE IF NOT EXISTS produtos (
+                            produto_id INT PRIMARY KEY AUTO_INCREMENT,
+                            nome VARCHAR(255) NOT NULL,
+                            qnt_estoque INT NOT NULL DEFAULT 0,
+                            preco DECIMAL(10,2) NOT NULL
+                        )
+                    """;
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao criar a tabela 'produtos'", e);
@@ -29,9 +29,9 @@ public class ProdutoDAO {
 
     public void adicionarProduto(Produto produto) throws SQLException {
         String sql = """
-            INSERT INTO produtos (nome, qnt_estoque, preco)
-            VALUES (?, ?, ?)
-        """;
+                    INSERT INTO produtos (nome, qnt_estoque, preco)
+                    VALUES (?, ?, ?)
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());
@@ -46,15 +46,14 @@ public class ProdutoDAO {
         String sql = "SELECT * FROM produtos";
 
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Produto produto = new Produto(
                         rs.getInt("produto_id"),
                         rs.getString("nome"),
                         rs.getInt("qnt_estoque"),
-                        rs.getDouble("preco")
-                );
+                        rs.getDouble("preco"));
                 produtos.add(produto);
             }
         }
@@ -74,8 +73,7 @@ public class ProdutoDAO {
                             rs.getInt("produto_id"),
                             rs.getString("nome"),
                             rs.getInt("qnt_estoque"),
-                            rs.getDouble("preco")
-                    );
+                            rs.getDouble("preco"));
                     produtos.add(produto);
                 }
             }
@@ -83,12 +81,31 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public Produto buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM produtos WHERE produto_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Produto(
+                        rs.getInt("produto_id"),
+                        rs.getString("nome"),
+                        rs.getInt("qnt_estoque"),
+                        rs.getDouble("preco"));
+            }
+        }
+
+        return null;
+    }
+
     public void atualizarProduto(Produto produto) throws SQLException {
         String sql = """
-            UPDATE produtos
-            SET nome = ?, qnt_estoque = ?, preco = ?
-            WHERE produto_id = ?
-        """;
+                    UPDATE produtos
+                    SET nome = ?, qnt_estoque = ?, preco = ?
+                    WHERE produto_id = ?
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());

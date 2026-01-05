@@ -57,48 +57,6 @@ public class ClienteController {
         clienteDAO.atualizar(cliente);
     }
 
-    public void quitarDivida(Cliente cliente, double valorPago) {
-
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente inválido.");
-        }
-
-        if (valorPago <= 0) {
-            throw new IllegalArgumentException("O valor pago deve ser maior que zero.");
-        }
-
-        if (cliente.getDebito() <= 0) {
-            throw new IllegalStateException("Este cliente não possui dívida.");
-        }
-
-        try {
-            clienteDAO.quitarDivida(cliente.getId(), valorPago);
-
-            double novoDebito = cliente.getDebito() - valorPago;
-            cliente.setDebito(Math.max(0, novoDebito));
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao quitar dívida do cliente.", e);
-        }
-    }
-
-    public void deletar(int id, String nome) {
-        int resposta = JOptionPane.showConfirmDialog(
-                null,
-                "Tem certeza que deseja excluir o cliente '" + nome + "'?",
-                "Confirmar Exclusão",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            try {
-                clienteDAO.deletar(id);
-            } catch (SQLException e) {
-                mostrarErro("Erro ao deletar cliente: " + e.getMessage());
-            }
-        }
-    }
-
     private void mostrarErro(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
