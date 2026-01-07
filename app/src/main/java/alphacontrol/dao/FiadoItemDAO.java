@@ -89,15 +89,4 @@ public class FiadoItemDAO {
             pstmt.executeUpdate();
         }
     }
-
-    private FiadoItem instanciarItem(ResultSet rs) throws SQLException {
-
-        FiadoItem item = new FiadoItem();
-        item.setId(rs.getInt("id"));
-        item.setFiadoId(rs.getInt("fiado_id"));
-        item.setProdutoId(rs.getInt("produto_id"));
-        item.setQuantidade(rs.getInt("quantidade"));
-        item.setValorUnitario(rs.getDouble("valor_unitario"));
-        return item;
-    }
 }

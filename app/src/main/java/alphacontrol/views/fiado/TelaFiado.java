@@ -149,16 +149,6 @@ public class TelaFiado extends JFrame {
         atualizarTabela();
     }
 
-    private void abrirModalAdicionarFiado(Cliente cliente) {
-        ModalAdicionarFiado modal = new ModalAdicionarFiado(
-                this,
-                this.fiadoController,
-                this.produtoController,
-                cliente);
-        modal.setVisible(true);
-        atualizarTabela();
-    }
-
     private void abrirTelaDetalheFiado(int clienteId) {
         Cliente cliente = clienteController.buscarPorId(clienteId);
         if (cliente == null) {

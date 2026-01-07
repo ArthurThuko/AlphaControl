@@ -19,7 +19,6 @@ public class ModalAdicionarFiado extends JDialog {
 
     private final Cliente cliente;
     private final FiadoController fiadoController;
-    private final ProdutoController produtoController;
 
     private JTextField txtBuscarProduto;
     private JList<Produto> listaProdutos;
@@ -42,7 +41,6 @@ public class ModalAdicionarFiado extends JDialog {
 
         super(parent, "Adicionar Fiado", true);
         this.fiadoController = fiadoController;
-        this.produtoController = produtoController;
         this.cliente = cliente;
         this.produtos = produtoController.listar();
 

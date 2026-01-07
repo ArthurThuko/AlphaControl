@@ -5,7 +5,6 @@ import alphacontrol.dao.FiadoItemDAO;
 import alphacontrol.dao.ClienteDAO;
 import alphacontrol.models.Fiado;
 import alphacontrol.models.FiadoItem;
-import alphacontrol.models.Cliente;
 
 import java.sql.SQLException;
 import java.util.List;
