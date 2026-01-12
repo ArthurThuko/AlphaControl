@@ -12,11 +12,27 @@ dependencies {
 }
 
 application {
-    mainClass = 'alphacontrol.App'
+    mainClass = 'alphacontrol.views.main.App'
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'alphacontrol.views.main.App',
+            'Class-Path': configurations.runtimeClasspath.files.collect {
+                "libs/${it.name}"
+            }.join(' ')
+        )
+    }
+}
+
+task copyRuntimeLibs(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/runtime-libs"
 }
