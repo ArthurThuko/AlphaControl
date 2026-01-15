@@ -18,6 +18,7 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
@@ -101,11 +102,32 @@ public class TelaFiado extends JFrame {
         painelBusca.add(btnPesquisar);
         painelCentral.add(painelBusca, gbc);
 
-        JPanel painelAdd = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JPanel painelAdd = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         painelAdd.setOpaque(false);
-        JButton btnCriarCliente = new RoundedButton("Criar Cliente", VERDE_OLIVA, Color.WHITE, 220, 45);
+
+        JButton btnExcluirCliente = new RoundedButton(
+                "Excluir",
+                VERMELHO_TERROSO,
+                Color.WHITE,
+                160,
+                45);
+        btnExcluirCliente.addActionListener(e -> {
+            try {
+                excluirClienteSelecionado();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        JButton btnCriarCliente = new RoundedButton(
+                "Criar Cliente",
+                VERDE_OLIVA,
+                Color.WHITE,
+                220,
+                45);
         btnCriarCliente.addActionListener(e -> abrirModalAdicionarCliente());
 
+        painelAdd.add(btnExcluirCliente);
         painelAdd.add(btnCriarCliente);
 
         gbc.gridx = 1;
@@ -225,6 +247,46 @@ public class TelaFiado extends JFrame {
         colModel.getColumn(5).setPreferredWidth(120);
         colModel.getColumn(6).setMinWidth(450);
         colModel.getColumn(6).setMaxWidth(550);
+    }
+
+    private void excluirClienteSelecionado() throws SQLException {
+        int linhaSelecionada = tabela.getSelectedRow();
+
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione um cliente para excluir.",
+                    "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idCliente = (int) tabela.getValueAt(linhaSelecionada, 0);
+        String nomeCliente = tabela.getValueAt(linhaSelecionada, 1).toString();
+
+        int confirmacao = JOptionPane.showConfirmDialog(
+                this,
+                "Tem certeza que deseja excluir o cliente:\n\n"
+                        + nomeCliente
+                        + "\n\n⚠️ Esta ação não poderá ser desfeita!",
+                "Confirmar Exclusão",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirmacao != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean sucesso = clienteController.excluir(idCliente);
+
+        if (sucesso) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Cliente excluído com sucesso.",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
+            atualizarTabela();
+        }
     }
 
     static class CurrencyRenderer extends DefaultTableCellRenderer {

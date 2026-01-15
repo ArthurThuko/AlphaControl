@@ -60,4 +60,14 @@ public class ClienteController {
     private void mostrarErro(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
+
+    public boolean excluir(int idCliente) {
+        try {
+            clienteDAO.deletar(idCliente);
+            return true;
+        } catch (SQLException e) {
+            mostrarErro("Não foi possível excluir o cliente.\n" + e.getMessage());
+            return false;
+        }
+    }
 }
