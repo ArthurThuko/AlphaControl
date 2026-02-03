@@ -14,14 +14,14 @@ public class ProdutoDAO {
 
         try (Statement stmt = connection.createStatement()) {
             String sql = """
-                        CREATE TABLE IF NOT EXISTS produtos (
-                            produto_id INT PRIMARY KEY AUTO_INCREMENT,
-                            nome VARCHAR(255) NOT NULL,
-                            qnt_estoque INT NOT NULL DEFAULT 0,
-                            preco DECIMAL(10,2) NOT NULL
-                        )
-                    """;
-            stmt.executeUpdate(sql);
+                CREATE TABLE IF NOT EXISTS produtos (
+                    produto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nome TEXT NOT NULL,
+                    qnt_estoque INTEGER NOT NULL DEFAULT 0,
+                    preco REAL NOT NULL
+                )
+            """;
+            stmt.execute(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao criar a tabela 'produtos'", e);
         }
@@ -29,9 +29,9 @@ public class ProdutoDAO {
 
     public void adicionarProduto(Produto produto) throws SQLException {
         String sql = """
-                    INSERT INTO produtos (nome, qnt_estoque, preco)
-                    VALUES (?, ?, ?)
-                """;
+            INSERT INTO produtos (nome, qnt_estoque, preco)
+            VALUES (?, ?, ?)
+        """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());
@@ -43,17 +43,18 @@ public class ProdutoDAO {
 
     public List<Produto> listarProdutos() throws SQLException {
         List<Produto> produtos = new ArrayList<>();
-        String sql = "SELECT * FROM produtos";
+        String sql = "SELECT * FROM produtos ORDER BY nome";
 
         try (Statement stmt = connection.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Produto produto = new Produto(
                         rs.getInt("produto_id"),
                         rs.getString("nome"),
                         rs.getInt("qnt_estoque"),
-                        rs.getDouble("preco"));
+                        rs.getDouble("preco")
+                );
                 produtos.add(produto);
             }
         }
@@ -62,7 +63,7 @@ public class ProdutoDAO {
 
     public List<Produto> pesquisarProdutos(String nome) throws SQLException {
         List<Produto> produtos = new ArrayList<>();
-        String sql = "SELECT * FROM produtos WHERE nome LIKE ?";
+        String sql = "SELECT * FROM produtos WHERE nome LIKE ? ORDER BY nome";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, "%" + nome + "%");
@@ -73,7 +74,8 @@ public class ProdutoDAO {
                             rs.getInt("produto_id"),
                             rs.getString("nome"),
                             rs.getInt("qnt_estoque"),
-                            rs.getDouble("preco"));
+                            rs.getDouble("preco")
+                    );
                     produtos.add(produto);
                 }
             }
@@ -93,19 +95,19 @@ public class ProdutoDAO {
                         rs.getInt("produto_id"),
                         rs.getString("nome"),
                         rs.getInt("qnt_estoque"),
-                        rs.getDouble("preco"));
+                        rs.getDouble("preco")
+                );
             }
         }
-
         return null;
     }
 
     public void atualizarProduto(Produto produto) throws SQLException {
         String sql = """
-                    UPDATE produtos
-                    SET nome = ?, qnt_estoque = ?, preco = ?
-                    WHERE produto_id = ?
-                """;
+            UPDATE produtos
+            SET nome = ?, qnt_estoque = ?, preco = ?
+            WHERE produto_id = ?
+        """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, produto.getNome());

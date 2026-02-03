@@ -19,30 +19,32 @@ public class FiadoItemDAO {
     }
 
     private void criarTabelaSeNaoExistir() {
-        String sql = "CREATE TABLE IF NOT EXISTS fiado_item ("
-                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "fiado_id INTEGER NOT NULL,"
-                + "produto_id INTEGER NOT NULL,"
-                + "quantidade INTEGER NOT NULL,"
-                + "valor_unitario REAL NOT NULL,"
-                + "FOREIGN KEY (fiado_id) REFERENCES fiado(id),"
-                + "FOREIGN KEY (produto_id) REFERENCES produtos(produto_id)"
-                + ")";
+        String sql = """
+            CREATE TABLE IF NOT EXISTS fiado_item (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fiado_id INTEGER NOT NULL,
+                produto_id INTEGER NOT NULL,
+                quantidade INTEGER NOT NULL,
+                valor_unitario REAL NOT NULL,
+                FOREIGN KEY (fiado_id) REFERENCES fiado(id),
+                FOREIGN KEY (produto_id) REFERENCES produtos(produto_id)
+            )
+        """;
 
         try (Statement stmt = conexao.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao criar tabela fiado_item: " + e.getMessage());
+            throw new RuntimeException("Erro ao criar tabela fiado_item", e);
         }
     }
 
     public void inserir(FiadoItem item) throws SQLException {
 
         String sql = """
-                    INSERT INTO fiado_item
-                    (fiado_id, produto_id, quantidade, valor_unitario)
-                    VALUES (?, ?, ?, ?)
-                """;
+            INSERT INTO fiado_item
+            (fiado_id, produto_id, quantidade, valor_unitario)
+            VALUES (?, ?, ?, ?)
+        """;
 
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, item.getFiadoId());
@@ -57,23 +59,25 @@ public class FiadoItemDAO {
         List<FiadoItem> itens = new ArrayList<>();
 
         String sql = """
-                    SELECT *
-                    FROM fiado_item
-                    WHERE fiado_id = ?
-                """;
+            SELECT *
+            FROM fiado_item
+            WHERE fiado_id = ?
+        """;
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, fiadoId);
-            ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                FiadoItem item = new FiadoItem(
-                        rs.getInt("id"),
-                        rs.getInt("fiado_id"),
-                        rs.getInt("produto_id"),
-                        rs.getInt("quantidade"),
-                        rs.getDouble("valor_unitario"));
-                itens.add(item);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    FiadoItem item = new FiadoItem(
+                            rs.getInt("id"),
+                            rs.getInt("fiado_id"),
+                            rs.getInt("produto_id"),
+                            rs.getInt("quantidade"),
+                            rs.getDouble("valor_unitario")
+                    );
+                    itens.add(item);
+                }
             }
         }
 

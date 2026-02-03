@@ -14,16 +14,16 @@ public class ClienteDAO {
 
         try (Statement stmt = connection.createStatement()) {
             String sql = """
-                        CREATE TABLE IF NOT EXISTS clientes (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            nome VARCHAR(255) NOT NULL,
-                            telefone VARCHAR(20),
-                            rua VARCHAR(255),
-                            bairro VARCHAR(100),
-                            debito DECIMAL(10,2) DEFAULT 0
-                        )
-                    """;
-            stmt.executeUpdate(sql);
+                CREATE TABLE IF NOT EXISTS clientes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nome TEXT NOT NULL,
+                    telefone TEXT,
+                    rua TEXT,
+                    bairro TEXT,
+                    debito REAL DEFAULT 0
+                )
+            """;
+            stmt.execute(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao criar a tabela 'clientes'", e);
         }
@@ -31,9 +31,9 @@ public class ClienteDAO {
 
     public void adicionar(Cliente cliente) throws SQLException {
         String sql = """
-                    INSERT INTO clientes (nome, telefone, rua, bairro, debito)
-                    VALUES (?, ?, ?, ?, ?)
-                """;
+            INSERT INTO clientes (nome, telefone, rua, bairro, debito)
+            VALUES (?, ?, ?, ?, ?)
+        """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, cliente.getNome());
@@ -50,7 +50,7 @@ public class ClienteDAO {
         String sql = "SELECT * FROM clientes ORDER BY nome";
 
         try (Statement stmt = connection.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -61,9 +61,10 @@ public class ClienteDAO {
                         rs.getString("telefone"),
                         rs.getString("rua"),
                         rs.getString("bairro"),
-                        0);
+                        0
+                );
 
-                c.setDebito(calcularDebito(id)); // 🔥 aqui
+                c.setDebito(calcularDebito(id));
                 clientes.add(c);
             }
         }
@@ -87,9 +88,10 @@ public class ClienteDAO {
                             rs.getString("telefone"),
                             rs.getString("rua"),
                             rs.getString("bairro"),
-                            0);
+                            0
+                    );
 
-                    c.setDebito(calcularDebito(id)); // 🔥 aqui
+                    c.setDebito(calcularDebito(id));
                     clientes.add(c);
                 }
             }
@@ -99,10 +101,10 @@ public class ClienteDAO {
 
     public void atualizar(Cliente cliente) throws SQLException {
         String sql = """
-                    UPDATE clientes
-                    SET nome = ?, telefone = ?, rua = ?, bairro = ?, debito = ?
-                    WHERE id = ?
-                """;
+            UPDATE clientes
+            SET nome = ?, telefone = ?, rua = ?, bairro = ?, debito = ?
+            WHERE id = ?
+        """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, cliente.getNome());
@@ -139,10 +141,10 @@ public class ClienteDAO {
                         rs.getString("telefone"),
                         rs.getString("rua"),
                         rs.getString("bairro"),
-                        0);
+                        0
+                );
 
-                double debito = calcularDebito(id);
-                cliente.setDebito(debito);
+                cliente.setDebito(calcularDebito(id));
             }
         }
         return cliente;
@@ -150,17 +152,17 @@ public class ClienteDAO {
 
     public double calcularDebito(int clienteId) throws SQLException {
         String sql = """
-                    SELECT
-                        COALESCE(SUM(
-                            CASE
-                                WHEN status = 'PENDENTE' THEN valor
-                                WHEN status = 'PAGAMENTO' THEN -valor
-                                ELSE 0
-                            END
-                        ), 0) AS debito
-                    FROM fiado
-                    WHERE cliente_id = ?
-                """;
+            SELECT
+                COALESCE(SUM(
+                    CASE
+                        WHEN status = 'PENDENTE' THEN valor
+                        WHEN status = 'PAGAMENTO' THEN -valor
+                        ELSE 0
+                    END
+                ), 0) AS debito
+            FROM fiado
+            WHERE cliente_id = ?
+        """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, clienteId);

@@ -1,12 +1,7 @@
 package alphacontrol.dao;
 
 import alphacontrol.models.Fiado;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +19,21 @@ public class FiadoDAO {
     }
 
     private void criarTabelaSeNaoExistir() {
-        String sql = "CREATE TABLE IF NOT EXISTS fiado ("
-                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "cliente_id INTEGER NOT NULL,"
-                + "valor REAL NOT NULL,"
-                + "data DATETIME NOT NULL,"
-                + "status TEXT NOT NULL,"
-                + "FOREIGN KEY (cliente_id) REFERENCES clientes(id)"
-                + ")";
+        String sql = """
+            CREATE TABLE IF NOT EXISTS fiado (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cliente_id INTEGER NOT NULL,
+                valor REAL NOT NULL,
+                data TEXT NOT NULL,
+                status TEXT NOT NULL,
+                FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+            )
+        """;
 
         try (Statement stmt = conexao.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao criar tabela fiado: " + e.getMessage());
+            throw new RuntimeException("Erro ao criar tabela fiado", e);
         }
     }
 
@@ -49,14 +46,15 @@ public class FiadoDAO {
 
             pstmt.setInt(1, fiado.getClienteId());
             pstmt.setDouble(2, fiado.getValor());
-            pstmt.setTimestamp(3, Timestamp.valueOf(fiado.getData()));
+            pstmt.setString(3, fiado.getData().toString()); // LocalDateTime → TEXT
             pstmt.setString(4, fiado.getStatus());
 
             pstmt.executeUpdate();
 
-            ResultSet rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         }
 
@@ -69,6 +67,7 @@ public class FiadoDAO {
 
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, clienteId);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     fiados.add(instanciarFiado(rs));
@@ -79,7 +78,13 @@ public class FiadoDAO {
     }
 
     public void quitarTudo(int clienteId) throws SQLException {
-        String sql = "UPDATE fiado SET status = 'QUITADO' WHERE cliente_id = ? AND status = 'PENDENTE'";
+        String sql = """
+            UPDATE fiado
+            SET status = 'QUITADO'
+            WHERE cliente_id = ?
+              AND status = 'PENDENTE'
+        """;
+
         try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
             pstmt.setInt(1, clienteId);
             pstmt.executeUpdate();
@@ -93,7 +98,7 @@ public class FiadoDAO {
         pagamento.setData(LocalDateTime.now());
         pagamento.setStatus("PAGAMENTO");
 
-        this.inserir(pagamento);
+        inserir(pagamento);
     }
 
     private Fiado instanciarFiado(ResultSet rs) throws SQLException {
@@ -101,7 +106,7 @@ public class FiadoDAO {
         fiado.setId(rs.getInt("id"));
         fiado.setClienteId(rs.getInt("cliente_id"));
         fiado.setValor(rs.getDouble("valor"));
-        fiado.setData(rs.getTimestamp("data").toLocalDateTime());
+        fiado.setData(LocalDateTime.parse(rs.getString("data"))); // TEXT → LocalDateTime
         fiado.setStatus(rs.getString("status"));
         return fiado;
     }

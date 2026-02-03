@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.mysql:mysql-connector-j:9.5.0'
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
     implementation 'org.apache.pdfbox:pdfbox:2.0.30'
 }
 
@@ -24,15 +24,7 @@ java {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'alphacontrol.views.main.App',
-            'Class-Path': configurations.runtimeClasspath.files.collect {
-                "libs/${it.name}"
-            }.join(' ')
+            'Main-Class': 'alphacontrol.views.main.App'
         )
     }
-}
-
-task copyRuntimeLibs(type: Copy) {
-    from configurations.runtimeClasspath
-    into "$buildDir/runtime-libs"
 }
