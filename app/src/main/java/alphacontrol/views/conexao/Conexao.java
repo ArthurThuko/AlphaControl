@@ -7,7 +7,15 @@ import java.io.File;
 
 public class Conexao {
 
-    private static final String PASTA_DB = "database";
+    private static final String APP_NAME = "AlphaControl";
+
+    private static final String BASE_DIR =
+        System.getProperty("user.home")
+        + File.separator + "AppData"
+        + File.separator + "Local"
+        + File.separator + APP_NAME;
+
+    private static final String PASTA_DB = BASE_DIR + File.separator + "database";
     private static final String CAMINHO_DB = PASTA_DB + File.separator + "alphacontrol.db";
     private static final String URL = "jdbc:sqlite:" + CAMINHO_DB;
 
