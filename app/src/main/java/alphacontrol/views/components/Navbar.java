@@ -1,18 +1,29 @@
 package alphacontrol.views.components;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.border.EmptyBorder;
+
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.views.estoque.TelaEstoque;
+import alphacontrol.views.fiado.TelaFiado;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
 import alphacontrol.views.pdv.TelaPDV;
 import alphacontrol.views.principal.TelaPrincipal;
 import alphacontrol.views.relatorios.TelaRelatorios;
-import alphacontrol.views.fiado.TelaFiado;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class Navbar extends JMenuBar {
 
@@ -27,17 +38,26 @@ public class Navbar extends JMenuBar {
         setBorder(new EmptyBorder(0, 5, 0, 5));
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
+        // Criação dos itens de navegação
         NavItem navPrincipal = new NavItem("Principal", "Principal".equals(activeItem));
-        NavItem navEstoque = new NavItem("Estoque", "Estoque".equals(activeItem));
         NavItem navPDV = new NavItem("PDV", "PDV".equals(activeItem));
+        NavItem navEstoque = new NavItem("Estoque", "Estoque".equals(activeItem));
+        NavItem navFiado = new NavItem("Fiado", "Fiado".equals(activeItem));
         NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa", "Fluxo de Caixa".equals(activeItem));
         NavItem navRelatorio = new NavItem("Relatório", "Relatório".equals(activeItem));
-        NavItem navFiado = new NavItem("Fiado", "Fiado".equals(activeItem));
         NavItem navSair = new NavItem("Sair", false);
 
+        // Ações dos botões
         navPrincipal.addActionListener(e -> {
             if (!"Principal".equals(activeItem)) {
                 new TelaPrincipal(mainController).setVisible(true);
+                currentScreen.dispose();
+            }
+        });
+
+        navPDV.addActionListener(e -> {
+            if (!"PDV".equals(activeItem)) {
+                new TelaPDV(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
@@ -49,9 +69,9 @@ public class Navbar extends JMenuBar {
             }
         });
 
-        navPDV.addActionListener(e -> {
-            if (!"PDV".equals(activeItem)) {
-                new TelaPDV(mainController).setVisible(true);
+        navFiado.addActionListener(e -> {
+            if (!"Fiado".equals(activeItem)) {
+                new TelaFiado(mainController).setVisible(true);
                 currentScreen.dispose();
             }
         });
@@ -69,13 +89,6 @@ public class Navbar extends JMenuBar {
                 currentScreen.dispose();
             }
         });
-
-        navFiado.addActionListener(e -> {
-            if (!"Fiado".equals(activeItem)) {
-                new TelaFiado(mainController).setVisible(true);
-                currentScreen.dispose();
-            }
-        });
         
         navSair.addActionListener(e -> {
             int resp = JOptionPane.showConfirmDialog(
@@ -90,13 +103,15 @@ public class Navbar extends JMenuBar {
             }
         });
 
+        // Adição dos itens na ordem desejada
         add(navPrincipal);
-        add(navEstoque);
         add(navPDV);
+        add(navEstoque);
+        add(navFiado);
         add(navFluxoCaixa);
         add(navRelatorio);
-        add(navFiado);
         
+        // Empurra o botão "Sair" para o canto direito
         add(Box.createHorizontalGlue());
         
         add(navSair);

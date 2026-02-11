@@ -1,13 +1,27 @@
 package alphacontrol.views.principal;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.views.components.BotaoEstilizado;
 import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
-
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.ActionListener;
 
 public class TelaPrincipal extends JFrame {
 
@@ -72,11 +86,12 @@ public class TelaPrincipal extends JFrame {
         painelBotoes.setOpaque(false);
         painelBotoes.setPreferredSize(new Dimension(900, 700));
 
-        painelBotoes.add(btnEstoque);
+        // Ordem aplicada conforme solicitado:
         painelBotoes.add(btnPdv);
+        painelBotoes.add(btnEstoque);
         painelBotoes.add(btnFiados);
-        painelBotoes.add(btnRelatorios);
         painelBotoes.add(btnFluxoCaixa);
+        painelBotoes.add(btnRelatorios);
         painelBotoes.add(btnSair);
 
         gbc.gridy = 1;

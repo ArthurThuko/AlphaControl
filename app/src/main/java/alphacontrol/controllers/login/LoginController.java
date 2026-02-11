@@ -1,20 +1,22 @@
 package alphacontrol.controllers.login;
 
-import alphacontrol.views.conexao.Conexao;
-import alphacontrol.views.login.TelaLogin;
-import alphacontrol.views.principal.TelaPrincipal;
+import java.sql.Connection;
+
+import javax.swing.JOptionPane;
+
+import alphacontrol.conexao.Conexao;
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.controllers.fluxo.FluxoCaixaController; 
 import alphacontrol.dao.ClienteDAO; 
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.LoginService;
-import java.sql.Connection;
-import javax.swing.JOptionPane;
+import alphacontrol.views.login.TelaLogin;
+import alphacontrol.views.principal.TelaPrincipal;
 
 public class LoginController {
 

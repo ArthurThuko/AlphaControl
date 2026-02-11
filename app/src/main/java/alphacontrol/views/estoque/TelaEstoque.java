@@ -1,21 +1,53 @@
 package alphacontrol.views.estoque;
 
-import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
-import alphacontrol.controllers.modais.ModalEditarProdutoController;
-import alphacontrol.controllers.produto.*;
-import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.models.Produto;
-import alphacontrol.views.components.Navbar;
-import alphacontrol.views.components.AvisoEstoqueMinimo;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.ArrayList;
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
+import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
+import alphacontrol.controllers.modais.ModalEditarProdutoController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
+import alphacontrol.models.Produto;
+import alphacontrol.views.components.AvisoEstoqueMinimo;
+import alphacontrol.views.components.Navbar;
 
 public class TelaEstoque extends JFrame {
 
@@ -178,8 +210,8 @@ public class TelaEstoque extends JFrame {
                     p.getNome(),
                     p.getQntEstoque(),
                     p.getCategoria(),
-                    p.getValorCompra(),
-                    p.getValorVenda(),
+                    String.format("%.2f", p.getValorCompra()).replace(",", "."),
+                    String.format("%.2f", p.getValorVenda()).replace(",", "."),
                     ""
             });
         }
@@ -193,8 +225,13 @@ public class TelaEstoque extends JFrame {
 
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
-                    p.getProdutoId(), p.getNome(), p.getQntEstoque(),
-                    p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
+                    p.getProdutoId(), 
+                    p.getNome(), 
+                    p.getQntEstoque(),
+                    p.getCategoria(), 
+                    String.format("%.2f", p.getValorCompra()).replace(",", "."), 
+                    String.format("%.2f", p.getValorVenda()).replace(",", "."), 
+                    ""
             });
         }
     }

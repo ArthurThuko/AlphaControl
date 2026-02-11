@@ -1,16 +1,33 @@
 package alphacontrol.views.fiado;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.geom.RoundRectangle2D;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
 import alphacontrol.controllers.modais.ModalAdicionarFiadoController;
 import alphacontrol.models.Cliente;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.geom.RoundRectangle2D;
 
 public class ModalAdicionarFiado extends JDialog {
 
@@ -18,16 +35,15 @@ public class ModalAdicionarFiado extends JDialog {
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
+    private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
     private JTextField txtClienteNome;
-    private JButton btnBuscarCliente;
+    private JButton btnBuscarCliente, btnSalvar, btnAdicionarCliente;
     private JTextField txtValor;
-    private JButton btnSalvar;
-    private JButton btnAdicionarCliente;
     private TelaFiado parentView;
     private Cliente clienteSelecionado;
 
@@ -36,7 +52,7 @@ public class ModalAdicionarFiado extends JDialog {
         this.parentView = parent;
 
         setUndecorated(true);
-        setSize(600, 380); // Altura ajustada
+        setSize(850, 600); 
         setLocationRelativeTo(parent);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -46,116 +62,92 @@ public class ModalAdicionarFiado extends JDialog {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(BEGE_FUNDO);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 25, 25));
                 g2.setColor(MARROM_CLARO);
-                g2.draw(new RoundRectangle2D.Double(0, 0, getWidth() - 1, getHeight() - 1, 20, 20));
+                g2.setStroke(new BasicStroke(2f)); 
+                g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 3, getHeight() - 3, 25, 25));
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
         painelFundo.setOpaque(false);
-        painelFundo.setBorder(new EmptyBorder(20, 25, 20, 25));
+        painelFundo.setBorder(new EmptyBorder(50, 60, 50, 60)); 
         setContentPane(painelFundo);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST; 
         gbc.weightx = 1.0;
 
         JLabel lblTitulo = new JLabel("Registrar Fiado");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 36)); 
         lblTitulo.setForeground(MARROM_ESCURO);
-        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 3;
-        gbc.insets = new Insets(10, 10, 20, 10);
+        gbc.gridy = 0; gbc.insets = new Insets(0, 0, 50, 0);
         painelFundo.add(lblTitulo, gbc);
 
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.3;
-        gbc.insets = new Insets(10, 10, 10, 10);
+        // LINHA DO CLIENTE
+        JPanel painelCliente = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 0));
+        painelCliente.setOpaque(false);
         JLabel lblCliente = new JLabel("Cliente:");
-        lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        lblCliente.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblCliente.setForeground(MARROM_ESCURO);
-        painelFundo.add(lblCliente, gbc);
+        lblCliente.setPreferredSize(new Dimension(120, 30)); 
+        painelCliente.add(lblCliente);
 
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.5;
-        txtClienteNome = new RoundedTextField("Nenhum cliente selecionado", 20);
+        txtClienteNome = new RoundedTextField("Nenhum cliente...", 20);
         txtClienteNome.setEditable(false);
-        txtClienteNome.setPreferredSize(new Dimension(200, 45));
-        painelFundo.add(txtClienteNome, gbc);
-        
-        gbc.gridx = 2;
-        gbc.weightx = 0.2;
-        gbc.fill = GridBagConstraints.NONE;
-        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 45);
-        painelFundo.add(btnBuscarCliente, gbc);
+        txtClienteNome.setPreferredSize(new Dimension(280, 50));
+        painelCliente.add(txtClienteNome);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.3;
+        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 50); 
+        
+        btnBuscarCliente.addActionListener(e -> {
+            alphacontrol.views.cliente.ModalBuscaCliente modalBusca = new alphacontrol.views.cliente.ModalBuscaCliente(this, clienteController);
+            modalBusca.setVisible(true); 
+            
+            if (modalBusca.getClienteSelecionado() != null) {
+                setClienteSelecionado(modalBusca.getClienteSelecionado());
+            }
+        });
+        
+        painelCliente.add(btnBuscarCliente);
+        gbc.gridy = 1; gbc.insets = new Insets(0, 0, 30, 0);
+        painelFundo.add(painelCliente, gbc);
+
+        // LINHA DO VALOR
+        JPanel painelValor = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 0));
+        painelValor.setOpaque(false);
         JLabel lblValor = new JLabel("Valor (R$):");
-        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        lblValor.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblValor.setForeground(MARROM_ESCURO);
-        painelFundo.add(lblValor, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.7;
+        lblValor.setPreferredSize(new Dimension(120, 30));
+        painelValor.add(lblValor);
         txtValor = new RoundedTextField("0,00", 15);
-        txtValor.setPreferredSize(new Dimension(200, 45));
-        painelFundo.add(txtValor, gbc);
-        
-        JPanel painelBotoes = new JPanel(new GridBagLayout());
-        painelBotoes.setOpaque(false);
-        
-        GridBagConstraints gbcBotoes = new GridBagConstraints();
-        gbcBotoes.insets = new Insets(0, 10, 0, 10);
+        txtValor.setPreferredSize(new Dimension(425, 50)); 
+        painelValor.add(txtValor);
+        gbc.gridy = 2; gbc.insets = new Insets(0, 0, 60, 0); 
+        painelFundo.add(painelValor, gbc);
 
-        btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 140, 45);
-        btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 140, 45);
-        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 140, 45);
-        
+        // BOTÕES
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 0));
+        painelBotoes.setOpaque(false);
+        btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 160, 50);
+        btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 160, 50);
+        btnAdicionarCliente.addActionListener(e -> {
+            alphacontrol.views.cliente.ModalAdicionarCliente modalAdd = new alphacontrol.views.cliente.ModalAdicionarCliente(parentView);
+            new alphacontrol.controllers.modais.ModalAdicionarClienteController(modalAdd, clienteController);
+            modalAdd.setVisible(true);
+        });
+        JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 160, 50);
         btnCancelar.addActionListener(e -> dispose());
         
-        gbcBotoes.gridx = 0;
-        painelBotoes.add(btnSalvar, gbcBotoes);
-        
-        gbcBotoes.gridx = 1;
-        painelBotoes.add(btnAdicionarCliente, gbcBotoes);
-        
-        gbcBotoes.gridx = 2;
-        painelBotoes.add(btnCancelar, gbcBotoes);
-        
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(25, 10, 10, 10);
+        painelBotoes.add(btnSalvar);
+        painelBotoes.add(btnAdicionarCliente);
+        painelBotoes.add(btnCancelar);
+        gbc.gridy = 3; gbc.insets = new Insets(0, 0, 0, 0);
         painelFundo.add(painelBotoes, gbc);
 
         new ModalAdicionarFiadoController(this, fiadoController, clienteController);
-    }
-
-    public TelaFiado getParentView() {
-        return parentView;
-    }
-
-    public Cliente getClienteSelecionado() {
-        return clienteSelecionado;
     }
 
     public void setClienteSelecionado(Cliente cliente) {
@@ -163,102 +155,90 @@ public class ModalAdicionarFiado extends JDialog {
         if (cliente != null) {
             this.txtClienteNome.setText(cliente.getNome());
             this.txtClienteNome.setForeground(MARROM_ESCURO);
-        } else {
-            this.txtClienteNome.setText("Nenhum cliente selecionado");
-            this.txtClienteNome.setForeground(CINZA_PLACEHOLDER);
         }
     }
 
-    public JTextField getTxtValor() {
-        return txtValor;
-    }
+    public JTextField getTxtValor() { return txtValor; }
+    public JButton getBtnSalvar() { return btnSalvar; }
+    public Cliente getClienteSelecionado() { return clienteSelecionado; }
 
-    public JButton getBtnSalvar() {
-        return btnSalvar;
-    }
-
-    public JButton getBtnAdicionarCliente() {
-        return btnAdicionarCliente;
-    }
-    
-    public JButton getBtnBuscarCliente() {
-        return btnBuscarCliente;
-    }
+    // --- CLASSES INTERNAS PARA CORRIGIR OS ERROS ---
 
     static class RoundedTextField extends JTextField implements FocusListener {
         private final String placeholder;
         private boolean showingPlaceholder;
+
         public RoundedTextField(String placeholder, int columns) {
             super(placeholder, columns);
             this.placeholder = placeholder;
             this.showingPlaceholder = true;
             addFocusListener(this);
             setForeground(CINZA_PLACEHOLDER);
-            setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            setFont(new Font("Segoe UI", Font.BOLD, 18));
             setOpaque(false);
             setBorder(new EmptyBorder(5, 15, 5, 15));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            if (isEditable()) {
-                g2.setColor(Color.WHITE);
-            } else {
-                g2.setColor(new Color(235, 235, 235));
-            }
-
+            g2.setColor(isEditable() ? Color.WHITE : new Color(235, 235, 235));
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.setColor(MARROM_CLARO);
             g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
             g2.dispose();
             super.paintComponent(g);
         }
-        @Override
-        public void focusGained(FocusEvent e) {
+
+        @Override public void focusGained(FocusEvent e) {
             if (showingPlaceholder) {
                 setText("");
                 setForeground(MARROM_ESCURO);
                 showingPlaceholder = false;
             }
         }
-        @Override
-        public void focusLost(FocusEvent e) {
+
+        @Override public void focusLost(FocusEvent e) {
             if (getText().isEmpty()) {
                 setText(placeholder);
                 setForeground(CINZA_PLACEHOLDER);
                 showingPlaceholder = true;
             }
         }
-        @Override
-        public String getText() {
+
+        @Override public String getText() {
             return (showingPlaceholder && isEditable()) ? "" : super.getText();
         }
     }
 
     static class RoundedButton extends JButton {
-        private final Color backgroundColor, hoverColor;
+        private final Color backgroundColor;
+
         public RoundedButton(String text, Color bg, Color fg, int w, int h) {
             super(text);
-            backgroundColor = bg;
-            hoverColor = bg.brighter();
+            this.backgroundColor = bg;
             setForeground(fg);
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
-            setFont(new Font("Segoe UI", Font.BOLD, 14));
+            setFont(new Font("Segoe UI", Font.BOLD, 16));
             setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getModel().isRollover() ? hoverColor : backgroundColor);
+            g2.setColor(getModel().isRollover() ? backgroundColor.brighter() : backgroundColor);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
+            FontMetrics fm = g2.getFontMetrics();
+            int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+            int textY = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+            g2.setColor(getForeground());
+            g2.drawString(getText(), textX, textY);
             g2.dispose();
-            super.paintComponent(g);
         }
     }
 }
