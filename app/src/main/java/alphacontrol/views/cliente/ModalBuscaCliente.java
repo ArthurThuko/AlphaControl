@@ -43,7 +43,6 @@ public class ModalBuscaCliente extends JDialog {
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
-    private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
     private static final Color VERDE_MUSGO = new Color(119, 140, 85);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);

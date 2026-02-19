@@ -15,13 +15,9 @@ public class ModalAdicionarFiadoController {
 
     private ModalAdicionarFiado view;
     private FiadoController fiadoController;
-    private ClienteController clienteController;
-
     public ModalAdicionarFiadoController(ModalAdicionarFiado view, FiadoController fc, ClienteController cc) {
         this.view = view;
         this.fiadoController = fc;
-        this.clienteController = cc;
-        
         initController();
     }
 

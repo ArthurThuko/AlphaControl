@@ -28,9 +28,11 @@ public class PdvController {
 
     /**
      * Finaliza a venda usando transação atômica.
-     * @param venda Objeto com dados da venda
-     * @param itens Lista de itens do carrinho
-     * @param clienteId ID do cliente selecionado (Pode ser NULL se for venda à vista/anônima)
+     * 
+     * @param venda     Objeto com dados da venda
+     * @param itens     Lista de itens do carrinho
+     * @param clienteId ID do cliente selecionado (Pode ser NULL se for venda à
+     *                  vista/anônima)
      */
     public void finalizarVenda(Venda venda, List<ItemVenda> itens, Integer clienteId) {
 
@@ -40,36 +42,45 @@ public class PdvController {
             return;
         }
 
-        // 2. Validação de Estoque (Antes de tentar gravar no banco)
+        // ✅ DEFINE A DATA DA VENDA (CORREÇÃO DO ERRO)
+        if (venda.getDataVenda() == null) {
+            venda.setDataVenda(new java.util.Date());
+        }
+
+        // 2. Validação de Estoque
         for (ItemVenda item : itens) {
             Produto p = item.getProduto();
-            // Verifica se o produto existe e tem estoque
             if (p != null && item.getQuantidade() > p.getQntEstoque()) {
                 JOptionPane.showMessageDialog(null,
                         "Estoque insuficiente para o produto \"" + p.getNome() + "\".\n"
-                        + "Estoque atual: " + p.getQntEstoque() + "\n"
-                        + "Tentativa de venda: " + item.getQuantidade());
-                return; // Para tudo se não tiver estoque
+                                + "Estoque atual: " + p.getQntEstoque() + "\n"
+                                + "Tentativa de venda: " + item.getQuantidade());
+                return;
             }
         }
 
-        // 3. Tenta realizar a venda completa (Venda + Itens + Fiado + Cliente)
+        // 3. Tenta realizar a venda completa
         try {
-            // O método realizarVendaCompleta já valida se é FIADO e se tem clienteId
+
             boolean sucesso = pdvDAO.realizarVendaCompleta(venda, itens, clienteId);
 
             if (sucesso) {
-                // 4. Se o banco gravou tudo certo, agora baixamos o estoque
                 baixarEstoque(itens);
                 JOptionPane.showMessageDialog(null, "Venda finalizada com sucesso!");
             }
 
         } catch (IllegalArgumentException ie) {
-            // Erros de validação (ex: Fiado sem cliente)
-            JOptionPane.showMessageDialog(null, "Atenção: " + ie.getMessage(), "Erro de Validação", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(null,
+                    "Atenção: " + ie.getMessage(),
+                    "Erro de Validação",
+                    JOptionPane.WARNING_MESSAGE);
+
         } catch (Exception e) {
-            // Erros de Banco de Dados
-            JOptionPane.showMessageDialog(null, "Erro crítico ao finalizar venda: " + e.getMessage());
+
+            JOptionPane.showMessageDialog(null,
+                    "Erro crítico ao finalizar venda: " + e.getMessage());
+
             e.printStackTrace();
         }
     }
@@ -85,7 +96,7 @@ public class PdvController {
                     produtoController.atualizar(p);
                 } catch (Exception e) {
                     System.err.println("Erro ao baixar estoque visualmente: " + e.getMessage());
-                    // Nota: O ideal seria o estoque baixar dentro da transação do DAO também, 
+                    // Nota: O ideal seria o estoque baixar dentro da transação do DAO também,
                     // mas mantendo sua arquitetura atual, baixamos aqui via Controller.
                 }
             }

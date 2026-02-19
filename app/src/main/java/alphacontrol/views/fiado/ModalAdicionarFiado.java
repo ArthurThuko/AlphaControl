@@ -35,7 +35,6 @@ public class ModalAdicionarFiado extends JDialog {
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
-    private static final Color BEGE_CLARO = new Color(255, 250, 240);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);

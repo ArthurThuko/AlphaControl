@@ -32,6 +32,7 @@ public class TelaFluxoCaixa extends JFrame {
     private JLabel lblSaldo;
 
     private FluxoCaixaController controller;
+
     public TelaFluxoCaixa(TelaPrincipalController mainController) {
         this.controller = mainController.getFluxoCaixaController();
         setTitle("Fluxo de Caixa = AlphaControl");
@@ -73,20 +74,6 @@ public class TelaFluxoCaixa extends JFrame {
 
         painelTabelas.add(painelEntradas);
         painelTabelas.add(painelSaidas);
-
-        GridBagConstraints gbcTabelas = new GridBagConstraints();
-        gbcTabelas.gridy = 0;
-        gbcTabelas.fill = GridBagConstraints.BOTH;
-        gbcTabelas.weighty = 1.0;
-        gbcTabelas.insets = new Insets(0, 15, 0, 15);
-
-        gbcTabelas.gridx = 0;
-        gbcTabelas.weightx = 0.5;
-        painelTabelas.add(painelEntradas, gbcTabelas);
-
-        gbcTabelas.gridx = 1;
-        gbcTabelas.weightx = 0.5;
-        painelTabelas.add(painelSaidas, gbcTabelas);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -204,7 +191,7 @@ public class TelaFluxoCaixa extends JFrame {
         painel.add(lblTitulo, gbc);
 
         DefaultTableModel modelo = new DefaultTableModel(new String[] {
-                "Nome", "Valor (R$)", "Data", "Editar", "Excluir"
+                "Nome", "Valor (R$)", "Data", "Detalhes", "Editar", "Excluir"
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -223,13 +210,22 @@ public class TelaFluxoCaixa extends JFrame {
                     return;
 
                 List<MovimentacaoCaixa> lista = controller.listarEntradas();
+                if (coluna == 3) { // Detalhes
 
-                if (coluna == 3) {
+                    MovimentacaoCaixa mov = lista.get(linha);
+
+                    if (mov.getNome().equals("Vendas do dia")) {
+                        TelaDetalhesVendas tela = new TelaDetalhesVendas(mov.getData());
+                        tela.setVisible(true);
+                    }
+                } else if (coluna == 4) { // Editar
+
                     MovimentacaoCaixa mov = lista.get(linha);
                     ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov, controller);
                     modal.setVisible(true);
                     atualizarTudo();
-                } else if (coluna == 4) {
+                } else if (coluna == 5) { // Excluir
+
                     int confirm = JOptionPane.showConfirmDialog(
                             TelaFluxoCaixa.this,
                             "Tem certeza que deseja excluir esta entrada?",
@@ -434,6 +430,7 @@ public class TelaFluxoCaixa extends JFrame {
                     m.getNome(),
                     String.format("%.2f", m.getValor()),
                     m.getData(),
+                    "Detalhes",
                     "Editar",
                     "Excluir"
             });
@@ -567,7 +564,9 @@ public class TelaFluxoCaixa extends JFrame {
 
             c.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-            if (value.equals("Editar")) {
+            if (value.equals("Detalhes")) {
+                c.setForeground(VERDE_OLIVA);
+            } else if (value.equals("Editar")) {
                 c.setForeground(AZUL_ACAO);
             } else if (value.equals("Excluir")) {
                 c.setForeground(VERMELHO_TERROSO);

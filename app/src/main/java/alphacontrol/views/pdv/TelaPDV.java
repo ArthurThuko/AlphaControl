@@ -65,8 +65,6 @@ public class TelaPDV extends JFrame {
     private PdvController pdvController;
     private ProdutoController produtoController;
     private ClienteDAO clienteDAO;
-    private TelaPrincipalController mainController;
-
     private final List<ItemVenda> carrinho = new ArrayList<>();
     private DefaultTableModel modeloProdutos;
     private JTable tabelaProdutos;
@@ -81,7 +79,6 @@ public class TelaPDV extends JFrame {
     private Cliente clienteSelecionado = null; 
 
     public TelaPDV(TelaPrincipalController mainController) {
-        this.mainController = mainController;
         configurarIntegracao();
         setTitle("PDV - AlphaControl");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -358,7 +355,6 @@ public class TelaPDV extends JFrame {
         pdvController.finalizarVenda(v, carrinho, clienteSelecionado != null ? clienteSelecionado.getId() : null);
         carrinho.clear(); atualizarCarrinho(); carregarProdutos("");
         cbFormaPagamento.setSelectedIndex(0); setClienteSelecionado(null);
-        JOptionPane.showMessageDialog(this, "Venda realizada!");
     }
 
     // --- COMPONENTES DA TABELA CUSTOMIZADOS ---

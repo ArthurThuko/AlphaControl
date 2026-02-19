@@ -6,9 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import alphacontrol.conexao.Conexao;
+import alphacontrol.models.FormaPagamento;
 import alphacontrol.models.ItemVenda;
 import alphacontrol.models.Venda;
 
@@ -18,17 +21,24 @@ public class PDVDAO {
 
     public PDVDAO(Connection conexao) {
         this.conexao = conexao;
-        // As tabelas são criadas no construtor ou externamente, mantendo o padrão anterior
+    }
+
+    // Construtor para consultas simples
+    public PDVDAO() {
+        this.conexao = null;
     }
 
     /**
-     * Este é o método MÁGICO. Ele faz tudo: grava venda, itens e se for fiado, gera a dívida.
-     * @param venda O objeto da venda
-     * @param itens A lista de produtos que ele comprou
-     * @param clienteId O ID do cliente (OBRIGATÓRIO SE FOR FIADO, pode ser null se for à vista)
+     * Este é o método MÁGICO. Ele faz tudo: grava venda, itens e se for fiado, gera
+     * a dívida.
+     * 
+     * @param venda     O objeto da venda
+     * @param itens     A lista de produtos que ele comprou
+     * @param clienteId O ID do cliente (OBRIGATÓRIO SE FOR FIADO, pode ser null se
+     *                  for à vista)
      */
     public boolean realizarVendaCompleta(Venda venda, List<ItemVenda> itens, Integer clienteId) {
-        
+
         // Verifica se é fiado e se temos o cliente
         boolean isFiado = venda.getFormaPagamento().getNome().equalsIgnoreCase("FIADO");
         if (isFiado && (clienteId == null || clienteId <= 0)) {
@@ -73,7 +83,7 @@ public class PDVDAO {
 
             for (ItemVenda item : itens) {
                 stmtItem.setInt(1, idVendaGerada);
-                stmtItem.setInt(2, item.getProdutoId());
+                stmtItem.setInt(2, item.getProduto().getProdutoId());
                 stmtItem.setInt(3, item.getQuantidade());
                 stmtItem.setDouble(4, item.getValorUnitario());
                 stmtItem.setDouble(5, item.getValorTotal());
@@ -121,11 +131,16 @@ public class PDVDAO {
             // Restaura o comportamento padrão e fecha recursos
             try {
                 conexao.setAutoCommit(true);
-                if (rs != null) rs.close();
-                if (stmtVenda != null) stmtVenda.close();
-                if (stmtItem != null) stmtItem.close();
-                if (stmtFiado != null) stmtFiado.close();
-                if (stmtUpdateCliente != null) stmtUpdateCliente.close();
+                if (rs != null)
+                    rs.close();
+                if (stmtVenda != null)
+                    stmtVenda.close();
+                if (stmtItem != null)
+                    stmtItem.close();
+                if (stmtFiado != null)
+                    stmtFiado.close();
+                if (stmtUpdateCliente != null)
+                    stmtUpdateCliente.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -133,17 +148,50 @@ public class PDVDAO {
     }
 
     // Método antigo de listagem continua igual...
-    public List<Venda> listarVendas() {
-        List<Venda> vendas = new ArrayList<>();
-        String sql = "SELECT * FROM venda ORDER BY data_venda DESC";
-        try (Statement stmt = conexao.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                // ... (seu código de mapeamento aqui)
+    public List<Venda> listarPorData(String dataBR) {
+
+        List<Venda> lista = new ArrayList<>();
+
+        String sql = """
+                    SELECT venda_id, cliente, forma_pagamento, total, data_venda
+                    FROM venda
+                    WHERE DATE(data_venda) = ?
+                    ORDER BY data_venda DESC
+                """;
+
+        try (Connection conn = Conexao.getConexao();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            SimpleDateFormat br = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            String dataSQL = sqlFormat.format(br.parse(dataBR));
+
+            stmt.setString(1, dataSQL);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Venda v = new Venda();
+                    v.setVendaId(rs.getInt("venda_id"));
+                    v.setCliente(rs.getString("cliente"));
+                    v.setTotal(rs.getDouble("total"));
+                    v.setDataVenda(rs.getTimestamp("data_venda"));
+
+                    // ✔ FormaPagamento como objeto
+                    FormaPagamento fp = new FormaPagamento(rs.getString("forma_pagamento"));
+
+                    v.setFormaPagamento(fp);
+
+                    lista.add(v);
+                }
             }
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return vendas;
+
+        return lista;
     }
 }

@@ -56,7 +56,6 @@ public class TelaRelatorios extends JFrame {
     private static final Color MARROM_MEDIO = new Color(143, 97, 54);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
-    private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color AZUL_ACAO = new Color(70, 130, 180);
 

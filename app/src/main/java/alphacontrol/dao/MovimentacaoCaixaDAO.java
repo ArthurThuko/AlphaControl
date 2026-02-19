@@ -17,23 +17,6 @@ public class MovimentacaoCaixaDAO {
         if (this.connection == null) {
             throw new RuntimeException("Erro: A conexão com o banco de dados é nula em MovimentacaoCaixaDAO.");
         }
-        criarTabelaSeNaoExistir();
-    }
-
-    private void criarTabelaSeNaoExistir() {
-        String sql = "CREATE TABLE IF NOT EXISTS movimentacaocaixa ("
-                + "idMovimentacaoCaixa INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "nome TEXT NOT NULL,"
-                + "tipo TEXT NOT NULL,"
-                + "valor REAL NOT NULL,"
-                + "data DATE NOT NULL"
-                + ");";
-
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao criar tabela movimentacaocaixa: " + e.getMessage());
-        }
     }
 
     // ============================
@@ -146,6 +129,64 @@ public class MovimentacaoCaixaDAO {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao deletar movimentação: " + e.getMessage());
         }
+    }
+
+    public List<MovimentacaoCaixa> listarEntradasPorVenda() {
+
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        String sql = "SELECT DATE(data_venda) as data, " +
+                "SUM(total) as total, " +
+                "COUNT(*) as quantidade " +
+                "FROM venda " +
+                "GROUP BY DATE(data_venda) " +
+                "ORDER BY DATE(data_venda) DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat brFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+            while (rs.next()) {
+
+                String dataSql = rs.getString("data");
+                String dataBR = brFormat.format(sqlFormat.parse(dataSql));
+
+                MovimentacaoCaixa mov = new MovimentacaoCaixa();
+
+                mov.setNome("Vendas do dia");
+                mov.setTipo("ENTRADA");
+                mov.setValor(rs.getDouble("total"));
+                mov.setData(dataBR);
+
+                lista.add(mov);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
+    public List<MovimentacaoCaixa> listarCompleto() {
+
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        lista.addAll(listarEntradasPorVenda()); // vendas
+        lista.addAll(listar()); // movimentações manuais
+
+        lista.sort((a, b) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                return sdf.parse(b.getData()).compareTo(sdf.parse(a.getData()));
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+
+        return lista;
     }
 
     public List<MovimentacaoCaixa> listar() {

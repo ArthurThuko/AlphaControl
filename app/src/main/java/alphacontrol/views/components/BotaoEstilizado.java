@@ -15,13 +15,11 @@ import javax.swing.JButton;
 public class BotaoEstilizado extends JButton {
 
     private Color corAtual;
-    private final Color corBase;
     private final int raio = 30; // controla o arredondamento
 
     public BotaoEstilizado(String texto, Color corBase) {
         super(texto);
 
-        this.corBase = corBase;
         this.corAtual = corBase;
 
         setFont(new Font("Georgia", Font.BOLD, 13));

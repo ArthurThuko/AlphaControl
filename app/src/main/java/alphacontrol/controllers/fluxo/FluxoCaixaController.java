@@ -3,6 +3,8 @@ package alphacontrol.controllers.fluxo;
 import alphacontrol.dao.MovimentacaoCaixaDAO;
 import alphacontrol.models.MovimentacaoCaixa;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,9 +25,29 @@ public class FluxoCaixaController {
     }
 
     public List<MovimentacaoCaixa> listarEntradas() {
-        return movimentacaoCaixaDAO.listar().stream()
-                .filter(m -> "entrada".equals(m.getTipo()))
-                .collect(Collectors.toList());
+
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        // entradas manuais
+        lista.addAll(
+                movimentacaoCaixaDAO.listar().stream()
+                        .filter(m -> "entrada".equalsIgnoreCase(m.getTipo()))
+                        .collect(Collectors.toList()));
+
+        // entradas vindas das vendas
+        lista.addAll(movimentacaoCaixaDAO.listarEntradasPorVenda());
+
+        // ordenar por data
+        lista.sort((a, b) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                return sdf.parse(b.getData()).compareTo(sdf.parse(a.getData()));
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+
+        return lista;
     }
 
     public List<MovimentacaoCaixa> listarSaidas() {
@@ -43,18 +65,21 @@ public class FluxoCaixaController {
     }
 
     public double[] calcularTotais() {
-        List<MovimentacaoCaixa> lista = movimentacaoCaixaDAO.listar();
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        lista.addAll(listarEntradas());
+        lista.addAll(listarSaidas());
 
         double totalEntradas = lista.stream()
-                .filter(m -> "entrada".equals(m.getTipo()))
+                .filter(m -> "entrada".equalsIgnoreCase(m.getTipo().trim()))
                 .mapToDouble(MovimentacaoCaixa::getValor)
                 .sum();
 
         double totalSaidas = lista.stream()
-                .filter(m -> "saida".equals(m.getTipo()))
+                .filter(m -> "saida".equalsIgnoreCase(m.getTipo().trim()))
                 .mapToDouble(MovimentacaoCaixa::getValor)
                 .sum();
 
-        return new double[]{totalEntradas, totalSaidas};
+        return new double[] { totalEntradas, totalSaidas };
     }
 }
