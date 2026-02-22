@@ -11,12 +11,11 @@ import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.dao.ClienteDAO; 
+import alphacontrol.dao.ClienteDAO;
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.LoginService;
 import alphacontrol.views.login.TelaLogin;
-import alphacontrol.views.principal.TelaPrincipal;
 
 public class LoginController {
 
@@ -38,42 +37,37 @@ public class LoginController {
         if (loginService.autenticar(usuario, senha)) {
             try {
                 Connection connection = Conexao.getConexao();
-                
+
                 if (connection == null) {
                     JOptionPane.showMessageDialog(view, "Erro ao conectar ao banco de dados!");
                     return;
                 }
-                
+
                 ProdutoDAO produtoDAO = new ProdutoDAO(connection);
                 ProdutoController produtoController = new ProdutoController(produtoDAO);
-                
+
                 ClienteDAO clienteDAO = new ClienteDAO(connection);
                 ClienteController clienteController = new ClienteController(clienteDAO);
-                
+
                 FiadoDAO fiadoDAO = new FiadoDAO(connection);
-                
+
                 FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(connection);
-                
+
                 FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
-                
+
                 PdvController pdvController = new PdvController(produtoController);
 
                 TelaPrincipalController principalController = new TelaPrincipalController(
-                    produtoController, 
-                    clienteController, 
-                    pdvController, 
-                    fiadoController,
-                    fluxoCaixaController
-                );
-                
-                TelaPrincipal telaPrincipal = new TelaPrincipal(principalController);
-                principalController.setView(telaPrincipal);
-                
-                telaPrincipal.setVisible(true);
-                view.dispose();
+                        produtoController,
+                        clienteController,
+                        pdvController,
+                        fiadoController,
+                        fluxoCaixaController);
 
+                principalController.abrirTelaPrincipal();
+                view.dispose();
             } catch (Exception ex) {
-                ex.printStackTrace(); 
+                ex.printStackTrace();
                 JOptionPane.showMessageDialog(view, "Erro ao iniciar: " + ex.getMessage());
             }
         } else {

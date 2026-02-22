@@ -1,22 +1,7 @@
 package alphacontrol.views.principal;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import java.awt.*;
+import javax.swing.*;
 
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.views.components.BotaoEstilizado;
@@ -24,13 +9,6 @@ import alphacontrol.views.components.Estilos;
 import alphacontrol.views.components.PainelGradiente;
 
 public class TelaPrincipal extends JFrame {
-
-    private JButton btnEstoque;
-    private JButton btnPdv;
-    private JButton btnFiados;
-    private JButton btnRelatorios;
-    private JButton btnFluxoCaixa;
-    private JButton btnSair;
 
     public TelaPrincipal(TelaPrincipalController controller) {
         setTitle("Tela Principal - AlphaControl");
@@ -59,12 +37,12 @@ public class TelaPrincipal extends JFrame {
         gbc.insets = new Insets(0, 0, 40, 0);
         painelPrincipal.add(lblTitulo, gbc);
 
-        btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
-        btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
-        btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
-        btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
-        btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
-        btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
+        JButton btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
+        JButton btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
+        JButton btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
+        JButton btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
+        JButton btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
+        JButton btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);
 
         configurarBotaoComIcone(btnEstoque, "/alphacontrol/img/icons/Icon_Estoque.png");
         configurarBotaoComIcone(btnPdv, "/alphacontrol/img/icons/Icon_PDV.png");
@@ -86,7 +64,6 @@ public class TelaPrincipal extends JFrame {
         painelBotoes.setOpaque(false);
         painelBotoes.setPreferredSize(new Dimension(900, 700));
 
-        // Ordem aplicada conforme solicitado:
         painelBotoes.add(btnEstoque);
         painelBotoes.add(btnPdv);
         painelBotoes.add(btnFiados);
@@ -110,10 +87,7 @@ public class TelaPrincipal extends JFrame {
             ImageIcon iconeOriginal = new ImageIcon(getClass().getResource(iconPath));
             Image img = iconeOriginal.getImage();
             Image imgRedimensionada = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-            ImageIcon icone = new ImageIcon(imgRedimensionada);
-
-            botao.setIcon(icone);
-
+            botao.setIcon(new ImageIcon(imgRedimensionada));
         } catch (Exception e) {
             System.err.println("Erro ao carregar ícone: " + iconPath);
         }
@@ -122,27 +96,5 @@ public class TelaPrincipal extends JFrame {
         botao.setVerticalTextPosition(SwingConstants.BOTTOM);
         botao.setHorizontalTextPosition(SwingConstants.CENTER);
         botao.setIconTextGap(15);
-    }
-
-    public void setController(TelaPrincipalController controller) {
-        for (ActionListener al : btnEstoque.getActionListeners())
-            btnEstoque.removeActionListener(al);
-        for (ActionListener al : btnPdv.getActionListeners())
-            btnPdv.removeActionListener(al);
-        for (ActionListener al : btnFiados.getActionListeners())
-            btnFiados.removeActionListener(al);
-        for (ActionListener al : btnRelatorios.getActionListeners())
-            btnRelatorios.removeActionListener(al);
-        for (ActionListener al : btnFluxoCaixa.getActionListeners())
-            btnFluxoCaixa.removeActionListener(al);
-        for (ActionListener al : btnSair.getActionListeners())
-            btnSair.removeActionListener(al);
-
-        btnEstoque.addActionListener(e -> controller.abrirTelaEstoque());
-        btnPdv.addActionListener(e -> controller.abrirTelaPDV());
-        btnFiados.addActionListener(e -> controller.abrirTelaFiado());
-        btnRelatorios.addActionListener(e -> controller.abrirTelaRelatorios());
-        btnFluxoCaixa.addActionListener(e -> controller.abrirTelaFluxoCaixa());
-        btnSair.addActionListener(e -> controller.logout());
     }
 }

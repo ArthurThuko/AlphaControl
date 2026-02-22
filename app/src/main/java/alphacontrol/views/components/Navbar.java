@@ -18,12 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
 import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.views.estoque.TelaEstoque;
-import alphacontrol.views.fiado.TelaFiado;
-import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
-import alphacontrol.views.pdv.TelaPDV;
-import alphacontrol.views.principal.TelaPrincipal;
-import alphacontrol.views.relatorios.TelaRelatorios;
 
 public class Navbar extends JMenuBar {
 
@@ -50,54 +44,47 @@ public class Navbar extends JMenuBar {
         // Ações dos botões
         navPrincipal.addActionListener(e -> {
             if (!"Principal".equals(activeItem)) {
-                new TelaPrincipal(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaPrincipal();
             }
         });
 
         navPDV.addActionListener(e -> {
             if (!"PDV".equals(activeItem)) {
-                new TelaPDV(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaPDV();
             }
         });
 
         navEstoque.addActionListener(e -> {
             if (!"Estoque".equals(activeItem)) {
-                new TelaEstoque(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaEstoque();
             }
         });
 
         navFiado.addActionListener(e -> {
             if (!"Fiado".equals(activeItem)) {
-                new TelaFiado(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaFiado();
             }
         });
 
         navFluxoCaixa.addActionListener(e -> {
             if (!"Fluxo de Caixa".equals(activeItem)) {
-                new TelaFluxoCaixa(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaFluxoCaixa();
             }
         });
 
         navRelatorio.addActionListener(e -> {
             if (!"Relatórios".equals(activeItem)) {
-                new TelaRelatorios(mainController).setVisible(true);
-                currentScreen.dispose();
+                mainController.abrirTelaRelatorios();
             }
         });
-        
+
         navSair.addActionListener(e -> {
             int resp = JOptionPane.showConfirmDialog(
-                currentScreen, 
-                "Deseja realmente sair do AlphaControl?", 
-                "Confirmar Saída", 
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-            );
+                    currentScreen,
+                    "Deseja realmente sair do AlphaControl?",
+                    "Confirmar Saída",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
             if (resp == JOptionPane.YES_OPTION) {
                 System.exit(0);
             }
@@ -110,10 +97,10 @@ public class Navbar extends JMenuBar {
         add(navFiado);
         add(navFluxoCaixa);
         add(navRelatorio);
-        
+
         // Empurra o botão "Sair" para o canto direito
         add(Box.createHorizontalGlue());
-        
+
         add(navSair);
     }
 
@@ -148,6 +135,7 @@ public class Navbar extends JMenuBar {
                         setForeground(DOURADO_SUAVE);
                     }
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     if (!active) {
@@ -156,7 +144,7 @@ public class Navbar extends JMenuBar {
                 }
             });
         }
-        
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
