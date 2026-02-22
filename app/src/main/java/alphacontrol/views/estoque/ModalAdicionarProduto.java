@@ -60,8 +60,11 @@ public class ModalAdicionarProduto extends JDialog {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fill(new RoundRectangle2D.Double(8, 8, getWidth() - 8, getHeight() - 8, 30, 30));
+
                 g2.setColor(begeFundo);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth() - 8, getHeight() - 8, 30, 30));
                 g2.dispose();
             }
         };
@@ -204,14 +207,14 @@ public class ModalAdicionarProduto extends JDialog {
      */
     private void aplicarMascaraDecimal(JTextField campo) {
         campo.setText("0.00");
-        
+
         // Seleciona tudo ao ganhar foco para facilitar edição
         campo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
                 SwingUtilities.invokeLater(campo::selectAll);
             }
-            
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (campo.getText().isEmpty()) {
@@ -229,10 +232,11 @@ public class ModalAdicionarProduto extends JDialog {
 
         ((AbstractDocument) campo.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
                 String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
                 String futureText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
-                
+
                 // Regex: Apenas números e no máximo um ponto, com até duas casas decimais
                 if (futureText.matches("\\d*(\\.\\d{0,2})?")) {
                     super.replace(fb, offset, length, text, attrs);
@@ -269,19 +273,18 @@ public class ModalAdicionarProduto extends JDialog {
         return lbl;
     }
 
-    public JButton getBtnSalvar() { 
-        return btnSalvar; 
+    public JButton getBtnSalvar() {
+        return btnSalvar;
     }
 
     public Produto getProdutoFromFields() {
         return new Produto(
-            txtNome.getText(),
-            txtCategoria.getText(),
-            Double.parseDouble(txtCompra.getText().isEmpty() ? "0" : txtCompra.getText()),
-            Double.parseDouble(txtVenda.getText().isEmpty() ? "0" : txtVenda.getText()),
-            Integer.parseInt(txtQnt.getText().isEmpty() ? "0" : txtQnt.getText()),
-            Integer.parseInt(txtQntMinima.getText().isEmpty() ? "0" : txtQntMinima.getText())
-        );
+                txtNome.getText(),
+                txtCategoria.getText(),
+                Double.parseDouble(txtCompra.getText().isEmpty() ? "0" : txtCompra.getText()),
+                Double.parseDouble(txtVenda.getText().isEmpty() ? "0" : txtVenda.getText()),
+                Integer.parseInt(txtQnt.getText().isEmpty() ? "0" : txtQnt.getText()),
+                Integer.parseInt(txtQntMinima.getText().isEmpty() ? "0" : txtQntMinima.getText()));
     }
 
     public void mostrarErro(String msg) {
