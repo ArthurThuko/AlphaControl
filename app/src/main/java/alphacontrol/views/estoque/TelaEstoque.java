@@ -16,6 +16,7 @@ import java.awt.RenderingHints;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -263,13 +264,48 @@ public class TelaEstoque extends JFrame {
         int id = (int) modelo.getValueAt(row, 0);
         String nome = (String) modelo.getValueAt(row, 1);
 
-        try {
-            controller.deletar(id, nome);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao deletar: " + e.getMessage());
+        int resposta = JOptionPane.showConfirmDialog(
+                this,
+                "Tem certeza que deseja excluir o produto '" + nome + "'?",
+                "Confirmar Exclusão",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (resposta != JOptionPane.YES_OPTION) {
+            return;
         }
 
-        atualizarTabela();
+        try {
+
+            controller.deletar(id);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Produto excluído com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            atualizarTabela();
+
+        } catch (SQLException e) {
+
+            if ("PRODUTO_EM_USO".equals(e.getMessage())) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Este produto não pode ser excluído pois já foi utilizado em vendas.",
+                        "Não foi possível excluir",
+                        JOptionPane.WARNING_MESSAGE);
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Erro ao excluir produto: " + e.getMessage(),
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private Produto getProdutoFromRow(int row) {
