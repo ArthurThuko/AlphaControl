@@ -105,8 +105,8 @@ public class Navbar extends JMenuBar {
 
         // Adição dos itens na ordem desejada
         add(navPrincipal);
-        add(navPDV);
         add(navEstoque);
+        add(navPDV);
         add(navFiado);
         add(navFluxoCaixa);
         add(navRelatorio);

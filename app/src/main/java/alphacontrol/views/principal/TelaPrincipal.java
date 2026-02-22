@@ -87,8 +87,8 @@ public class TelaPrincipal extends JFrame {
         painelBotoes.setPreferredSize(new Dimension(900, 700));
 
         // Ordem aplicada conforme solicitado:
-        painelBotoes.add(btnPdv);
         painelBotoes.add(btnEstoque);
+        painelBotoes.add(btnPdv);
         painelBotoes.add(btnFiados);
         painelBotoes.add(btnFluxoCaixa);
         painelBotoes.add(btnRelatorios);
