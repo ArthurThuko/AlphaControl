@@ -225,12 +225,12 @@ public class TelaEstoque extends JFrame {
 
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
-                    p.getProdutoId(), 
-                    p.getNome(), 
+                    p.getProdutoId(),
+                    p.getNome(),
                     p.getQntEstoque(),
-                    p.getCategoria(), 
-                    String.format("%.2f", p.getValorCompra()).replace(",", "."), 
-                    String.format("%.2f", p.getValorVenda()).replace(",", "."), 
+                    p.getCategoria(),
+                    String.format("%.2f", p.getValorCompra()).replace(",", "."),
+                    String.format("%.2f", p.getValorVenda()).replace(",", "."),
                     ""
             });
         }
@@ -643,16 +643,22 @@ public class TelaEstoque extends JFrame {
         public JButton btnDelete = new CellButton("Excluir", VERMELHO_TERROSO, Color.WHITE);
 
         public ActionsPanel() {
-            super(new FlowLayout(FlowLayout.CENTER, 10, 0));
             setOpaque(true);
-            setAlignmentY(Component.CENTER_ALIGNMENT);
+            setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(0, 10, 0, 10);
+            gbc.anchor = GridBagConstraints.CENTER;
 
             Dimension btnSize = new Dimension(100, 40);
             btnEdit.setPreferredSize(btnSize);
             btnDelete.setPreferredSize(btnSize);
 
-            add(btnEdit);
-            add(btnDelete);
+            gbc.gridx = 0;
+            add(btnEdit, gbc);
+
+            gbc.gridx = 1;
+            add(btnDelete, gbc);
         }
     }
 
