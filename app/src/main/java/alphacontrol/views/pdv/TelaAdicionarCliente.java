@@ -48,7 +48,7 @@ import alphacontrol.views.cliente.ModalAdicionarCliente;
 
 public class TelaAdicionarCliente extends JDialog {
 
-    private static final Color BEGE_FUNDO = new Color(247, 239, 224);
+    private static Color begeFundo = new Color(247, 239, 224);
     private static final Color MARROM_ESCURO = new Color(77, 51, 30);
     private static final Color MARROM_CLARO = new Color(184, 142, 106);
     private static final Color BEGE_CLARO = new Color(255, 250, 240);
@@ -81,8 +81,11 @@ public class TelaAdicionarCliente extends JDialog {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(BEGE_FUNDO);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 25, 25));
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fill(new RoundRectangle2D.Double(8, 8, getWidth() - 8, getHeight() - 8, 30, 30));
+
+                g2.setColor(begeFundo);
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth() - 8, getHeight() - 8, 30, 30));
                 g2.setColor(MARROM_CLARO);
                 g2.setStroke(new BasicStroke(2f));
                 g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 2, getHeight() - 2, 25, 25));

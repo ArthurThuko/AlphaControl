@@ -40,7 +40,7 @@ public class ModalAdicionarFiado extends JDialog {
     private static final Color DOURADO_SUAVE = new Color(226, 180, 90);
     private static final Color CINZA_PLACEHOLDER = new Color(150, 150, 150);
 
-    private JTextField txtClienteNome;
+    private JLabel lblClienteNome;
     private JButton btnBuscarCliente, btnSalvar, btnAdicionarCliente;
     private JTextField txtValor;
     private TelaFiado parentView;
@@ -51,7 +51,7 @@ public class ModalAdicionarFiado extends JDialog {
         this.parentView = parent;
 
         setUndecorated(true);
-        setSize(850, 600); 
+        setSize(850, 600);
         setLocationRelativeTo(parent);
         setBackground(new Color(0, 0, 0, 0));
 
@@ -63,25 +63,26 @@ public class ModalAdicionarFiado extends JDialog {
                 g2.setColor(BEGE_FUNDO);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 25, 25));
                 g2.setColor(MARROM_CLARO);
-                g2.setStroke(new BasicStroke(2f)); 
+                g2.setStroke(new BasicStroke(2f));
                 g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 3, getHeight() - 3, 25, 25));
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
         painelFundo.setOpaque(false);
-        painelFundo.setBorder(new EmptyBorder(50, 60, 50, 60)); 
+        painelFundo.setBorder(new EmptyBorder(50, 60, 50, 60));
         setContentPane(painelFundo);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.WEST; 
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
 
         JLabel lblTitulo = new JLabel("Registrar Fiado");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 36)); 
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 36));
         lblTitulo.setForeground(MARROM_ESCURO);
-        gbc.gridy = 0; gbc.insets = new Insets(0, 0, 50, 0);
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 50, 0);
         painelFundo.add(lblTitulo, gbc);
 
         // LINHA DO CLIENTE
@@ -90,27 +91,34 @@ public class ModalAdicionarFiado extends JDialog {
         JLabel lblCliente = new JLabel("Cliente:");
         lblCliente.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblCliente.setForeground(MARROM_ESCURO);
-        lblCliente.setPreferredSize(new Dimension(120, 30)); 
+        lblCliente.setPreferredSize(new Dimension(120, 30));
         painelCliente.add(lblCliente);
 
-        txtClienteNome = new RoundedTextField("Nenhum cliente...", 20);
-        txtClienteNome.setEditable(false);
-        txtClienteNome.setPreferredSize(new Dimension(280, 50));
-        painelCliente.add(txtClienteNome);
+        lblClienteNome = new JLabel("Nenhum cliente...");
+        lblClienteNome.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblClienteNome.setForeground(CINZA_PLACEHOLDER);
+        lblClienteNome.setPreferredSize(new Dimension(280, 50));
+        lblClienteNome.setOpaque(true);
+        lblClienteNome.setBackground(new Color(235, 235, 235));
+        lblClienteNome.setBorder(new EmptyBorder(10, 15, 10, 15));
 
-        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 50); 
-        
+        painelCliente.add(lblClienteNome);
+
+        btnBuscarCliente = new RoundedButton("Buscar", MARROM_MEDIO, Color.WHITE, 120, 50);
+
         btnBuscarCliente.addActionListener(e -> {
-            alphacontrol.views.cliente.ModalBuscaCliente modalBusca = new alphacontrol.views.cliente.ModalBuscaCliente(this, clienteController);
-            modalBusca.setVisible(true); 
-            
+            alphacontrol.views.cliente.ModalBuscaCliente modalBusca = new alphacontrol.views.cliente.ModalBuscaCliente(
+                    this, clienteController);
+            modalBusca.setVisible(true);
+
             if (modalBusca.getClienteSelecionado() != null) {
                 setClienteSelecionado(modalBusca.getClienteSelecionado());
             }
         });
-        
+
         painelCliente.add(btnBuscarCliente);
-        gbc.gridy = 1; gbc.insets = new Insets(0, 0, 30, 0);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 30, 0);
         painelFundo.add(painelCliente, gbc);
 
         // LINHA DO VALOR
@@ -122,9 +130,10 @@ public class ModalAdicionarFiado extends JDialog {
         lblValor.setPreferredSize(new Dimension(120, 30));
         painelValor.add(lblValor);
         txtValor = new RoundedTextField("0,00", 15);
-        txtValor.setPreferredSize(new Dimension(425, 50)); 
+        txtValor.setPreferredSize(new Dimension(425, 50));
         painelValor.add(txtValor);
-        gbc.gridy = 2; gbc.insets = new Insets(0, 0, 60, 0); 
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 0, 60, 0);
         painelFundo.add(painelValor, gbc);
 
         // BOTÕES
@@ -133,17 +142,19 @@ public class ModalAdicionarFiado extends JDialog {
         btnSalvar = new RoundedButton("Salvar", VERDE_OLIVA, Color.WHITE, 160, 50);
         btnAdicionarCliente = new RoundedButton("Novo Cliente", DOURADO_SUAVE, MARROM_ESCURO, 160, 50);
         btnAdicionarCliente.addActionListener(e -> {
-            alphacontrol.views.cliente.ModalAdicionarCliente modalAdd = new alphacontrol.views.cliente.ModalAdicionarCliente(parentView);
+            alphacontrol.views.cliente.ModalAdicionarCliente modalAdd = new alphacontrol.views.cliente.ModalAdicionarCliente(
+                    parentView);
             new alphacontrol.controllers.modais.ModalAdicionarClienteController(modalAdd, clienteController);
             modalAdd.setVisible(true);
         });
         JButton btnCancelar = new RoundedButton("Cancelar", VERMELHO_TERROSO, Color.WHITE, 160, 50);
         btnCancelar.addActionListener(e -> dispose());
-        
+
         painelBotoes.add(btnSalvar);
         painelBotoes.add(btnAdicionarCliente);
         painelBotoes.add(btnCancelar);
-        gbc.gridy = 3; gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.gridy = 3;
+        gbc.insets = new Insets(0, 0, 0, 0);
         painelFundo.add(painelBotoes, gbc);
 
         new ModalAdicionarFiadoController(this, fiadoController, clienteController);
@@ -152,14 +163,23 @@ public class ModalAdicionarFiado extends JDialog {
     public void setClienteSelecionado(Cliente cliente) {
         this.clienteSelecionado = cliente;
         if (cliente != null) {
-            this.txtClienteNome.setText(cliente.getNome());
-            this.txtClienteNome.setForeground(MARROM_ESCURO);
+            this.lblClienteNome.setText(cliente.getNome());
+            this.lblClienteNome.setForeground(MARROM_ESCURO);
+            this.lblClienteNome.setBackground(Color.WHITE);
         }
     }
 
-    public JTextField getTxtValor() { return txtValor; }
-    public JButton getBtnSalvar() { return btnSalvar; }
-    public Cliente getClienteSelecionado() { return clienteSelecionado; }
+    public JTextField getTxtValor() {
+        return txtValor;
+    }
+
+    public JButton getBtnSalvar() {
+        return btnSalvar;
+    }
+
+    public Cliente getClienteSelecionado() {
+        return clienteSelecionado;
+    }
 
     // --- CLASSES INTERNAS PARA CORRIGIR OS ERROS ---
 
@@ -190,7 +210,8 @@ public class ModalAdicionarFiado extends JDialog {
             super.paintComponent(g);
         }
 
-        @Override public void focusGained(FocusEvent e) {
+        @Override
+        public void focusGained(FocusEvent e) {
             if (showingPlaceholder) {
                 setText("");
                 setForeground(MARROM_ESCURO);
@@ -198,7 +219,8 @@ public class ModalAdicionarFiado extends JDialog {
             }
         }
 
-        @Override public void focusLost(FocusEvent e) {
+        @Override
+        public void focusLost(FocusEvent e) {
             if (getText().isEmpty()) {
                 setText(placeholder);
                 setForeground(CINZA_PLACEHOLDER);
@@ -206,7 +228,8 @@ public class ModalAdicionarFiado extends JDialog {
             }
         }
 
-        @Override public String getText() {
+        @Override
+        public String getText() {
             return (showingPlaceholder && isEditable()) ? "" : super.getText();
         }
     }
