@@ -118,6 +118,11 @@ public class TelaDetalhesVendas extends JFrame {
 
         for (Venda v : vendas) {
 
+            // Ignora vendas fiado
+            if ("fiado".equalsIgnoreCase(v.getFormaPagamento().getNome())) {
+                continue;
+            }
+
             modelo.addRow(new Object[] {
                     v.getFormaPagamento().getNome(),
                     df.format(v.getTotal()),

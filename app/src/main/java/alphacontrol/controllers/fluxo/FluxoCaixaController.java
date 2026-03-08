@@ -51,9 +51,29 @@ public class FluxoCaixaController {
     }
 
     public List<MovimentacaoCaixa> listarSaidas() {
-        return movimentacaoCaixaDAO.listar().stream()
-                .filter(m -> "saida".equals(m.getTipo()))
-                .collect(Collectors.toList());
+
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        // saídas manuais
+        lista.addAll(
+                movimentacaoCaixaDAO.listar().stream()
+                        .filter(m -> "saida".equalsIgnoreCase(m.getTipo()))
+                        .collect(Collectors.toList()));
+
+        // saídas de fiado
+        lista.addAll(movimentacaoCaixaDAO.listarSaidasFiadoClientes());
+
+        // ordenar por data
+        lista.sort((a, b) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                return sdf.parse(b.getData()).compareTo(sdf.parse(a.getData()));
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+
+        return lista;
     }
 
     public void removerMovimentacao(int id) {

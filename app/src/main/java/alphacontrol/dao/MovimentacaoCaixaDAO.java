@@ -131,14 +131,49 @@ public class MovimentacaoCaixaDAO {
         }
     }
 
+    public List<MovimentacaoCaixa> listarSaidasFiadoClientes() {
+
+        List<MovimentacaoCaixa> lista = new ArrayList<>();
+
+        String sql = "SELECT IFNULL(SUM(debito),0) as total FROM cliente WHERE debito > 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+
+                double total = rs.getDouble("total");
+
+                if (total > 0) {
+
+                    MovimentacaoCaixa mov = new MovimentacaoCaixa();
+
+                    mov.setNome("Fiados");
+                    mov.setTipo("SAIDA");
+                    mov.setValor(total);
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    mov.setData(sdf.format(new java.util.Date()));
+
+                    lista.add(mov);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
     public List<MovimentacaoCaixa> listarEntradasPorVenda() {
 
         List<MovimentacaoCaixa> lista = new ArrayList<>();
 
         String sql = "SELECT DATE(data_venda) as data, " +
-                "SUM(total) as total, " +
-                "COUNT(*) as quantidade " +
+                "SUM(total) as total " +
                 "FROM venda " +
+                "WHERE LOWER(forma_pagamento) <> 'fiado' " +
                 "GROUP BY DATE(data_venda) " +
                 "ORDER BY DATE(data_venda) DESC";
 
@@ -175,6 +210,7 @@ public class MovimentacaoCaixaDAO {
         List<MovimentacaoCaixa> lista = new ArrayList<>();
 
         lista.addAll(listarEntradasPorVenda()); // vendas
+        lista.addAll(listarSaidasFiadoClientes()); // fiado
         lista.addAll(listar()); // movimentações manuais
 
         lista.sort((a, b) -> {
@@ -227,5 +263,25 @@ public class MovimentacaoCaixaDAO {
         }
 
         return lista;
+    }
+
+    public double obterTotalFiadoClientes() {
+
+        double total = 0;
+
+        String sql = "SELECT SUM(debito) AS total FROM cliente WHERE debito > 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                total = rs.getDouble("total");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return total;
     }
 }
