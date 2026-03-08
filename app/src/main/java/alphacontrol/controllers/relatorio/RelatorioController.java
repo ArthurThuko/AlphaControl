@@ -153,15 +153,14 @@ public class RelatorioController {
         List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
 
         DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "ID", "Nome", "Tipo", "Valor", "Data" }, 0);
+                new Object[] { "Data", "Descrição", "Tipo", "Valor" }, 0);
 
         for (MovimentacaoCaixa m : lista) {
             modelo.addRow(new Object[] {
-                    m.getId(),
+                    m.getData(),
                     m.getNome(),
                     m.getTipo(),
-                    m.getValor(),
-                    m.getData()
+                    m.getValor()
             });
         }
 
