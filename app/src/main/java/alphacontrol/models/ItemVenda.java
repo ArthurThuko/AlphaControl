@@ -11,6 +11,8 @@ public class ItemVenda {
     private double valorTotal;
     private double subtotal;
 
+    private String nomeProduto;
+
     public ItemVenda(int itemId, int vendaId, int produtoId, int quantidade, double valorUnitario, double valorTotal,
             Produto produto) {
         this.produto = produto;
@@ -98,5 +100,13 @@ public class ItemVenda {
 
     public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
+    }
+
+    public String getNomeProduto() {
+        return nomeProduto;
+    }
+
+    public void setNomeProduto(String nomeProduto) {
+        this.nomeProduto = nomeProduto;
     }
 }

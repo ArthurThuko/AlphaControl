@@ -100,6 +100,34 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public Produto buscarPorId(int id) throws SQLException {
+
+        String sql = "SELECT * FROM produtos WHERE produto_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Produto produto = new Produto( 
+                            rs.getInt("produto_id"),
+                            rs.getString("nome"),
+                            rs.getString("categoria"),
+                            rs.getDouble("valor_compra"),
+                            rs.getDouble("valor_venda"),
+                            rs.getInt("qnt_estoque"),
+                            rs.getInt("qnt_minima"));
+                    return produto;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public void atualizarProduto(Produto produto) throws SQLException {
         String sql = "UPDATE produtos SET nome=?, categoria=?, valor_compra=?, valor_venda=?, qnt_estoque=?, qnt_minima=? WHERE produto_id=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
