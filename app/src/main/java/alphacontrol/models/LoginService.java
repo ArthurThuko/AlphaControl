@@ -3,7 +3,7 @@ package alphacontrol.models;
 public class LoginService {
 
     private String loginAdm = "Adm";
-    private String senhaAdm = "654231";
+    private String senhaAdm = "654321";
 
     private String loginGerente = "Gerente";
     private String senhaGerente = "123456";
