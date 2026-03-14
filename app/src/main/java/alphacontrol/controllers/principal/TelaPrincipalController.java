@@ -25,19 +25,23 @@ public class TelaPrincipalController {
     private PdvController pdvController;
     private FiadoController fiadoController;
     private FluxoCaixaController fluxoCaixaController;
+    private String tipoUsuario;
 
     public TelaPrincipalController(
-            ProdutoController pCtrl,
-            ClienteController cCtrl,
-            PdvController pdvCtrl,
-            FiadoController fCtrl,
-            FluxoCaixaController fluxoCtrl) {
+            ProdutoController produtoController,
+            ClienteController clienteController,
+            PdvController pdvController,
+            FiadoController fiadoController,
+            FluxoCaixaController fluxoCaixaController,
+            String tipoUsuario) {
 
-        this.produtoController = pCtrl;
-        this.clienteController = cCtrl;
-        this.pdvController = pdvCtrl;
-        this.fiadoController = fCtrl;
-        this.fluxoCaixaController = fluxoCtrl;
+        this.tipoUsuario = tipoUsuario;
+
+        this.produtoController = produtoController;
+        this.clienteController = clienteController;
+        this.pdvController = pdvController;
+        this.fiadoController = fiadoController;
+        this.fluxoCaixaController = fluxoCaixaController;
     }
 
     private void trocarTela(JFrame novaTela) {
@@ -48,6 +52,10 @@ public class TelaPrincipalController {
 
         telaAtual = novaTela;
         telaAtual.setVisible(true);
+    }
+
+    private boolean isGerente() {
+        return "GERENTE".equals(tipoUsuario);
     }
 
     public ProdutoController getProdutoController() {
@@ -86,11 +94,27 @@ public class TelaPrincipalController {
     }
 
     public void abrirTelaFluxoCaixa() {
+
+        if (isGerente()) {
+            JOptionPane.showMessageDialog(
+                    telaAtual,
+                    "Acesso restrito ao administrador.");
+            return;
+        }
+
         TelaFluxoCaixa tela = new TelaFluxoCaixa(this);
         trocarTela(tela);
     }
 
     public void abrirTelaRelatorios() {
+
+        if (isGerente()) {
+            JOptionPane.showMessageDialog(
+                    telaAtual,
+                    "Acesso restrito ao administrador.");
+            return;
+        }
+
         TelaRelatorios tela = new TelaRelatorios(this);
         trocarTela(tela);
     }

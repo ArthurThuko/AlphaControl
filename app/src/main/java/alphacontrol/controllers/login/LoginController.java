@@ -34,7 +34,9 @@ public class LoginController {
         String usuario = view.getTxtUsuario();
         String senha = view.getTxtSenha();
 
-        if (loginService.autenticar(usuario, senha)) {
+        String tipoUsuario = loginService.autenticar(usuario, senha);
+
+        if (tipoUsuario != null) {
             try {
                 Connection connection = Conexao.getConexao();
 
@@ -62,7 +64,8 @@ public class LoginController {
                         clienteController,
                         pdvController,
                         fiadoController,
-                        fluxoCaixaController);
+                        fluxoCaixaController,
+                        tipoUsuario);
 
                 principalController.abrirTelaPrincipal();
                 view.dispose();
