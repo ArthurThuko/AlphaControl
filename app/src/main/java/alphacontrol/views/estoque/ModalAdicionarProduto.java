@@ -1,23 +1,48 @@
 package alphacontrol.views.estoque;
 
-import alphacontrol.models.Produto;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+
+import alphacontrol.models.Produto;
+
 public class ModalAdicionarProduto extends JDialog {
-    
+
     private final JTextField txtNome;
     private final JTextField txtCategoria;
     private final JTextField txtCompra;
     private final JTextField txtVenda;
     private final JTextField txtQnt;
-    private final JTextField txtQntMinima; 
-    
-    private final JButton btnSalvar;
+    private final JTextField txtQntMinima;
 
+    private final JButton btnSalvar;
     private Point mouseClickPoint;
 
     public ModalAdicionarProduto(JFrame parent) {
@@ -35,13 +60,18 @@ public class ModalAdicionarProduto extends JDialog {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fill(new RoundRectangle2D.Double(8, 8, getWidth() - 8, getHeight() - 8, 30, 30));
+
                 g2.setColor(begeFundo);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth() - 8, getHeight() - 8, 30, 30));
+                g2.dispose();
             }
         };
         painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         painel.setBackground(new Color(0, 0, 0, 0));
 
+        // Arrastar Modal
         painel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -69,6 +99,7 @@ public class ModalAdicionarProduto extends JDialog {
         gbc.gridwidth = 1;
         gbc.gridy++;
 
+        // Campos Normais
         painel.add(criarLabel("Nome:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtNome = criarCampo(begeClaro, marromClaro, marromEscuro);
@@ -81,11 +112,13 @@ public class ModalAdicionarProduto extends JDialog {
         txtCategoria = criarCampo(begeClaro, marromClaro, marromEscuro);
         painel.add(txtCategoria, gbc);
         gbc.gridy++;
-        
+
+        // Campos com Máscara de Valor
         gbc.gridx = 0;
         painel.add(criarLabel("Preço de Custo (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
         txtCompra = criarCampo(begeClaro, marromClaro, marromEscuro);
+        aplicarMascaraDecimal(txtCompra);
         painel.add(txtCompra, gbc);
         gbc.gridy++;
 
@@ -93,23 +126,28 @@ public class ModalAdicionarProduto extends JDialog {
         painel.add(criarLabel("Valor Venda (R$):", marromEscuro), gbc);
         gbc.gridx = 1;
         txtVenda = criarCampo(begeClaro, marromClaro, marromEscuro);
+        aplicarMascaraDecimal(txtVenda);
         painel.add(txtVenda, gbc);
         gbc.gridy++;
-        
+
+        // Campos Numéricos Inteiros
         gbc.gridx = 0;
         painel.add(criarLabel("Quantidade:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtQnt = criarCampo(begeClaro, marromClaro, marromEscuro);
+        txtQnt.setText("0");
         painel.add(txtQnt, gbc);
         gbc.gridy++;
-        
+
         gbc.gridx = 0;
         painel.add(criarLabel("Alerta Estoque Min.:", marromEscuro), gbc);
         gbc.gridx = 1;
         txtQntMinima = criarCampo(begeClaro, marromClaro, marromEscuro);
+        txtQntMinima.setText("0");
         painel.add(txtQntMinima, gbc);
         gbc.gridy++;
 
+        // Botões
         btnSalvar = new JButton("Salvar") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -158,11 +196,55 @@ public class ModalAdicionarProduto extends JDialog {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         add(painel);
-        setSize(500, 650);
+        setSize(500, 680);
         setLocationRelativeTo(parent);
         setResizable(false);
     }
-    
+
+    /**
+     * Aplica um filtro que aceita apenas números e um único ponto decimal,
+     * limitando a duas casas após o ponto.
+     */
+    private void aplicarMascaraDecimal(JTextField campo) {
+        campo.setText("0.00");
+
+        // Seleciona tudo ao ganhar foco para facilitar edição
+        campo.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(campo::selectAll);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (campo.getText().isEmpty()) {
+                    campo.setText("0.00");
+                } else {
+                    try {
+                        double valor = Double.parseDouble(campo.getText());
+                        campo.setText(String.format("%.2f", valor).replace(",", "."));
+                    } catch (NumberFormatException ex) {
+                        campo.setText("0.00");
+                    }
+                }
+            }
+        });
+
+        ((AbstractDocument) campo.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String futureText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+
+                // Regex: Apenas números e no máximo um ponto, com até duas casas decimais
+                if (futureText.matches("\\d*(\\.\\d{0,2})?")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
+
     private JTextField criarCampo(Color fundo, Color borda, Color texto) {
         JTextField campo = new JTextField() {
             @Override
@@ -183,7 +265,7 @@ public class ModalAdicionarProduto extends JDialog {
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         return campo;
     }
-    
+
     private JLabel criarLabel(String texto, Color cor) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setForeground(cor);
@@ -191,19 +273,18 @@ public class ModalAdicionarProduto extends JDialog {
         return lbl;
     }
 
-    public JButton getBtnSalvar() { 
-        return btnSalvar; 
+    public JButton getBtnSalvar() {
+        return btnSalvar;
     }
 
     public Produto getProdutoFromFields() {
         return new Produto(
-            txtNome.getText(),
-            txtCategoria.getText(),
-            Double.parseDouble(txtCompra.getText()),
-            Double.parseDouble(txtVenda.getText()),
-            Integer.parseInt(txtQnt.getText()),
-            Integer.parseInt(txtQntMinima.getText())
-        );
+                txtNome.getText(),
+                txtCategoria.getText(),
+                Double.parseDouble(txtCompra.getText().isEmpty() ? "0" : txtCompra.getText()),
+                Double.parseDouble(txtVenda.getText().isEmpty() ? "0" : txtVenda.getText()),
+                Integer.parseInt(txtQnt.getText().isEmpty() ? "0" : txtQnt.getText()),
+                Integer.parseInt(txtQntMinima.getText().isEmpty() ? "0" : txtQntMinima.getText()));
     }
 
     public void mostrarErro(String msg) {

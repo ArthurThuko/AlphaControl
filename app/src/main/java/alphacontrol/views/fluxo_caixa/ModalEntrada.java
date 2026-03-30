@@ -1,13 +1,42 @@
 package alphacontrol.views.fluxo_caixa;
 
-import alphacontrol.controllers.fluxo.FluxoCaixaController;
-import alphacontrol.models.MovimentacaoCaixa;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.text.ParseException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.MaskFormatter;
+
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
+import alphacontrol.models.MovimentacaoCaixa;
 
 public class ModalEntrada extends JDialog {
 
@@ -43,8 +72,18 @@ public class ModalEntrada extends JDialog {
 
         if (mov != null) {
             txtNome.setText(mov.getNome());
-            txtData.setText(mov.getData());
+            
+            // Caso a data venha do banco sem máscara (ex: 23032004), força a máscara
+            String dataBanco = mov.getData();
+            if (dataBanco != null && dataBanco.length() == 8 && !dataBanco.contains("/")) {
+                dataBanco = dataBanco.substring(0, 2) + "/" + dataBanco.substring(2, 4) + "/" + dataBanco.substring(4);
+            }
+            txtData.setText(dataBanco);
+            
             txtValor.setText(String.format("%.2f", mov.getValor()).replace(",", "."));
+        } else {
+            // Garante que o valor comece como 0.00 ao adicionar nova entrada
+            txtValor.setText("0.00");
         }
     }
 
@@ -54,8 +93,11 @@ public class ModalEntrada extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fill(new RoundRectangle2D.Double(8, 8, getWidth() - 8, getHeight() - 8, 30, 30));
+
                 g2.setColor(BEGE_FUNDO);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth() - 8, getHeight() - 8, 30, 30));
                 g2.dispose();
             }
         };
@@ -91,9 +133,41 @@ public class ModalEntrada extends JDialog {
         gbc.gridwidth = 1;
         gbc.gridy++;
 
-        txtNome = criarCampo("Nome:", painel, gbc);
-        txtData = criarCampo("Data (dd/mm/aaaa):", painel, gbc);
-        txtValor = criarCampo("Valor (R$):", painel, gbc);
+        // 1. Campo Nome
+        txtNome = criarCampo("Nome:", painel, gbc, null);
+
+        // 2. Campo Data com MaskFormatter
+        MaskFormatter maskData = null;
+        try {
+            maskData = new MaskFormatter("##/##/####");
+            maskData.setPlaceholderCharacter('_');
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        txtData = criarCampo("Data (dd/mm/aaaa):", painel, gbc, maskData);
+
+        // Joga o cursor para o início do campo Data se ele estiver vazio
+        txtData.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    if (txtData.getText().replace("_", "").replace("/", "").trim().isEmpty()) {
+                        txtData.setCaretPosition(0);
+                    }
+                });
+            }
+        });
+
+        // 3. Campo Valor com DocumentFilter
+        txtValor = criarCampo("Valor (R$):", painel, gbc, null);
+        aplicarFiltroMoeda(txtValor);
+
+        txtValor.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> txtValor.selectAll());
+            }
+        });
 
         JButton btnSalvar = criarBotao("Salvar", VERDE_OLIVA, Color.WHITE, e -> salvarEntrada());
         gbc.gridx = 0;
@@ -107,12 +181,7 @@ public class ModalEntrada extends JDialog {
         return painel;
     }
 
-    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc) {
-        return criarCampo(label, painel, gbc, BEGE_CLARO, MARROM_CLARO, MARROM_ESCURO);
-    }
-
-    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc, Color fundo, Color borda,
-            Color texto) {
+    private JTextField criarCampo(String label, JPanel painel, GridBagConstraints gbc, MaskFormatter mascara) {
         gbc.gridx = 0;
         gbc.weightx = 0.3;
         JLabel lbl = new JLabel(label, SwingConstants.RIGHT);
@@ -122,19 +191,27 @@ public class ModalEntrada extends JDialog {
 
         gbc.gridx = 1;
         gbc.weightx = 0.7;
-        JTextField campo = new JTextField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(BEGE_CLARO);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
-                g2.setColor(MARROM_CLARO);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
+
+        JTextField campo;
+        
+        if (mascara != null) {
+            campo = new JFormattedTextField(mascara) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    desenharFundoArredondado(g, this);
+                    super.paintComponent(g);
+                }
+            };
+        } else {
+            campo = new JTextField() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    desenharFundoArredondado(g, this);
+                    super.paintComponent(g);
+                }
+            };
+        }
+
         campo.setOpaque(false);
         campo.setForeground(MARROM_ESCURO);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -143,6 +220,42 @@ public class ModalEntrada extends JDialog {
         painel.add(campo, gbc);
         gbc.gridy++;
         return campo;
+    }
+
+    private void desenharFundoArredondado(Graphics g, JComponent componente) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(BEGE_CLARO);
+        g2.fill(new RoundRectangle2D.Float(0, 0, componente.getWidth() - 1, componente.getHeight() - 1, 15, 15));
+        g2.setColor(MARROM_CLARO);
+        g2.draw(new RoundRectangle2D.Float(0, 0, componente.getWidth() - 1, componente.getHeight() - 1, 15, 15));
+        g2.dispose();
+    }
+
+    private void aplicarFiltroMoeda(JTextField campo) {
+        ((AbstractDocument) campo.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+                String textoAtual = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String futuroTexto = textoAtual.substring(0, offset) + string + textoAtual.substring(offset);
+                
+                if (futuroTexto.matches("\\d*([.,]\\d{0,2})?")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+                String textoAtual = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String futuroTexto = textoAtual.substring(0, offset) + text + textoAtual.substring(offset + length);
+                
+                if (futuroTexto.matches("\\d*([.,]\\d{0,2})?")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
     }
 
     private JButton criarBotao(String texto, Color corFundo, Color corTexto, java.awt.event.ActionListener action) {
@@ -169,11 +282,13 @@ public class ModalEntrada extends JDialog {
 
     private void salvarEntrada() {
         String nome = txtNome.getText().trim();
-        String data = txtData.getText().trim();
+        // Pegando o texto direto, ele já vem no formato "23/03/2004"
+        String data = txtData.getText().trim(); 
         String valorStr = txtValor.getText().trim();
 
-        if (nome.isEmpty() || data.isEmpty() || valorStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+        // Se a string da data ainda contém "_" significa que não foi totalmente preenchida
+        if (nome.isEmpty() || data.contains("_") || valorStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos corretamente!", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -181,6 +296,7 @@ public class ModalEntrada extends JDialog {
             double valor = Double.parseDouble(valorStr.replace(",", "."));
 
             if (movimentacaoEditando == null) {
+                // Aqui o controller já recebe a data no modelo "23/03/2004"
                 controller.adicionarEntrada(nome, valor, data);
                 JOptionPane.showMessageDialog(this, "Entrada adicionada com sucesso!");
             } else {
@@ -195,7 +311,7 @@ public class ModalEntrada extends JDialog {
 
             dispose();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Valor inválido! Use ponto para decimais (ex: 50.25).", "Erro",
+            JOptionPane.showMessageDialog(this, "Valor inválido! Use ponto ou vírgula para decimais.", "Erro",
                     JOptionPane.ERROR_MESSAGE);
         }
     }

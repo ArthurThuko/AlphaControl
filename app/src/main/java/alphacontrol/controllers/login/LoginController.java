@@ -1,20 +1,21 @@
 package alphacontrol.controllers.login;
 
-import alphacontrol.views.conexao.Conexao;
-import alphacontrol.views.login.TelaLogin;
-import alphacontrol.views.principal.TelaPrincipal;
+import java.sql.Connection;
+
+import javax.swing.JOptionPane;
+
+import alphacontrol.conexao.Conexao;
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.pdv.PdvController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.controllers.produto.ProdutoController;
-import alphacontrol.controllers.fluxo.FluxoCaixaController; 
-import alphacontrol.dao.ClienteDAO; 
+import alphacontrol.dao.ClienteDAO;
 import alphacontrol.dao.FiadoDAO;
 import alphacontrol.dao.ProdutoDAO;
 import alphacontrol.models.LoginService;
-import java.sql.Connection;
-import javax.swing.JOptionPane;
+import alphacontrol.views.login.TelaLogin;
 
 public class LoginController {
 
@@ -33,45 +34,43 @@ public class LoginController {
         String usuario = view.getTxtUsuario();
         String senha = view.getTxtSenha();
 
-        if (loginService.autenticar(usuario, senha)) {
+        String tipoUsuario = loginService.autenticar(usuario, senha);
+
+        if (tipoUsuario != null) {
             try {
                 Connection connection = Conexao.getConexao();
-                
+
                 if (connection == null) {
                     JOptionPane.showMessageDialog(view, "Erro ao conectar ao banco de dados!");
                     return;
                 }
-                
+
                 ProdutoDAO produtoDAO = new ProdutoDAO(connection);
                 ProdutoController produtoController = new ProdutoController(produtoDAO);
-                
+
                 ClienteDAO clienteDAO = new ClienteDAO(connection);
                 ClienteController clienteController = new ClienteController(clienteDAO);
-                
+
                 FiadoDAO fiadoDAO = new FiadoDAO(connection);
-                
+
                 FluxoCaixaController fluxoCaixaController = new FluxoCaixaController(connection);
-                
+
                 FiadoController fiadoController = new FiadoController(fiadoDAO, clienteDAO, fluxoCaixaController);
-                
+
                 PdvController pdvController = new PdvController(produtoController);
 
                 TelaPrincipalController principalController = new TelaPrincipalController(
-                    produtoController, 
-                    clienteController, 
-                    pdvController, 
-                    fiadoController,
-                    fluxoCaixaController
-                );
-                
-                TelaPrincipal telaPrincipal = new TelaPrincipal(principalController);
-                principalController.setView(telaPrincipal);
-                
-                telaPrincipal.setVisible(true);
-                view.dispose();
+                        produtoController,
+                        clienteController,
+                        pdvController,
+                        fiadoController,
+                        fluxoCaixaController,
+                        tipoUsuario);
 
+                principalController.abrirTelaPrincipal();
+                view.dispose();
             } catch (Exception ex) {
-                ex.printStackTrace(); 
+                ex.printStackTrace();
                 JOptionPane.showMessageDialog(view, "Erro ao iniciar: " + ex.getMessage());
             }
         } else {

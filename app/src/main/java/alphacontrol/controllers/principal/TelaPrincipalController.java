@@ -1,6 +1,7 @@
 package alphacontrol.controllers.principal;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import alphacontrol.controllers.cliente.ClienteController;
 import alphacontrol.controllers.fiado.FiadoController;
@@ -10,84 +11,123 @@ import alphacontrol.controllers.produto.ProdutoController;
 import alphacontrol.views.estoque.TelaEstoque;
 import alphacontrol.views.fluxo_caixa.TelaFluxoCaixa;
 import alphacontrol.views.pdv.TelaPDV;
+import alphacontrol.views.principal.TelaPrincipal;
 import alphacontrol.views.relatorios.TelaRelatorios;
 import alphacontrol.views.fiado.TelaFiado;
 
 public class TelaPrincipalController {
 
-    private JFrame telaPrincipal;
+    // 🔥 Agora representa QUALQUER tela aberta
+    private JFrame telaAtual;
+
     private ProdutoController produtoController;
     private ClienteController clienteController;
     private PdvController pdvController;
     private FiadoController fiadoController;
     private FluxoCaixaController fluxoCaixaController;
+    private String tipoUsuario;
 
-    public TelaPrincipalController(ProdutoController pCtrl, ClienteController cCtrl, PdvController pdvCtrl,
-            FiadoController fCtrl, FluxoCaixaController fluxoCtrl) {
-        this.produtoController = pCtrl;
-        this.clienteController = cCtrl;
-        this.pdvController = pdvCtrl;
-        this.fiadoController = fCtrl;
-        this.fluxoCaixaController = fluxoCtrl;
+    public TelaPrincipalController(
+            ProdutoController produtoController,
+            ClienteController clienteController,
+            PdvController pdvController,
+            FiadoController fiadoController,
+            FluxoCaixaController fluxoCaixaController,
+            String tipoUsuario) {
+
+        this.tipoUsuario = tipoUsuario;
+
+        this.produtoController = produtoController;
+        this.clienteController = clienteController;
+        this.pdvController = pdvController;
+        this.fiadoController = fiadoController;
+        this.fluxoCaixaController = fluxoCaixaController;
     }
 
-    public void setView(JFrame view) {
-        this.telaPrincipal = view;
+    private void trocarTela(JFrame novaTela) {
+
+        if (telaAtual != null) {
+            telaAtual.dispose();
+        }
+
+        telaAtual = novaTela;
+        telaAtual.setVisible(true);
+    }
+
+    private boolean isGerente() {
+        return "GERENTE".equals(tipoUsuario);
     }
 
     public ProdutoController getProdutoController() {
-        return this.produtoController;
+        return produtoController;
     }
 
     public ClienteController getClienteController() {
-        return this.clienteController;
+        return clienteController;
     }
 
     public PdvController getPdvController() {
-        return this.pdvController;
+        return pdvController;
     }
 
     public FiadoController getFiadoController() {
-        return this.fiadoController;
+        return fiadoController;
     }
 
     public FluxoCaixaController getFluxoCaixaController() {
-        return this.fluxoCaixaController;
+        return fluxoCaixaController;
+    }
+
+    public void abrirTelaPrincipal() {
+        TelaPrincipal tela = new TelaPrincipal(this);
+        trocarTela(tela);
     }
 
     public void abrirTelaEstoque() {
-        new TelaEstoque(this).setVisible(true);
-        if (telaPrincipal != null)
-            telaPrincipal.dispose();
+        TelaEstoque tela = new TelaEstoque(this);
+        trocarTela(tela);
     }
 
     public void abrirTelaPDV() {
-        new TelaPDV(this).setVisible(true);
-        if (telaPrincipal != null)
-            telaPrincipal.dispose();
+        TelaPDV tela = new TelaPDV(this);
+        trocarTela(tela);
     }
 
     public void abrirTelaFluxoCaixa() {
-        new TelaFluxoCaixa(this).setVisible(true);
-        if (telaPrincipal != null)
-            telaPrincipal.dispose();
+
+        if (isGerente()) {
+            JOptionPane.showMessageDialog(
+                    telaAtual,
+                    "Acesso restrito ao administrador.");
+            return;
+        }
+
+        TelaFluxoCaixa tela = new TelaFluxoCaixa(this);
+        trocarTela(tela);
     }
 
     public void abrirTelaRelatorios() {
-        new TelaRelatorios(this).setVisible(true);
-        if (telaPrincipal != null)
-            telaPrincipal.dispose();
+
+        if (isGerente()) {
+            JOptionPane.showMessageDialog(
+                    telaAtual,
+                    "Acesso restrito ao administrador.");
+            return;
+        }
+
+        TelaRelatorios tela = new TelaRelatorios(this);
+        trocarTela(tela);
     }
 
     public void abrirTelaFiado() {
-        new TelaFiado(this).setVisible(true);
-        if (telaPrincipal != null)
-            telaPrincipal.dispose();
+        TelaFiado tela = new TelaFiado(this);
+        trocarTela(tela);
     }
 
     public void logout() {
         int resp = JOptionPane.showConfirmDialog(
-                telaPrincipal, "Deseja realmente sair do AlphaControl?",
+                telaAtual,
+                "Deseja realmente sair do AlphaControl?",
                 "Confirmar Saída",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);

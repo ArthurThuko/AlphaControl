@@ -1,21 +1,54 @@
 package alphacontrol.views.estoque;
 
-import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
-import alphacontrol.controllers.modais.ModalEditarProdutoController;
-import alphacontrol.controllers.produto.*;
-import alphacontrol.controllers.principal.TelaPrincipalController;
-import alphacontrol.models.Produto;
-import alphacontrol.views.components.Navbar;
-import alphacontrol.views.components.AvisoEstoqueMinimo;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.ArrayList;
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
+import alphacontrol.controllers.modais.ModalAdicionarProdutoController;
+import alphacontrol.controllers.modais.ModalEditarProdutoController;
+import alphacontrol.controllers.principal.TelaPrincipalController;
+import alphacontrol.controllers.produto.ProdutoController;
+import alphacontrol.models.Produto;
+import alphacontrol.views.components.AvisoEstoqueMinimo;
+import alphacontrol.views.components.Navbar;
 
 public class TelaEstoque extends JFrame {
 
@@ -178,8 +211,8 @@ public class TelaEstoque extends JFrame {
                     p.getNome(),
                     p.getQntEstoque(),
                     p.getCategoria(),
-                    p.getValorCompra(),
-                    p.getValorVenda(),
+                    String.format("%.2f", p.getValorCompra()).replace(",", "."),
+                    String.format("%.2f", p.getValorVenda()).replace(",", "."),
                     ""
             });
         }
@@ -193,8 +226,13 @@ public class TelaEstoque extends JFrame {
 
         for (Produto p : this.listaProdutosAtual) {
             modelo.addRow(new Object[] {
-                    p.getProdutoId(), p.getNome(), p.getQntEstoque(),
-                    p.getCategoria(), p.getValorCompra(), p.getValorVenda(), ""
+                    p.getProdutoId(),
+                    p.getNome(),
+                    p.getQntEstoque(),
+                    p.getCategoria(),
+                    String.format("%.2f", p.getValorCompra()).replace(",", "."),
+                    String.format("%.2f", p.getValorVenda()).replace(",", "."),
+                    ""
             });
         }
     }
@@ -226,13 +264,48 @@ public class TelaEstoque extends JFrame {
         int id = (int) modelo.getValueAt(row, 0);
         String nome = (String) modelo.getValueAt(row, 1);
 
-        try {
-            controller.deletar(id, nome);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao deletar: " + e.getMessage());
+        int resposta = JOptionPane.showConfirmDialog(
+                this,
+                "Tem certeza que deseja excluir o produto '" + nome + "'?",
+                "Confirmar Exclusão",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (resposta != JOptionPane.YES_OPTION) {
+            return;
         }
 
-        atualizarTabela();
+        try {
+
+            controller.deletar(id);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Produto excluído com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            atualizarTabela();
+
+        } catch (SQLException e) {
+
+            if ("PRODUTO_EM_USO".equals(e.getMessage())) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Este produto não pode ser excluído pois já foi utilizado em vendas.",
+                        "Não foi possível excluir",
+                        JOptionPane.WARNING_MESSAGE);
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Erro ao excluir produto: " + e.getMessage(),
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private Produto getProdutoFromRow(int row) {
@@ -606,16 +679,22 @@ public class TelaEstoque extends JFrame {
         public JButton btnDelete = new CellButton("Excluir", VERMELHO_TERROSO, Color.WHITE);
 
         public ActionsPanel() {
-            super(new FlowLayout(FlowLayout.CENTER, 10, 0));
             setOpaque(true);
-            setAlignmentY(Component.CENTER_ALIGNMENT);
+            setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(0, 10, 0, 10);
+            gbc.anchor = GridBagConstraints.CENTER;
 
             Dimension btnSize = new Dimension(100, 40);
             btnEdit.setPreferredSize(btnSize);
             btnDelete.setPreferredSize(btnSize);
 
-            add(btnEdit);
-            add(btnDelete);
+            gbc.gridx = 0;
+            add(btnEdit, gbc);
+
+            gbc.gridx = 1;
+            add(btnDelete, gbc);
         }
     }
 

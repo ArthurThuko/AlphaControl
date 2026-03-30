@@ -1,4 +1,4 @@
-package alphacontrol.views.conexao;
+package alphacontrol.conexao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

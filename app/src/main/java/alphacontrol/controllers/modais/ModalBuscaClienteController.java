@@ -1,12 +1,13 @@
 package alphacontrol.controllers.modais;
 
-import alphacontrol.controllers.cliente.ClienteController;
-import alphacontrol.models.Cliente;
-import alphacontrol.views.cliente.ModalBuscaCliente;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import java.util.List;
+
+import alphacontrol.controllers.cliente.ClienteController;
+import alphacontrol.models.Cliente;
+import alphacontrol.views.cliente.ModalBuscaCliente;
 
 public class ModalBuscaClienteController {
 
@@ -20,16 +21,20 @@ public class ModalBuscaClienteController {
     }
 
     private void initController() {
+        // Carrega a tabela inicialmente
         atualizarTabela();
         
+        // Configura o botão de busca
         view.getBtnPesquisar().addActionListener(e -> atualizarTabela());
         
+        // Configura o botão de selecionar
         view.getBtnSelecionar().addActionListener(e -> selecionarCliente());
     }
 
     private void atualizarTabela() {
-        String busca = view.getTxtPesquisa().getText();
-        if (busca.equals("Digite o nome ou CPF...")) {
+        String busca = view.getTxtPesquisa().getText().trim();
+        // Limpa o placeholder se necessário
+        if (busca.equals("Digite o nome...")) {
             busca = "";
         }
         
@@ -53,19 +58,24 @@ public class ModalBuscaClienteController {
 
     private void selecionarCliente() {
         int selectedRow = view.getTabela().getSelectedRow();
+        
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(view, "Por favor, selecione um cliente na tabela.");
             return;
         }
 
+        // Pega o ID da primeira coluna (que está oculta na view, mas existe no modelo)
         int clienteId = (int) view.getModelo().getValueAt(selectedRow, 0);
         Cliente cliente = clienteController.buscarPorId(clienteId);
         
         if (cliente != null) {
-            view.setClienteSelecionado(cliente);
-            view.dispose();
+            // AQUI ESTÁ A CORREÇÃO:
+            // Usamos o método finalizarSelecao da View. 
+            // Ele guarda o cliente no atributo da View e dá o dispose().
+            // Isso faz o código da tela anterior (Adicionar Fiado) continuar a execução.
+            view.finalizarSelecao(cliente);
         } else {
-            JOptionPane.showMessageDialog(view, "Erro ao selecionar o cliente.");
+            JOptionPane.showMessageDialog(view, "Erro ao recuperar dados do cliente selecionado.");
         }
     }
 }

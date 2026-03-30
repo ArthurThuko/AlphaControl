@@ -27,68 +27,57 @@ public class ProdutoController {
         produtoDAO.atualizarProduto(produto);
     }
 
-    public void deletar(int id, String nome) throws SQLException {
-        int resposta = JOptionPane.showConfirmDialog(
-                null, 
-                "Tem certeza que deseja excluir o produto '" + nome + "'?",
-                "Confirmar Exclusão",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            produtoDAO.deletarProduto(id);
-        }
+    public void deletar(int id) throws SQLException {
+        produtoDAO.deletarProduto(id);
     }
 
     public Produto buscarPorNome(String nome) {
-    try {
-        List<Produto> resultados = produtoDAO.pesquisarProdutos(nome);
+        try {
+            List<Produto> resultados = produtoDAO.pesquisarProdutos(nome);
 
-        if (resultados.isEmpty()) {
-            return null; // Nenhum produto encontrado
+            if (resultados.isEmpty()) {
+                return null; // Nenhum produto encontrado
+            }
+
+            return resultados.get(0); // Retorna o primeiro encontrado
+        } catch (SQLException e) {
+            mostrarErro("Erro ao buscar produto: " + e.getMessage());
+            return null;
         }
-
-        return resultados.get(0); // Retorna o primeiro encontrado
-    } catch (SQLException e) {
-        mostrarErro("Erro ao buscar produto: " + e.getMessage());
-        return null;
     }
-}
 
-    
     public List<Produto> listar() {
         try {
             return produtoDAO.listarProdutos();
         } catch (SQLException e) {
             mostrarErro("Erro ao listar produtos: " + e.getMessage());
-            return List.of(); 
+            return List.of();
         }
     }
-    
+
     public List<Produto> pesquisar(String nome) {
         try {
             return produtoDAO.pesquisarProdutos(nome);
         } catch (SQLException e) {
             mostrarErro("Erro ao pesquisar produtos: " + e.getMessage());
-            return List.of(); 
+            return List.of();
         }
     }
-    
+
     public void incrementarEstoque(Produto produto) throws SQLException {
-        produto.incrementarEstoque(1); 
-        this.atualizar(produto);       
+        produto.incrementarEstoque(1);
+        this.atualizar(produto);
     }
 
     public boolean decrementarEstoque(Produto produto) throws SQLException {
         if (produto.getQntEstoque() <= 0) {
-            return false; 
+            return false;
         }
-        produto.decrementarEstoque(1); 
+        produto.decrementarEstoque(1);
         this.atualizar(produto);
         return true;
     }
-    
+
     private void mostrarErro(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }

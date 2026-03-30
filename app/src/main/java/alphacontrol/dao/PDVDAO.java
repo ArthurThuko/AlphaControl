@@ -1,9 +1,16 @@
 package alphacontrol.dao;
 
-import java.sql.*;
-import java.sql.Date;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
+import alphacontrol.conexao.Conexao;
 import alphacontrol.models.FormaPagamento;
 import alphacontrol.models.ItemVenda;
 import alphacontrol.models.Venda;
@@ -14,111 +21,177 @@ public class PDVDAO {
 
     public PDVDAO(Connection conexao) {
         this.conexao = conexao;
-        criarTabelaSeNaoExistir();
     }
 
-    private void criarTabelaSeNaoExistir() {
-        try (Statement stmt = conexao.createStatement()) {
+    // Construtor para consultas simples
+    public PDVDAO() {
+        this.conexao = null;
+    }
 
-            // TABELA VENDA
-            String sqlVenda = "CREATE TABLE IF NOT EXISTS venda ("
-                    + "venda_id INT PRIMARY KEY AUTO_INCREMENT,"
-                    + "cliente VARCHAR(100),"
-                    + "forma_pagamento VARCHAR(50) NOT NULL,"
-                    + "total DECIMAL(10,2) NOT NULL,"
-                    + "data_venda DATE NOT NULL"
-                    + ")";
-            stmt.executeUpdate(sqlVenda);
+    /**
+     * Este é o método MÁGICO. Ele faz tudo: grava venda, itens e se for fiado, gera
+     * a dívida.
+     * 
+     * @param venda     O objeto da venda
+     * @param itens     A lista de produtos que ele comprou
+     * @param clienteId O ID do cliente (OBRIGATÓRIO SE FOR FIADO, pode ser null se
+     *                  for à vista)
+     */
+    public boolean realizarVendaCompleta(Venda venda, List<ItemVenda> itens, Integer clienteId) {
 
-            // TABELA ITEM_VENDA
-            String sqlItem = "CREATE TABLE IF NOT EXISTS item_venda ("
-                    + "item_id INT PRIMARY KEY AUTO_INCREMENT,"
-                    + "venda_id INT NOT NULL,"
-                    + "produto_id INT NOT NULL,"
-                    + "quantidade INT NOT NULL,"
-                    + "valor_unitario DECIMAL(10,2),"
-                    + "valor_total DECIMAL(10,2),"
-                    + "FOREIGN KEY (venda_id) REFERENCES venda(venda_id),"
-                    + "FOREIGN KEY (produto_id) REFERENCES produtos(produto_id)"
-                    + ")";
-            stmt.executeUpdate(sqlItem);
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao criar tabelas do PDV: " + e.getMessage(), e);
+        // Verifica se é fiado e se temos o cliente
+        boolean isFiado = venda.getFormaPagamento().getNome().equalsIgnoreCase("FIADO");
+        if (isFiado && (clienteId == null || clienteId <= 0)) {
+            throw new IllegalArgumentException("Para venda no FIADO, é obrigatório informar o Cliente cadastrado!");
         }
-    }
 
-    public int registrarVenda(Venda venda) {
-        String sql = "INSERT INTO venda (cliente, forma_pagamento, total, data_venda) VALUES (?, ?, ?, ?)";
+        PreparedStatement stmtVenda = null;
+        PreparedStatement stmtItem = null;
+        PreparedStatement stmtFiado = null;
+        PreparedStatement stmtUpdateCliente = null;
+        ResultSet rs = null;
 
-        try (PreparedStatement stmt = conexao.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try {
+            // 1. Desliga o save automático para iniciar a transação manual
+            conexao.setAutoCommit(false);
 
-            stmt.setString(1, venda.getCliente());
-            stmt.setString(2, venda.getFormaPagamento().getNome());
-            stmt.setDouble(3, venda.getTotal());
+            // ---------------------------------------------------
+            // PASSO 1: Registrar a Venda
+            // ---------------------------------------------------
+            String sqlVenda = "INSERT INTO venda (cliente, forma_pagamento, total, data_venda) VALUES (?, ?, ?, ?)";
+            stmtVenda = conexao.prepareStatement(sqlVenda, Statement.RETURN_GENERATED_KEYS);
+            stmtVenda.setString(1, venda.getCliente()); // Nome do cliente
+            stmtVenda.setString(2, venda.getFormaPagamento().getNome());
+            stmtVenda.setDouble(3, venda.getTotal());
+            stmtVenda.setTimestamp(4, new Timestamp(venda.getDataVenda().getTime()));
+            stmtVenda.executeUpdate();
 
-            java.sql.Date sqlDate = new java.sql.Date(venda.getDataVenda().getTime());
-            stmt.setDate(4, sqlDate);
-
-            stmt.executeUpdate();
-
-            ResultSet rs = stmt.getGeneratedKeys();
+            // Pegar o ID da venda gerado
+            rs = stmtVenda.getGeneratedKeys();
+            int idVendaGerada = -1;
             if (rs.next()) {
-                return rs.getInt(1);
+                idVendaGerada = rs.getInt(1);
+            } else {
+                throw new SQLException("Falha ao gerar ID da venda.");
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao registrar venda: " + e.getMessage(), e);
-        }
+            // ---------------------------------------------------
+            // PASSO 2: Registrar os Itens
+            // ---------------------------------------------------
+            String sqlItem = "INSERT INTO item_venda (venda_id, produto_id, quantidade, valor_unitario, valor_total) VALUES (?, ?, ?, ?, ?)";
+            stmtItem = conexao.prepareStatement(sqlItem);
 
-        return -1;
-    }
+            for (ItemVenda item : itens) {
+                stmtItem.setInt(1, idVendaGerada);
+                stmtItem.setInt(2, item.getProduto().getProdutoId());
+                stmtItem.setInt(3, item.getQuantidade());
+                stmtItem.setDouble(4, item.getValorUnitario());
+                stmtItem.setDouble(5, item.getValorTotal());
+                stmtItem.addBatch(); // Adiciona ao lote para salvar tudo de uma vez
+            }
+            stmtItem.executeBatch();
 
-    public void registrarItemVenda(int idVenda, ItemVenda item) {
-        String sql = "INSERT INTO item_venda (venda_id, produto_id, quantidade, valor_unitario, valor_total) "
-                   + "VALUES (?, ?, ?, ?, ?)";
+            // ---------------------------------------------------
+            // PASSO 3: Lógica do FIADO (Se for o caso)
+            // ---------------------------------------------------
+            if (isFiado) {
+                // A. Criar registro na tabela FIADO
+                String sqlFiado = "INSERT INTO fiado (cliente_id, venda_id, valor, data, status) VALUES (?, ?, ?, ?, ?)";
+                stmtFiado = conexao.prepareStatement(sqlFiado);
+                stmtFiado.setInt(1, clienteId);
+                stmtFiado.setInt(2, idVendaGerada);
+                stmtFiado.setDouble(3, venda.getTotal());
+                stmtFiado.setTimestamp(4, new Timestamp(venda.getDataVenda().getTime()));
+                stmtFiado.setString(5, "PENDENTE"); // Status inicial é sempre pendente
+                stmtFiado.executeUpdate();
 
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
-            stmt.setInt(1, idVenda);
-            stmt.setInt(2, item.getProdutoId());
-            stmt.setInt(3, item.getQuantidade());
-            stmt.setDouble(4, item.getValorUnitario());
-            stmt.setDouble(5, item.getValorTotal());
-
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao registrar item da venda: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Venda> listarVendas() {
-        List<Venda> vendas = new ArrayList<>();
-        String sql = "SELECT * FROM venda";
-
-        try (Statement stmt = conexao.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-
-                int id = rs.getInt("venda_id");
-                String cliente = rs.getString("cliente");
-                double total = rs.getDouble("total");
-
-                String nomeForma = rs.getString("forma_pagamento");
-                FormaPagamento forma = new FormaPagamento(nomeForma);
-
-                Date data = new Date(rs.getDate("data_venda").getTime());
-
-                Venda venda = new Venda(id, cliente, forma, total, data);
-
-                vendas.add(venda);
+                // B. Atualizar o débito total na tabela CLIENTE
+                String sqlUpdateCliente = "UPDATE cliente SET debito = debito + ? WHERE id = ?";
+                stmtUpdateCliente = conexao.prepareStatement(sqlUpdateCliente);
+                stmtUpdateCliente.setDouble(1, venda.getTotal());
+                stmtUpdateCliente.setInt(2, clienteId);
+                stmtUpdateCliente.executeUpdate();
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar vendas: " + e.getMessage(), e);
+            // ---------------------------------------------------
+            // FINALIZAÇÃO: Deu tudo certo? Salva no banco (COMMIT)
+            // ---------------------------------------------------
+            conexao.commit();
+            return true;
+
+        } catch (SQLException | IllegalArgumentException e) {
+            try {
+                // Se deu erro em QUALQUER etapa, desfaz tudo (ROLLBACK)
+                conexao.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            throw new RuntimeException("Erro ao processar venda: " + e.getMessage(), e);
+        } finally {
+            // Restaura o comportamento padrão e fecha recursos
+            try {
+                conexao.setAutoCommit(true);
+                if (rs != null)
+                    rs.close();
+                if (stmtVenda != null)
+                    stmtVenda.close();
+                if (stmtItem != null)
+                    stmtItem.close();
+                if (stmtFiado != null)
+                    stmtFiado.close();
+                if (stmtUpdateCliente != null)
+                    stmtUpdateCliente.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Método antigo de listagem continua igual...
+    public List<Venda> listarPorData(String dataBR) {
+
+        List<Venda> lista = new ArrayList<>();
+
+        String sql = """
+                    SELECT venda_id, cliente, forma_pagamento, total, data_venda
+                    FROM venda
+                    WHERE DATE(data_venda) = ?
+                    ORDER BY data_venda DESC
+                """;
+
+        try (Connection conn = Conexao.getConexao();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            SimpleDateFormat br = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            String dataSQL = sqlFormat.format(br.parse(dataBR));
+
+            stmt.setString(1, dataSQL);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Venda v = new Venda();
+                    v.setVendaId(rs.getInt("venda_id"));
+                    v.setCliente(rs.getString("cliente"));
+                    v.setTotal(rs.getDouble("total"));
+                    v.setDataVenda(rs.getTimestamp("data_venda"));
+
+                    // ✔ FormaPagamento como objeto
+                    FormaPagamento fp = new FormaPagamento(rs.getString("forma_pagamento"));
+
+                    v.setFormaPagamento(fp);
+
+                    lista.add(v);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return vendas;
+        return lista;
     }
 }

@@ -29,7 +29,7 @@ public class TelaDetalheFiado extends JDialog {
         super(parent, "Detalhes do Fiado", true);
         this.cliente = cliente;
         this.fiadoController = fiadoController;
-        
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(700, 500);
         setLocationRelativeTo(parent);
@@ -48,11 +48,18 @@ public class TelaDetalheFiado extends JDialog {
         gbc.insets = new Insets(0, 0, 20, 0);
         painelPrincipal.add(titulo, gbc);
 
-        String[] colunas = { "Nº", "Data", "Valor (R$)", "Status" };
-        
+        String[] colunas = { "Nº", "Data", "Valor (R$)", "Status", "Detalhes" };
+
         modelo = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
+
+                if (column == 4) {
+                    String status = getValueAt(row, 3).toString();
+                    return status.equalsIgnoreCase("Pendente")
+                            || status.equalsIgnoreCase("Quitado");
+                }
+
                 return false;
             }
         };
@@ -86,7 +93,7 @@ public class TelaDetalheFiado extends JDialog {
         painelPrincipal.add(btnFechar, gbc);
 
         add(painelPrincipal);
-        
+
         carregarDadosTabela();
     }
 
@@ -98,11 +105,12 @@ public class TelaDetalheFiado extends JDialog {
 
             for (int i = 0; i < fiados.size(); i++) {
                 Fiado f = fiados.get(i);
-                modelo.addRow(new Object[]{
-                    i + 1,
-                    f.getData().format(formatter),
-                    "R$ " + df.format(f.getValor()),
-                    f.getStatus()
+                modelo.addRow(new Object[] {
+                        i + 1,
+                        f.getData().format(formatter),
+                        "R$ " + df.format(f.getValor()),
+                        f.getStatus(),
+                        f
                 });
             }
         } catch (Exception e) {
@@ -131,7 +139,7 @@ public class TelaDetalheFiado extends JDialog {
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         rightRenderer.setBorder(new EmptyBorder(0, 0, 0, 15));
@@ -140,13 +148,17 @@ public class TelaDetalheFiado extends JDialog {
         tabela.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         tabela.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
         tabela.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-        
+        tabela.getColumnModel().getColumn(4).setCellRenderer(new BotaoRenderer());
+        tabela.getColumnModel().getColumn(4).setCellEditor(new BotaoEditor(new JCheckBox()));
+
         TableColumnModel colModel = tabela.getColumnModel();
         colModel.getColumn(0).setPreferredWidth(50);
         colModel.getColumn(0).setMaxWidth(60);
         colModel.getColumn(1).setPreferredWidth(200);
         colModel.getColumn(2).setPreferredWidth(150);
         colModel.getColumn(3).setPreferredWidth(120);
+        colModel.getColumn(4).setPreferredWidth(80);
+        colModel.getColumn(4).setMaxWidth(80);
     }
 
     static class RoundedPanel extends JPanel {
@@ -193,6 +205,122 @@ public class TelaDetalheFiado extends JDialog {
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
             g2.dispose();
             super.paintComponent(g);
+        }
+    }
+
+    class BotaoRenderer implements TableCellRenderer {
+
+        private final BotaoTabela botao = new BotaoTabela();
+        private final JPanel vazio = new JPanel();
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
+            String status = table.getValueAt(row, 3).toString();
+
+            if (status.equalsIgnoreCase("Pendente") || status.equalsIgnoreCase("Quitado")) {
+                return botao;
+            }
+
+            return vazio;
+        }
+    }
+
+    class BotaoTabela extends JButton {
+
+        private final Color background = VERDE_MUSGO;
+        private final Color hover = VERDE_MUSGO.brighter();
+
+        public BotaoTabela() {
+
+            super("+");
+
+            setFont(new Font("Segoe UI", Font.BOLD, 18));
+            setForeground(Color.WHITE);
+
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g2.setColor(getModel().isRollover() ? hover : background);
+
+            g2.fillRoundRect(
+                    5,
+                    5,
+                    getWidth() - 10,
+                    getHeight() - 10,
+                    15,
+                    15);
+
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
+    }
+
+    class BotaoEditor extends DefaultCellEditor {
+
+        private BotaoTabela button;
+        private Fiado fiado;
+
+        public BotaoEditor(JCheckBox checkBox) {
+
+            super(checkBox);
+
+            button = new BotaoTabela();
+
+            button.addActionListener(e -> {
+
+                if (fiado != null) {
+
+                    fireEditingStopped();
+
+                    SwingUtilities.invokeLater(() -> {
+
+                        try {
+
+                            TelaProdutosFiado telaProdutos = new TelaProdutosFiado(
+                                    fiado,
+                                    fiadoController,
+                                    TelaDetalheFiado.this);
+
+                            telaProdutos.setVisible(true);
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    });
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+
+            fiado = (Fiado) value;
+
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return fiado;
         }
     }
 }
