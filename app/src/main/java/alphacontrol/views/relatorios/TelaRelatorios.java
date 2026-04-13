@@ -116,8 +116,7 @@ public class TelaRelatorios extends JFrame {
         RoundedPanel painelFiltros = new RoundedPanel(15);
         painelFiltros.setBackground(BEGE_CLARO);
         painelFiltros.setLayout(new GridBagLayout());
-        painelFiltros.setBorder(new EmptyBorder(25, 30, 25, 30));
-
+        painelFiltros.setBorder(new EmptyBorder(35, 30, 35, 30));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -125,28 +124,32 @@ public class TelaRelatorios extends JFrame {
         gbc.gridy = 0;
         gbc.gridx = 0;
         gbc.weightx = 1;
+        gbc.weighty = 1; // 👈 ADICIONE ISSO
         gbc.insets = new Insets(0, 0, 25, 0);
+        gbc.anchor = GridBagConstraints.CENTER; // 👈 garante centralização
 
-        JPanel painelSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel painelSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         painelSuperior.setOpaque(false);
 
         MaskFormatter mascaraData = null;
         try {
             mascaraData = new MaskFormatter("##/##/####");
             mascaraData.setPlaceholderCharacter('_');
-        } catch (ParseException e) { e.printStackTrace(); }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         JLabel lblInicio = new JLabel("Data Início:");
         lblInicio.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblInicio.setForeground(MARROM_ESCURO);
-        
+
         campoInicio = new RoundedTextField(mascaraData);
         configurarEstiloCampoData(campoInicio);
 
         JLabel lblFinal = new JLabel("Data Final:");
         lblFinal.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblFinal.setForeground(MARROM_ESCURO);
-        
+
         campoFinal = new RoundedTextField(mascaraData);
         configurarEstiloCampoData(campoFinal);
 
@@ -155,7 +158,7 @@ public class TelaRelatorios extends JFrame {
         painelSuperior.add(Box.createRigidArea(new Dimension(5, 0)));
         painelSuperior.add(lblFinal);
         painelSuperior.add(campoFinal);
-        painelSuperior.add(Box.createRigidArea(new Dimension(40, 0))); 
+        painelSuperior.add(Box.createRigidArea(new Dimension(40, 0)));
 
         JLabel lblTipo = new JLabel("Tipo:");
         lblTipo.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -168,11 +171,16 @@ public class TelaRelatorios extends JFrame {
         rbFiados = new RoundedRadioButton("Fiados");
 
         ButtonGroup grupo = new ButtonGroup();
-        grupo.add(rbVendas); grupo.add(rbProdutos); grupo.add(rbFluxo); grupo.add(rbFiados);
+        grupo.add(rbVendas);
+        grupo.add(rbProdutos);
+        grupo.add(rbFluxo);
+        grupo.add(rbFiados);
         rbVendas.setSelected(true);
 
-        painelSuperior.add(rbVendas); painelSuperior.add(rbProdutos);
-        painelSuperior.add(rbFluxo); painelSuperior.add(rbFiados);
+        painelSuperior.add(rbVendas);
+        painelSuperior.add(rbProdutos);
+        painelSuperior.add(rbFluxo);
+        painelSuperior.add(rbFiados);
 
         painelFiltros.add(painelSuperior, gbc);
 
@@ -197,17 +205,21 @@ public class TelaRelatorios extends JFrame {
         campo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         campo.setForeground(MARROM_ESCURO);
         campo.setCaretColor(MARROM_ESCURO);
-        
+
         campo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
                 SwingUtilities.invokeLater(() -> {
-                    if (campo.getText().equals("__/__/____")) campo.setCaretPosition(0);
+                    if (campo.getText().equals("__/__/____"))
+                        campo.setCaretPosition(0);
                 });
                 campo.repaint();
             }
+
             @Override
-            public void focusLost(FocusEvent e) { campo.repaint(); }
+            public void focusLost(FocusEvent e) {
+                campo.repaint();
+            }
         });
     }
 
@@ -231,7 +243,8 @@ public class TelaRelatorios extends JFrame {
 
     private void configurarEventos() {
         btnVisualizar.addActionListener(e -> {
-            String tipo = rbVendas.isSelected() ? "vendas" : rbProdutos.isSelected() ? "produtos" : rbFluxo.isSelected() ? "fluxo" : "fiados";
+            String tipo = rbVendas.isSelected() ? "vendas"
+                    : rbProdutos.isSelected() ? "produtos" : rbFluxo.isSelected() ? "fluxo" : "fiados";
             controller.visualizarRelatorio(tipo, campoInicio.getText(), campoFinal.getText(), tabela);
             configurarOrdenacaoManual();
         });
@@ -269,7 +282,9 @@ public class TelaRelatorios extends JFrame {
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                         return sdf.parse(d1).compareTo(sdf.parse(d2));
-                    } catch (Exception e) { return 0; }
+                    } catch (Exception e) {
+                        return 0;
+                    }
                 });
             }
         }
@@ -279,7 +294,8 @@ public class TelaRelatorios extends JFrame {
 
     static class HeaderButtonRenderer extends DefaultTableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
             String textoOriginal = value.toString();
             String setaFiltro = "  ⇅"; // Visível por padrão para todas as colunas
             Color corDeFundo = MARROM_MEDIO;
@@ -300,9 +316,8 @@ public class TelaRelatorios extends JFrame {
             label.setForeground(Color.WHITE);
             label.setBackground(corDeFundo);
             label.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 4, 1, MARROM_ESCURO),
-                new EmptyBorder(0, 10, 0, 10)
-            ));
+                    BorderFactory.createMatteBorder(0, 0, 4, 1, MARROM_ESCURO),
+                    new EmptyBorder(0, 10, 0, 10)));
 
             return label;
         }
@@ -310,7 +325,12 @@ public class TelaRelatorios extends JFrame {
 
     static class RoundedPanel extends JPanel {
         private final int cornerRadius;
-        public RoundedPanel(int radius) { this.cornerRadius = radius; setOpaque(false); }
+
+        public RoundedPanel(int radius) {
+            this.cornerRadius = radius;
+            setOpaque(false);
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -326,6 +346,7 @@ public class TelaRelatorios extends JFrame {
 
     static class RoundedButton extends JButton {
         private final Color backgroundColor, hoverColor;
+
         public RoundedButton(String text, Color bg, Color fg, int w, int h) {
             super(text);
             backgroundColor = bg;
@@ -338,6 +359,7 @@ public class TelaRelatorios extends JFrame {
             setPreferredSize(new Dimension(w, h));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -346,13 +368,19 @@ public class TelaRelatorios extends JFrame {
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
             FontMetrics fm = g2.getFontMetrics();
             g2.setColor(getForeground());
-            g2.drawString(getText(), (getWidth() - fm.stringWidth(getText())) / 2, (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
+            g2.drawString(getText(), (getWidth() - fm.stringWidth(getText())) / 2,
+                    (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
             g2.dispose();
         }
     }
 
     static class RoundedTextField extends JFormattedTextField {
-        public RoundedTextField(MaskFormatter mascara) { super(mascara); setOpaque(false); setBorder(new EmptyBorder(5, 15, 5, 15)); }
+        public RoundedTextField(MaskFormatter mascara) {
+            super(mascara);
+            setOpaque(false);
+            setBorder(new EmptyBorder(5, 15, 5, 15));
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -369,7 +397,9 @@ public class TelaRelatorios extends JFrame {
 
     static class RoundedRadioButton extends JRadioButton {
         public RoundedRadioButton(String text) {
-            super(text); setOpaque(false); setForeground(MARROM_ESCURO);
+            super(text);
+            setOpaque(false);
+            setForeground(MARROM_ESCURO);
             setFont(new Font("Segoe UI", Font.BOLD, 18));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             setFocusPainted(false);
@@ -377,13 +407,23 @@ public class TelaRelatorios extends JFrame {
     }
 
     static class PaddedCellRenderer extends DefaultTableCellRenderer {
-        public PaddedCellRenderer(int alignment) { setHorizontalAlignment(alignment); setBorder(new EmptyBorder(5, 15, 5, 15)); }
+        public PaddedCellRenderer(int alignment) {
+            setHorizontalAlignment(alignment);
+            setBorder(new EmptyBorder(5, 15, 5, 15));
+        }
+
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
             c.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            if (isSelected) { c.setBackground(table.getSelectionBackground()); c.setForeground(table.getSelectionForeground()); }
-            else { c.setBackground(table.getBackground()); c.setForeground(table.getForeground()); }
+            if (isSelected) {
+                c.setBackground(table.getSelectionBackground());
+                c.setForeground(table.getSelectionForeground());
+            } else {
+                c.setBackground(table.getBackground());
+                c.setForeground(table.getForeground());
+            }
             return c;
         }
     }

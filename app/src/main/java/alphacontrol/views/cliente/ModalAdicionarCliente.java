@@ -5,6 +5,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
@@ -41,12 +43,15 @@ public class ModalAdicionarCliente extends JDialog {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // Sombra
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fill(new RoundRectangle2D.Double(8, 8, getWidth() - 8, getHeight() - 8, 30, 30));
+
+                // Fundo
                 g2.setColor(begeFundo);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth() - 8, getHeight() - 8, 30, 30));
 
-                g2.setColor(marromClaro);
-                g2.setStroke(new BasicStroke(2f));
-                g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 3, getHeight() - 3, 25, 25));
+                g2.dispose();
             }
         };
         painel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -154,8 +159,14 @@ public class ModalAdicionarCliente extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
                 g2.setColor(getModel().isPressed() ? marromClaro.darker() : marromClaro);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+
+                g2.setColor(marromEscuro);
+                g2.setStroke(new BasicStroke(2));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+
                 g2.dispose();
                 super.paintComponent(g);
             }
@@ -242,6 +253,12 @@ public class ModalAdicionarCliente extends JDialog {
         campo.setForeground(texto);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        campo.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(campo::selectAll);
+            }
+        });
         return campo;
     }
 

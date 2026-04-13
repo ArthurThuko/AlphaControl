@@ -130,7 +130,7 @@ public class TelaPDV extends JFrame {
 
         JPanel pnlBusca = new JPanel(new BorderLayout(10, 0));
         pnlBusca.setOpaque(false);
-        campoPesquisa = new RoundedTextField("Pesquisar produto...");
+        campoPesquisa = new RoundedTextField("Pesquise por nome...");
         campoPesquisa.setFont(new Font("Segoe UI", Font.BOLD, 16)); 
         JButton btnBusca = new RoundedButton("Buscar", HEADER_PRODUTOS, Color.WHITE, 120, 45);
         btnBusca.setFont(new Font("Segoe UI", Font.BOLD, 18));
