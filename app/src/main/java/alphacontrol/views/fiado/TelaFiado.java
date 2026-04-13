@@ -266,28 +266,26 @@ public class TelaFiado extends JFrame {
         }
 
         @Override
-        public void setValue(Object value) {
-            if (value instanceof Number) {
-                setText(FORMATTER.format(value));
-            } else {
-                super.setValue(value);
-            }
-        }
-
-        @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            // --- ADICIONADO: Força negrito em todos os estados ---
+            c.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
             if (!isSelected)
                 c.setBackground(table.getBackground());
 
             if (value instanceof Number && ((Number) value).doubleValue() > 0) {
                 c.setForeground(VERMELHO_TERROSO);
-                c.setFont(new Font("Segoe UI", Font.BOLD, 16));
             } else {
                 c.setForeground(MARROM_ESCURO);
-                c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
             }
+            
+            if (value instanceof Number) {
+                setText(FORMATTER.format(value));
+            }
+            
             return c;
         }
     }
@@ -302,6 +300,10 @@ public class TelaFiado extends JFrame {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            // --- ADICIONADO: Define fonte em negrito ---
+            setFont(new Font("Segoe UI", Font.BOLD, 16));
+            
             setVerticalAlignment(SwingConstants.CENTER);
             if (isSelected) {
                 setBackground(table.getSelectionBackground());

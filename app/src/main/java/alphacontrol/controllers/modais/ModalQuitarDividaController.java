@@ -45,14 +45,10 @@ public class ModalQuitarDividaController {
         }
 
         try {
-            if (valorPago == cliente.getDebito()) {
-                fiadoController.quitarDividaCompleta(cliente.getId());
-                JOptionPane.showMessageDialog(modal, "Dívida quitada com sucesso!");
-            } else {
-                fiadoController.pagarFiado(cliente.getId(), valorPago);
-                JOptionPane.showMessageDialog(modal, "Pagamento parcial realizado com sucesso!");
-            }
+            // Chamamos um único método inteligente que faz a cascata e joga pro caixa!
+            fiadoController.realizarPagamentoFiado(cliente.getId(), valorPago, cliente.getNome());
             
+            JOptionPane.showMessageDialog(modal, "Pagamento de R$ " + String.format("%.2f", valorPago) + " processado com sucesso!");
             modal.dispose();
 
         } catch (Exception e) {

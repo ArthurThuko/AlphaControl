@@ -24,6 +24,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -129,7 +130,7 @@ public class TelaPDV extends JFrame {
 
         JPanel pnlBusca = new JPanel(new BorderLayout(10, 0));
         pnlBusca.setOpaque(false);
-        campoPesquisa = new RoundedTextField("Pesquisar nome do Produto...");
+        campoPesquisa = new RoundedTextField("Pesquise por nome...");
         campoPesquisa.setFont(new Font("Segoe UI", Font.BOLD, 16)); 
         JButton btnBusca = new RoundedButton("Buscar", HEADER_PRODUTOS, Color.WHITE, 120, 45);
         btnBusca.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -152,7 +153,15 @@ public class TelaPDV extends JFrame {
         JScrollPane scroll = new JScrollPane(tabelaProdutos);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
-        painel.add(scroll, BorderLayout.CENTER);
+        
+        // Encapsulando no painel arredondado para estilo idêntico ao da TelaEstoque
+        RoundedPanel painelTabela = new RoundedPanel(15);
+        painelTabela.setLayout(new BorderLayout());
+        painelTabela.setBackground(BEGE_CLARO);
+        painelTabela.setBorder(new EmptyBorder(1, 1, 1, 1));
+        painelTabela.add(scroll, BorderLayout.CENTER);
+
+        painel.add(painelTabela, BorderLayout.CENTER);
 
         return painel;
     }
@@ -168,14 +177,12 @@ public class TelaPDV extends JFrame {
         sub.setForeground(MARROM_ESCURO);
         painel.add(sub, BorderLayout.NORTH);
 
-        // Removida a coluna "-" separada. Agora a quantidade engloba a função.
         modeloCarrinho = new DefaultTableModel(new String[]{"Item", "Quantidade", "Total", "Remover"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return c == 1 || c == 3; }
         };
         tabelaCarrinho = new JTable(modeloCarrinho);
-        configurarEstiloTabela(tabelaCarrinho, MARROM_CLARO);
+        configurarEstiloTabela(tabelaCarrinho, MARROM_MEDIO); // Padronizado para MARROM_MEDIO
         
-        // Renderer e Editor especial para a coluna Quantidade com o botão de menos
         tabelaCarrinho.getColumnModel().getColumn(1).setCellRenderer(new QtdRenderer());
         tabelaCarrinho.getColumnModel().getColumn(1).setCellEditor(new QtdEditor(new JCheckBox()));
 
@@ -187,7 +194,14 @@ public class TelaPDV extends JFrame {
         JScrollPane scroll = new JScrollPane(tabelaCarrinho);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
-        painel.add(scroll, BorderLayout.CENTER);
+        
+        RoundedPanel painelTabela = new RoundedPanel(15);
+        painelTabela.setLayout(new BorderLayout());
+        painelTabela.setBackground(BEGE_CLARO);
+        painelTabela.setBorder(new EmptyBorder(1, 1, 1, 1));
+        painelTabela.add(scroll, BorderLayout.CENTER);
+
+        painel.add(painelTabela, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new GridBagLayout());
         footer.setOpaque(false);
@@ -239,24 +253,29 @@ public class TelaPDV extends JFrame {
 
     private void configurarEstiloTabela(JTable tabela, Color headerColor) {
         tabela.setFont(new Font("Segoe UI", Font.BOLD, 16)); 
-        tabela.setRowHeight(55); 
+        tabela.setRowHeight(60); 
+        tabela.setBackground(BEGE_CLARO);
+        tabela.setForeground(MARROM_ESCURO);
         tabela.setShowGrid(true);
+        tabela.setShowVerticalLines(false);
+        tabela.setIntercellSpacing(new Dimension(0, 1));
         tabela.setGridColor(new Color(223, 214, 198)); 
-        tabela.setSelectionBackground(headerColor.brighter());
+        tabela.setSelectionBackground(MARROM_CLARO.brighter());
         tabela.setSelectionForeground(MARROM_ESCURO);
         
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
         JTableHeader header = tabela.getTableHeader();
         header.setPreferredSize(new Dimension(0, 50));
         header.setBackground(headerColor);
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Segoe UI", Font.BOLD, 18)); 
+        header.setBorder(BorderFactory.createEmptyBorder());
+        header.setDefaultRenderer(new HeaderRenderer(tabela));
+
+        PaddedCellRenderer paddedRenderer = new PaddedCellRenderer();
+
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(paddedRenderer);
+        }
     }
 
     private void estilizarCombo(JComboBox<?> combo) {
@@ -361,19 +380,15 @@ public class TelaPDV extends JFrame {
 
     // --- COMPONENTES DA TABELA CUSTOMIZADOS ---
 
-    // --- COMPONENTES DA TABELA CUSTOMIZADOS ---
-
     class QtdPanel extends JPanel {
         JLabel lbl = new JLabel();
         JButton btnMinus = new JButton("-");
 
         public QtdPanel() {
-            // GridBagLayout é o melhor para centralização vertical e horizontal absoluta
             setLayout(new GridBagLayout());
-            setOpaque(true); // Alterado para true para garantir que o fundo da seleção apareça
+            setOpaque(true); 
             
-            // Configurações do Botão de Menos
-            btnMinus.setPreferredSize(new Dimension(32, 32)); // Tamanho fixo garantido
+            btnMinus.setPreferredSize(new Dimension(32, 32)); 
             btnMinus.setMinimumSize(new Dimension(32, 32));
             btnMinus.setBackground(VERMELHO_TERROSO);
             btnMinus.setForeground(Color.WHITE);
@@ -381,8 +396,6 @@ public class TelaPDV extends JFrame {
             btnMinus.setBorderPainted(false);
             btnMinus.setCursor(new Cursor(Cursor.HAND_CURSOR));
             btnMinus.setFont(new Font("Arial", Font.BOLD, 20));
-            
-            // Remove as margens internas do botão que causam o "..."
             btnMinus.setMargin(new Insets(0, 0, 0, 0));
 
             lbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -391,7 +404,7 @@ public class TelaPDV extends JFrame {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 0;
-            gbc.insets = new Insets(0, 0, 0, 15); // Espaço entre o botão e o número
+            gbc.insets = new Insets(0, 0, 0, 15); 
             gbc.anchor = GridBagConstraints.CENTER;
             add(btnMinus, gbc);
 
@@ -404,7 +417,6 @@ public class TelaPDV extends JFrame {
     class QtdRenderer extends QtdPanel implements TableCellRenderer {
         public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) {
             lbl.setText(v.toString());
-            // Mantém as cores da linha da tabela
             if (s) {
                 setBackground(t.getSelectionBackground());
                 lbl.setForeground(t.getSelectionForeground());
@@ -422,7 +434,6 @@ public class TelaPDV extends JFrame {
         public QtdEditor(JCheckBox checkBox) {
             super(checkBox);
             panel.btnMinus.addActionListener(e -> {
-                // Para o editor antes de modificar a lista para evitar NullPointerException
                 int row = tabelaCarrinho.getSelectedRow();
                 if (row != -1) {
                     ItemVenda item = carrinho.get(row);
@@ -432,7 +443,7 @@ public class TelaPDV extends JFrame {
                     } else {
                         carrinho.remove(row);
                     }
-                    fireEditingStopped(); // Notifica a tabela que a edição acabou
+                    fireEditingStopped(); 
                     atualizarCarrinho();
                 }
             });
@@ -441,7 +452,6 @@ public class TelaPDV extends JFrame {
         @Override
         public Component getTableCellEditorComponent(JTable t, Object v, boolean s, int r, int c) {
             panel.lbl.setText(v.toString());
-            // Sincroniza a cor de fundo com a seleção da tabela no momento da edição
             panel.setBackground(t.getSelectionBackground());
             return panel;
         }
@@ -503,9 +513,18 @@ public class TelaPDV extends JFrame {
 
     class ButtonRendererGreen extends JButton implements TableCellRenderer {
         public ButtonRendererGreen() { setOpaque(false); setForeground(Color.WHITE); setFont(new Font("Segoe UI", Font.BOLD, 12)); setContentAreaFilled(false); }
-        public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) { setText("Adicionar"); setFont(new Font("Segoe UI", Font.BOLD, 12)); return this; }
+        public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) { 
+            setText("Adicionar"); 
+            setFont(new Font("Segoe UI", Font.BOLD, 12)); 
+            if(s) setBackground(t.getSelectionBackground()); else setBackground(t.getBackground());
+            return this; 
+        }
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create(); g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
             g2.setColor(VERDE_OLIVA); g2.fillRoundRect(8, 8, getWidth()-16, getHeight()-16, 10, 10);
             g2.setColor(Color.WHITE); FontMetrics fm = g2.getFontMetrics();
             g2.drawString(getText(), (getWidth()-fm.stringWidth(getText()))/2, (getHeight()-fm.getHeight())/2 + fm.getAscent());
@@ -515,9 +534,17 @@ public class TelaPDV extends JFrame {
 
     class ButtonRendererRed extends JButton implements TableCellRenderer {
         public ButtonRendererRed() { setOpaque(false); setForeground(Color.WHITE); setFont(new Font("Segoe UI", Font.BOLD, 12)); setContentAreaFilled(false); }
-        public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) { setText("REMOVER"); return this; }
+        public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) { 
+            setText("REMOVER"); 
+            if(s) setBackground(t.getSelectionBackground()); else setBackground(t.getBackground());
+            return this; 
+        }
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create(); g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
             g2.setColor(VERMELHO_TERROSO); g2.fillRoundRect(8, 8, getWidth()-16, getHeight()-16, 10, 10);
             g2.setColor(Color.WHITE); FontMetrics fm = g2.getFontMetrics();
             g2.drawString(getText(), (getWidth()-fm.stringWidth(getText()))/2, (getHeight()-fm.getHeight())/2 + fm.getAscent());
@@ -531,6 +558,45 @@ public class TelaPDV extends JFrame {
             JButton b = new JButton();
             b.addActionListener(e -> { carrinho.remove(tabelaCarrinho.getSelectedRow()); stopCellEditing(); atualizarCarrinho(); });
             editorComponent = b;
+        }
+    }
+
+    // --- RENDERERS DE ESTILO COMPARTILHADO ---
+    static class HeaderRenderer implements TableCellRenderer {
+        DefaultTableCellRenderer renderer;
+
+        public HeaderRenderer(JTable table) {
+            renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
+            renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            Component c = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            ((JComponent) c).setBorder(new EmptyBorder(0, 15, 0, 15));
+            return c;
+        }
+    }
+
+    static class PaddedCellRenderer extends DefaultTableCellRenderer {
+        public PaddedCellRenderer() {
+            setBorder(new EmptyBorder(5, 15, 5, 15));
+            setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setVerticalAlignment(SwingConstants.CENTER);
+            setFont(new Font("Segoe UI", Font.BOLD, 16)); 
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
+            } else {
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+            return this;
         }
     }
 }

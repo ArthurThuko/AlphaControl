@@ -6,15 +6,21 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
 import alphacontrol.controllers.principal.TelaPrincipalController;
@@ -33,12 +39,12 @@ public class Navbar extends JMenuBar {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Criação dos itens de navegação
-        NavItem navPrincipal = new NavItem("Principal", "Principal".equals(activeItem));
-        NavItem navPDV = new NavItem("PDV", "PDV".equals(activeItem));
-        NavItem navEstoque = new NavItem("Estoque", "Estoque".equals(activeItem));
-        NavItem navFiado = new NavItem("Fiado", "Fiado".equals(activeItem));
-        NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa", "Fluxo de Caixa".equals(activeItem));
-        NavItem navRelatorio = new NavItem("Relatório", "Relatório".equals(activeItem));
+        NavItem navPrincipal = new NavItem("Principal (F1)", "Principal".equals(activeItem));
+        NavItem navPDV = new NavItem("PDV (F3)", "PDV".equals(activeItem));
+        NavItem navEstoque = new NavItem("Estoque (F2)", "Estoque".equals(activeItem));
+        NavItem navFiado = new NavItem("Fiado (F4)", "Fiado".equals(activeItem));
+        NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa (F5)", "Fluxo de Caixa".equals(activeItem));
+        NavItem navRelatorio = new NavItem("Relatório (F6)", "Relatório".equals(activeItem));
         NavItem navSair = new NavItem("Sair", false);
 
         // Ações dos botões
@@ -102,6 +108,76 @@ public class Navbar extends JMenuBar {
         add(Box.createHorizontalGlue());
 
         add(navSair);
+
+        // Atalhos de teclado (F1 a F6)
+        InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getActionMap();
+
+        // F1 - Principal
+        inputMap.put(KeyStroke.getKeyStroke("F1"), "goPrincipal");
+        actionMap.put("goPrincipal", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"Principal".equals(activeItem)) {
+                    mainController.abrirTelaPrincipal();
+                }
+            }
+        });
+
+        // F2 - Estoque
+        inputMap.put(KeyStroke.getKeyStroke("F2"), "goEstoque");
+        actionMap.put("goEstoque", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"Estoque".equals(activeItem)) {
+                    mainController.abrirTelaEstoque();
+                }
+            }
+        });
+
+        // F3 - PDV
+        inputMap.put(KeyStroke.getKeyStroke("F3"), "goPDV");
+        actionMap.put("goPDV", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"PDV".equals(activeItem)) {
+                    mainController.abrirTelaPDV();
+                }
+            }
+        });
+
+        // F4 - Fiado
+        inputMap.put(KeyStroke.getKeyStroke("F4"), "goFiado");
+        actionMap.put("goFiado", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"Fiado".equals(activeItem)) {
+                    mainController.abrirTelaFiado();
+                }
+            }
+        });
+
+        // F5 - Fluxo de Caixa
+        inputMap.put(KeyStroke.getKeyStroke("F5"), "goFluxo");
+        actionMap.put("goFluxo", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"Fluxo de Caixa".equals(activeItem)) {
+                    mainController.abrirTelaFluxoCaixa();
+                }
+            }
+        });
+
+        // F6 - Relatórios
+        inputMap.put(KeyStroke.getKeyStroke("F6"), "goRelatorio");
+        actionMap.put("goRelatorio", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"Relatório".equals(activeItem)) {
+                    mainController.abrirTelaRelatorios();
+                }
+            }
+        });
     }
 
     class NavItem extends JButton {

@@ -31,7 +31,6 @@ public class RelatorioDAO {
             // =========================
             // 1. ENTRADAS - VENDAS
             // =========================
-
             String sqlVendas = """
                         SELECT DATE(data_venda) as data, SUM(total) as total
                         FROM venda
@@ -41,21 +40,16 @@ public class RelatorioDAO {
                     """;
 
             try (PreparedStatement stmt = conn.prepareStatement(sqlVendas)) {
-
                 stmt.setDate(1, inicio);
                 stmt.setDate(2, fim);
 
                 ResultSet rs = stmt.executeQuery();
-
                 while (rs.next()) {
-
                     MovimentacaoCaixa mov = new MovimentacaoCaixa();
-
                     mov.setNome("Vendas do dia");
                     mov.setTipo("ENTRADA");
                     mov.setValor(rs.getDouble("total"));
                     mov.setData(rs.getString("data"));
-
                     lista.add(mov);
                 }
             }
@@ -63,7 +57,6 @@ public class RelatorioDAO {
             // =========================
             // 2. SAÍDA - FIADOS
             // =========================
-
             String sqlFiado = """
                         SELECT DATE(data) as data, SUM(valor) as total
                         FROM fiado
@@ -72,21 +65,16 @@ public class RelatorioDAO {
                     """;
 
             try (PreparedStatement stmt = conn.prepareStatement(sqlFiado)) {
-
                 stmt.setDate(1, inicio);
                 stmt.setDate(2, fim);
 
                 ResultSet rs = stmt.executeQuery();
-
                 while (rs.next()) {
-
                     MovimentacaoCaixa mov = new MovimentacaoCaixa();
-
-                    mov.setNome("Fiado clientes");
+                    mov.setNome("Fiados clientes");
                     mov.setTipo("SAIDA");
                     mov.setValor(rs.getDouble("total"));
                     mov.setData(rs.getString("data"));
-
                     lista.add(mov);
                 }
             }
@@ -94,32 +82,33 @@ public class RelatorioDAO {
             // =========================
             // 3. MOVIMENTAÇÕES MANUAIS
             // =========================
-
             String sqlManual = """
                         SELECT * FROM movimentacaocaixa
                         WHERE data BETWEEN ? AND ?
                     """;
 
             try (PreparedStatement stmt = conn.prepareStatement(sqlManual)) {
-
                 stmt.setDate(1, inicio);
                 stmt.setDate(2, fim);
 
                 ResultSet rs = stmt.executeQuery();
-
                 while (rs.next()) {
-
                     MovimentacaoCaixa mov = new MovimentacaoCaixa();
-
                     mov.setId(rs.getInt("idMovimentacaoCaixa"));
                     mov.setNome(rs.getString("nome"));
                     mov.setTipo(rs.getString("tipo"));
                     mov.setValor(rs.getDouble("valor"));
                     mov.setData(rs.getString("data"));
-
                     lista.add(mov);
                 }
             }
+            
+            // Ordena tudo do mais recente pro mais antigo (DESC) no Java
+            lista.sort((m1, m2) -> {
+                if(m1.getData() == null) return 1;
+                if(m2.getData() == null) return -1;
+                return m2.getData().compareTo(m1.getData());
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,10 +118,15 @@ public class RelatorioDAO {
     }
 
     // -----------------------------------------------------
-    // VENDAS
+    // VENDAS (Correção: REMOVIDO o JOIN que causava o erro)
     // -----------------------------------------------------
     public List<Venda> listarVendas(Date inicio, Date fim) {
-        String sql = "SELECT * FROM venda WHERE data_venda BETWEEN ? AND ? ORDER BY data_venda ASC";
+        String sql = """
+            SELECT * FROM venda
+            WHERE DATE(data_venda) BETWEEN ? AND ? 
+            ORDER BY data_venda DESC
+        """;
+        
         List<Venda> lista = new ArrayList<>();
 
         try (Connection conn = Conexao.getConexao();
@@ -147,11 +141,15 @@ public class RelatorioDAO {
                 v.setVendaId(rs.getInt("venda_id"));
                 v.setDataVenda(rs.getDate("data_venda"));
                 v.setTotal(rs.getDouble("total"));
+                
+                // Vendas pagas na hora não têm cliente específico no banco, 
+                // então assumimos Consumidor Final
+                v.setNomeCliente("Consumidor Final");
 
                 String formaPg = rs.getString("forma_pagamento");
                 FormaPagamento fp = new FormaPagamento(formaPg);
-
                 v.setFormaPagamento(fp);
+                
                 lista.add(v);
             }
         } catch (SQLException e) {
@@ -161,10 +159,17 @@ public class RelatorioDAO {
     }
 
     // -----------------------------------------------------
-    // FIADOS
+    // FIADOS (Perfeito e funcionando com o JOIN em 'cliente')
     // -----------------------------------------------------
     public List<Fiado> listarFiados(LocalDateTime inicio, LocalDateTime fim) {
-        String sql = "SELECT * FROM fiado WHERE data BETWEEN ? AND ? ORDER BY data ASC";
+        String sql = """
+            SELECT f.*, c.nome AS nome_cliente 
+            FROM fiado f
+            LEFT JOIN cliente c ON f.cliente_id = c.id
+            WHERE f.data BETWEEN ? AND ? 
+            ORDER BY f.data DESC
+        """;
+        
         List<Fiado> lista = new ArrayList<>();
 
         try (Connection conn = Conexao.getConexao();
@@ -180,6 +185,8 @@ public class RelatorioDAO {
                 f.setId(rs.getInt("id"));
                 f.setClienteId(rs.getInt("cliente_id"));
                 f.setValor(rs.getDouble("valor"));
+                
+                f.setNomeCliente(rs.getString("nome_cliente"));
 
                 int vendaId = rs.getInt("venda_id");
                 f.setVendaId(rs.wasNull() ? null : vendaId);
@@ -199,14 +206,19 @@ public class RelatorioDAO {
         return lista;
     }
 
+    // -----------------------------------------------------
+    // PRODUTOS MAIS VENDIDOS
+    // -----------------------------------------------------
     public List<ProdutoMaisVendido> listarProdutosMaisVendidos(Date inicio, Date fim) {
-        String sql = "SELECT p.nome, SUM(iv.quantidade) AS total " +
-                "FROM item_venda iv " +
-                "JOIN produtos p ON p.produto_id = iv.produto_id " +
-                "JOIN venda v ON v.venda_id = iv.venda_id " +
-                "WHERE v.data_venda BETWEEN ? AND ? " +
-                "GROUP BY p.nome " +
-                "ORDER BY total DESC";
+        String sql = """
+                SELECT p.nome, SUM(iv.quantidade) AS total
+                FROM item_venda iv
+                JOIN produtos p ON p.produto_id = iv.produto_id
+                JOIN venda v ON v.venda_id = iv.venda_id
+                WHERE v.data_venda BETWEEN ? AND ?
+                GROUP BY p.nome
+                ORDER BY total DESC
+        """;
 
         List<ProdutoMaisVendido> lista = new ArrayList<>();
 
