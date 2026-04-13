@@ -9,6 +9,15 @@ public class Venda {
     private FormaPagamento formaPagamento;
     private double total;
     private Date dataVenda;
+    private String nomeCliente;
+
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(String nomeCliente) {
+        this.nomeCliente = nomeCliente;
+    }
 
     // Construtor corrigido e compatível com o DAO
     public Venda(int vendaId, String cliente, FormaPagamento formaPagamento, double total, Date dataVenda) {

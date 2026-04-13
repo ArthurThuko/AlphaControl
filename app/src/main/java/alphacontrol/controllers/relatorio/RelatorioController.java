@@ -1,5 +1,27 @@
 package alphacontrol.controllers.relatorio;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 import alphacontrol.dao.RelatorioDAO;
 import alphacontrol.models.Fiado;
 import alphacontrol.models.MovimentacaoCaixa;
@@ -7,56 +29,25 @@ import alphacontrol.models.ProdutoMaisVendido;
 import alphacontrol.models.Venda;
 import alphacontrol.views.relatorios.TelaRelatorios;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
 public class RelatorioController {
 
     private TelaRelatorios view;
     private RelatorioDAO dao;
+    private NumberFormat moeda = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public RelatorioController(TelaRelatorios view) {
         this.view = view;
         this.dao = new RelatorioDAO();
     }
 
-    // ---------------------------------------------------------
-    // HELPERS DE CONVERSÃO
-    // ---------------------------------------------------------
+    private java.sql.Date toSqlDate(Date d) { return d == null ? null : new java.sql.Date(d.getTime()); }
 
-    // converte java.util.Date -> java.sql.Date (para queries que usam
-    // java.sql.Date)
-    private java.sql.Date toSqlDate(Date d) {
-        return d == null ? null : new java.sql.Date(d.getTime());
-    }
-
-    // converte java.util.Date -> java.time.LocalDateTime (para listarFiados)
     private LocalDateTime toLocalDateTime(Date d) {
-        if (d == null)
-            return null;
-        return Instant.ofEpochMilli(d.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        if (d == null) return null;
+        return Instant.ofEpochMilli(d.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
-
-    // ---------------------------------------------------------
-    // MÉTODO PRINCIPAL DO BOTÃO "VISUALIZAR"
-    // ---------------------------------------------------------
 
     public void visualizarRelatorio(String tipo, String inicioStr, String fimStr, JTable tabela) {
-
         Date inicio = validarData(inicioStr);
         Date fim = validarData(fimStr);
 
@@ -64,226 +55,118 @@ public class RelatorioController {
             JOptionPane.showMessageDialog(view, "Datas inválidas!", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         if (fim.before(inicio)) {
-            JOptionPane.showMessageDialog(view, "Data final não pode ser menor que a inicial!", "Erro",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Data final menor que a inicial!", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         switch (tipo) {
-
-            case "produtos":
-                carregarProdutosMaisVendidos(inicio, fim, tabela);
-                break;
-
-            case "vendas":
-                carregarVendas(inicio, fim, tabela);
-                break;
-
-            case "fluxo":
-                carregarFluxo(inicio, fim, tabela);
-                break;
-
-            case "fiados":
-                carregarFiados(inicio, fim, tabela);
-                break;
-
-            default:
-                JOptionPane.showMessageDialog(view, "Selecione um tipo de relatório.", "Atenção",
-                        JOptionPane.WARNING_MESSAGE);
+            case "produtos": carregarProdutosMaisVendidos(inicio, fim, tabela); break;
+            case "vendas": carregarVendas(inicio, fim, tabela); break;
+            case "fluxo": carregarFluxo(inicio, fim, tabela); break;
+            case "fiados": carregarFiados(inicio, fim, tabela); break;
         }
     }
 
-    // ---------------------------------------------------------
-    // CARREGADORES DE CADA TIPO DE RELATÓRIO
-    // ---------------------------------------------------------
-
-    private void carregarProdutosMaisVendidos(Date inicio, Date fim, JTable tabela) {
-        List<ProdutoMaisVendido> lista = dao.listarProdutosMaisVendidos(toSqlDate(inicio), toSqlDate(fim));
-
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "Produto", "Quantidade" }, 0);
-
-        for (ProdutoMaisVendido p : lista) {
-            modelo.addRow(new Object[] {
-                    p.getNome(),
-                    p.getQuantidade()
-            });
-        }
-
-        tabela.setModel(modelo);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
+    private void carregarProdutosMaisVendidos(Date in, Date fi, JTable t) {
+        List<ProdutoMaisVendido> lista = dao.listarProdutosMaisVendidos(toSqlDate(in), toSqlDate(fi));
+        DefaultTableModel modelo = new DefaultTableModel(new Object[]{"Produto", "Quantidade"}, 0);
+        for (ProdutoMaisVendido p : lista) modelo.addRow(new Object[]{p.getNome(), p.getQuantidade()});
+        t.setModel(modelo);
     }
 
-    private void carregarVendas(Date inicio, Date fim, JTable tabela) {
-        List<Venda> lista = dao.listarVendas(toSqlDate(inicio), toSqlDate(fim));
-
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "ID", "Total", "Data", "Forma de Pagamento" }, 0);
-
+    private void carregarVendas(Date in, Date fi, JTable t) {
+        List<Venda> lista = dao.listarVendas(toSqlDate(in), toSqlDate(fi));
+        DefaultTableModel modelo = new DefaultTableModel(new Object[]{"Cliente", "Total", "Data", "Pagamento"}, 0);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         for (Venda v : lista) {
-            modelo.addRow(new Object[] {
-                    v.getVendaId(),
-                    v.getTotal(),
-                    v.getDataVenda(),
-                    v.getFormaPagamento().getNome()
+            modelo.addRow(new Object[]{
+                v.getNomeCliente() != null ? v.getNomeCliente() : "Consumidor Final",
+                moeda.format(v.getTotal()),
+                sdf.format(v.getDataVenda()),
+                v.getFormaPagamento().getNome()
             });
         }
-
-        tabela.setModel(modelo);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
+        t.setModel(modelo);
     }
 
-    private void carregarFluxo(Date inicio, Date fim, JTable tabela) {
-        List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(inicio), toSqlDate(fim));
-
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "Data", "Descrição", "Tipo", "Valor" }, 0);
-
+    private void carregarFluxo(Date in, Date fi, JTable t) {
+        List<MovimentacaoCaixa> lista = dao.listarMovimentacoes(toSqlDate(in), toSqlDate(fi));
+        DefaultTableModel modelo = new DefaultTableModel(new Object[]{"Data", "Descrição", "Tipo", "Valor"}, 0);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (MovimentacaoCaixa m : lista) {
-            modelo.addRow(new Object[] {
-                    m.getData(),
-                    m.getNome(),
-                    m.getTipo(),
-                    m.getValor()
-            });
+            String dataFormatada = m.getData();
+            try { dataFormatada = LocalDate.parse(m.getData()).format(dtf); } catch (Exception e) {}
+            modelo.addRow(new Object[]{ dataFormatada, m.getNome(), m.getTipo(), moeda.format(m.getValor()) });
         }
-
-        tabela.setModel(modelo);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
+        t.setModel(modelo);
     }
 
-    private void carregarFiados(Date inicio, Date fim, JTable tabela) {
-        // converte para LocalDateTime antes de chamar o DAO
-        LocalDateTime inicioLdt = toLocalDateTime(inicio).withHour(0).withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime fimLdt = toLocalDateTime(fim).withHour(23).withMinute(59).withSecond(59).withNano(999_999_999);
-
-        List<Fiado> lista = dao.listarFiados(inicioLdt, fimLdt);
-
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[] { "ID", "Cliente", "Valor", "Data", "Status" }, 0);
-
+    private void carregarFiados(Date in, Date fi, JTable t) {
+        LocalDateTime ldtIn = toLocalDateTime(in).withHour(0).withMinute(0);
+        LocalDateTime ldtFi = toLocalDateTime(fi).withHour(23).withMinute(59);
+        List<Fiado> lista = dao.listarFiados(ldtIn, ldtFi);
+        DefaultTableModel modelo = new DefaultTableModel(new Object[]{"Cliente", "Valor", "Data", "Status"}, 0);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         for (Fiado f : lista) {
-            modelo.addRow(new Object[] {
-                    f.getId(),
-                    f.getClienteId(),
-                    f.getValor(),
-                    f.getData(),
-                    f.getStatus()
+            modelo.addRow(new Object[]{
+                f.getNomeCliente() != null ? f.getNomeCliente() : "Desconhecido",
+                moeda.format(f.getValor()),
+                f.getData().format(dtf),
+                f.getStatus()
             });
         }
-
-        tabela.setModel(modelo);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            tabela.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
+        t.setModel(modelo);
     }
-
-    // ---------------------------------------------------------
-    // VALIDAÇÃO DAS DATAS (dd/MM/yyyy)
-    // ---------------------------------------------------------
 
     private Date validarData(String dataStr) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             sdf.setLenient(false);
             return sdf.parse(dataStr);
-        } catch (ParseException e) {
-            return null;
-        }
+        } catch (ParseException e) { return null; }
     }
 
     public void gerarPdf(JTable tabela, String caminho) {
-        try {
-            // Criar documento
-            PDDocument document = new PDDocument();
+        try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
-
-            PDPageContentStream stream = new PDPageContentStream(document, page);
-
-            // Título
-            stream.beginText();
-            stream.setFont(PDType1Font.HELVETICA_BOLD, 18);
-            stream.newLineAtOffset(50, 750);
-            stream.showText("Relatório");
-            stream.endText();
-
-            // Cabeçalhos da tabela
-            float y = 700;
-            stream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-
-            for (int i = 0; i < tabela.getColumnCount(); i++) {
+            try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
                 stream.beginText();
-                stream.newLineAtOffset(50 + (i * 150), y);
-                stream.showText(tabela.getColumnName(i));
+                stream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                stream.newLineAtOffset(50, 750);
+                stream.showText("Relatório Gerencial");
                 stream.endText();
-            }
 
-            // Linhas da tabela
-            stream.setFont(PDType1Font.HELVETICA, 12);
-            y -= 20;
-
-            for (int row = 0; row < tabela.getRowCount(); row++) {
-                for (int col = 0; col < tabela.getColumnCount(); col++) {
-
-                    Object value = tabela.getValueAt(row, col);
-                    String texto = value == null ? "" : value.toString();
-
-                    stream.beginText();
-                    stream.newLineAtOffset(50 + (col * 150), y);
-                    stream.showText(texto);
-                    stream.endText();
+                float y = 700;
+                stream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                for (int i = 0; i < tabela.getColumnCount(); i++) {
+                    stream.beginText(); stream.newLineAtOffset(50 + (i * 130), y);
+                    stream.showText(tabela.getColumnName(i)); stream.endText();
                 }
+
                 y -= 20;
+                stream.setFont(PDType1Font.HELVETICA, 10);
+                for (int row = 0; row < tabela.getRowCount(); row++) {
+                    for (int col = 0; col < tabela.getColumnCount(); col++) {
+                        Object val = tabela.getValueAt(row, col);
+                        stream.beginText(); stream.newLineAtOffset(50 + (col * 130), y);
+                        stream.showText(val != null ? val.toString() : ""); stream.endText();
+                    }
+                    y -= 15;
+                    if (y < 50) break; // Simplificação para 1 página
+                }
             }
-
-            stream.close();
             document.save(caminho);
-            document.close();
-
-            JOptionPane.showMessageDialog(null, "PDF gerado com sucesso!");
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao gerar PDF: " + e.getMessage());
-        }
+            JOptionPane.showMessageDialog(null, "PDF Gerado!");
+        } catch (Exception e) { JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage()); }
     }
 
     public void baixarPDF(JTable tabela) {
         JFileChooser chooser = new JFileChooser();
-        chooser.setSelectedFile(new java.io.File("relatorio.pdf"));
-
+        chooser.setSelectedFile(new java.io.File("relatorio_alfa.pdf"));
         if (chooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
-            String caminho = chooser.getSelectedFile().getAbsolutePath();
-            gerarPdf(tabela, caminho);
+            gerarPdf(tabela, chooser.getSelectedFile().getAbsolutePath());
         }
     }
-
 }

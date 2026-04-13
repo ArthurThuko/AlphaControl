@@ -1,19 +1,42 @@
 package alphacontrol.views.fluxo_caixa;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.*;
-
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
+import java.text.DecimalFormat;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import alphacontrol.controllers.fluxo.FluxoCaixaController;
 import alphacontrol.controllers.principal.TelaPrincipalController;
 import alphacontrol.models.MovimentacaoCaixa;
 import alphacontrol.views.components.Navbar;
-
-import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
-import java.text.DecimalFormat;
 
 public class TelaFluxoCaixa extends JFrame {
 
@@ -24,6 +47,9 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color VERDE_OLIVA = new Color(101, 125, 64);
     private static final Color VERMELHO_TERROSO = new Color(178, 67, 62);
     private static final Color AZUL_ACAO = new Color(0, 100, 200);
+
+    // Cor usada para indicar que o botão está "desabilitado"
+    private static final Color COR_DESABILITADO = new Color(200, 190, 180); 
 
     private JTable tabelaEntradas;
     private JTable tabelaSaidas;
@@ -82,7 +108,6 @@ public class TelaFluxoCaixa extends JFrame {
         gbc.insets = new Insets(0, 0, 0, 0);
         painelPrincipal.add(painelTabelas, gbc);
 
-        // Painel inferior com os botões principais
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 10));
         painelBotoes.setOpaque(false);
 
@@ -103,7 +128,6 @@ public class TelaFluxoCaixa extends JFrame {
         painelBotoes.add(btnAddEntrada);
         painelBotoes.add(btnAddSaida);
 
-        // adicionar abaixo das tabelas
         gbc.gridy = 4;
         gbc.insets = new Insets(20, 0, 20, 0);
         gbc.weighty = 0;
@@ -195,16 +219,7 @@ public class TelaFluxoCaixa extends JFrame {
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-
-                String nome = getValueAt(row, 0).toString();
-
-                // Bloqueia editar e excluir para "Vendas do dia"
-                if (nome.equalsIgnoreCase("Vendas do dia") && (col == 4 || col == 5)) {
-                    return false;
-                }
-
-                // Apenas colunas de ação são clicáveis
-                return col >= 3;
+                return false;
             }
         };
 
@@ -219,32 +234,25 @@ public class TelaFluxoCaixa extends JFrame {
                     return;
 
                 List<MovimentacaoCaixa> lista = controller.listarEntradas();
-                if (coluna == 3) { // Detalhes
-
+                if (coluna == 3) {
                     MovimentacaoCaixa mov = lista.get(linha);
-
-                    if (mov.getNome().equals("Vendas do dia")) {
+                    if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
                         TelaDetalhesVendas tela = new TelaDetalhesVendas(mov.getData());
                         tela.setVisible(true);
                     }
-                } else if (coluna == 4) { // Editar
+                } else if (coluna == 4) {
                     MovimentacaoCaixa mov = lista.get(linha);
-
                     if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
                         return;
                     }
-
                     ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov, controller);
                     modal.setVisible(true);
                     atualizarTudo();
-                } else if (coluna == 5) { // Excluir
-
+                } else if (coluna == 5) {
                     MovimentacaoCaixa mov = lista.get(linha);
-
                     if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
                         return;
                     }
-
                     int confirm = JOptionPane.showConfirmDialog(
                             TelaFluxoCaixa.this,
                             "Tem certeza que deseja excluir esta entrada?",
@@ -305,16 +313,7 @@ public class TelaFluxoCaixa extends JFrame {
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-
-                String nome = getValueAt(row, 0).toString();
-
-                // Bloqueia editar e excluir para "Vendas do dia"
-                if (nome.equalsIgnoreCase("Fiados") && (col == 3 || col == 4)) {
-                    return false;
-                }
-
-                // Apenas colunas de ação são clicáveis
-                return col >= 3;
+                return false;
             }
         };
 
@@ -366,14 +365,12 @@ public class TelaFluxoCaixa extends JFrame {
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(BEGE_CLARO);
 
-        // HEADER DA TABELA (linha 1)
         gbc.gridy = 1;
         gbc.weighty = 0;
         gbc.insets = new Insets(10, 10, 0, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         painel.add(tabelaSaidas.getTableHeader(), gbc);
 
-        // SCROLL DA TABELA (linha 2)
         gbc.gridy = 2;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 10, 10, 10);
@@ -417,20 +414,20 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.getColumnModel().getColumn(0).setCellRenderer(textRenderer);
         tabela.getColumnModel().getColumn(1).setCellRenderer(valueRenderer);
         tabela.getColumnModel().getColumn(2).setCellRenderer(dateRenderer);
-        tabela.getColumnModel().getColumn(3).setCellRenderer(actionRenderer);
-        tabela.getColumnModel().getColumn(4).setCellRenderer(actionRenderer);
 
-        tabela.getColumnModel().getColumn(0).setPreferredWidth(200);
-        tabela.getColumnModel().getColumn(1).setPreferredWidth(120);
-        tabela.getColumnModel().getColumn(2).setPreferredWidth(150);
-        tabela.getColumnModel().getColumn(3).setPreferredWidth(100);
-        tabela.getColumnModel().getColumn(3).setMaxWidth(100);
-        tabela.getColumnModel().getColumn(4).setPreferredWidth(100);
-        tabela.getColumnModel().getColumn(4).setMaxWidth(100);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(100); 
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(110);
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(95);
+
+        for (int i = 3; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(actionRenderer);
+            tabela.getColumnModel().getColumn(i).setPreferredWidth(120);
+            tabela.getColumnModel().getColumn(i).setMinWidth(120);
+            tabela.getColumnModel().getColumn(i).setMaxWidth(120);
+        }
     }
 
     private void atualizarTudo() {
-
         recarregarTabelaEntradas();
         recarregarTabelaSaidas();
         atualizarSaldo();
@@ -460,22 +457,27 @@ public class TelaFluxoCaixa extends JFrame {
     private void recarregarTabelaEntradas() {
         DefaultTableModel modelo = (DefaultTableModel) tabelaEntradas.getModel();
         modelo.setRowCount(0);
+        DecimalFormat formatadorMoeda = new DecimalFormat("#,##0.00");
 
         List<MovimentacaoCaixa> entradas = controller.listarEntradas();
         for (MovimentacaoCaixa m : entradas) {
+            // Valores padrão para adições manuais
+            String detalhes = "-";
             String editar = "Editar";
             String excluir = "Excluir";
 
+            // Se vier do PDV (Vendas do dia)
             if (m.getNome().equalsIgnoreCase("Vendas do dia")) {
-                editar = "";
-                excluir = "";
+                detalhes = "Detalhes";
+                editar = "-";
+                excluir = "-";
             }
 
             modelo.addRow(new Object[] {
                     m.getNome(),
-                    String.format("%.2f", m.getValor()),
+                    formatadorMoeda.format(m.getValor()),
                     m.getData(),
-                    "Detalhes",
+                    detalhes,
                     editar,
                     excluir
             });
@@ -485,19 +487,23 @@ public class TelaFluxoCaixa extends JFrame {
     private void recarregarTabelaSaidas() {
         DefaultTableModel modelo = (DefaultTableModel) tabelaSaidas.getModel();
         modelo.setRowCount(0);
+        DecimalFormat formatadorMoeda = new DecimalFormat("#,##0.00");
 
         List<MovimentacaoCaixa> saidas = controller.listarSaidas();
         for (MovimentacaoCaixa m : saidas) {
+            // Valores padrão para adições manuais
             String editar = "Editar";
             String excluir = "Excluir";
 
+            // Se vier do PDV (Fiados)
             if (m.getNome().equalsIgnoreCase("Fiados")) {
-                editar = "";
-                excluir = "";
+                editar = "-";
+                excluir = "-";
             }
+
             modelo.addRow(new Object[] {
                     m.getNome(),
-                    String.format("%.2f", m.getValor()),
+                    formatadorMoeda.format(m.getValor()),
                     m.getData(),
                     editar,
                     excluir
@@ -568,6 +574,8 @@ public class TelaFluxoCaixa extends JFrame {
 
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
+            c.setFont(new Font(table.getFont().getName(), Font.BOLD, table.getFont().getSize()));
+
             if (isSelected) {
                 c.setBackground(table.getSelectionBackground());
                 c.setForeground(table.getSelectionForeground());
@@ -622,6 +630,9 @@ public class TelaFluxoCaixa extends JFrame {
                 c.setForeground(AZUL_ACAO);
             } else if (value.equals("Excluir")) {
                 c.setForeground(VERMELHO_TERROSO);
+            } else {
+                // Se for "-", aplica uma cor cinza clara para mostrar que está desabilitado
+                c.setForeground(COR_DESABILITADO);
             }
 
             if (isSelected) {

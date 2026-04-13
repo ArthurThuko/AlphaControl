@@ -1,17 +1,18 @@
 package alphacontrol.controllers.fiado;
 
-import alphacontrol.controllers.fluxo.FluxoCaixaController;
-import alphacontrol.dao.FiadoDAO;
-import alphacontrol.dao.ItemVendaDAO;
-import alphacontrol.dao.ProdutoDAO;
-import alphacontrol.dao.ClienteDAO;
-import alphacontrol.models.Fiado;
-import alphacontrol.models.ItemVenda;
-import alphacontrol.models.Produto;
-import alphacontrol.models.Cliente;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import alphacontrol.controllers.fluxo.FluxoCaixaController;
+import alphacontrol.dao.ClienteDAO;
+import alphacontrol.dao.FiadoDAO;
+import alphacontrol.dao.ItemVendaDAO;
+import alphacontrol.dao.ProdutoDAO;
+import alphacontrol.models.Cliente;
+import alphacontrol.models.Fiado;
+import alphacontrol.models.ItemVenda;
+import alphacontrol.models.Produto;
 
 public class FiadoController {
 
@@ -40,6 +41,10 @@ public class FiadoController {
         clienteDAO.atualizarDebito(clienteId, -valorPago);
 
         clienteDAO.buscarPorId(clienteId);
+    }
+
+    public void realizarPagamentoFiado(int clienteId, double valorPago, String nomeCliente) throws Exception {
+        fiadoDAO.realizarPagamentoFiado(clienteId, valorPago, nomeCliente);
     }
 
     // MÉTODO QUE ESTAVA FALTANDO
