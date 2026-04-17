@@ -104,7 +104,7 @@ public class TelaFiado extends JFrame {
         gbc.weightx = 1.0;
         gbc.insets = new Insets(15, 25, 15, 25);
 
-        JLabel titulo = new JLabel("Controle de Fiados");
+        JLabel titulo = new JLabel("Controle de Fiados/Clientes");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
         titulo.setForeground(MARROM_ESCURO);
         titulo.setHorizontalAlignment(SwingConstants.CENTER);

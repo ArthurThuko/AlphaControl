@@ -42,7 +42,7 @@ public class Navbar extends JMenuBar {
         NavItem navPrincipal = new NavItem("Principal (F1)", "Principal".equals(activeItem));
         NavItem navPDV = new NavItem("PDV (F3)", "PDV".equals(activeItem));
         NavItem navEstoque = new NavItem("Estoque (F2)", "Estoque".equals(activeItem));
-        NavItem navFiado = new NavItem("Fiado (F4)", "Fiado".equals(activeItem));
+        NavItem navFiado = new NavItem("Fiado/Cliente (F4)", "Fiado".equals(activeItem));
         NavItem navFluxoCaixa = new NavItem("Fluxo de Caixa (F5)", "Fluxo de Caixa".equals(activeItem));
         NavItem navRelatorio = new NavItem("Relatório (F6)", "Relatório".equals(activeItem));
         NavItem navSair = new NavItem("Sair", false);
