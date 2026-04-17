@@ -39,7 +39,7 @@ public class TelaPrincipal extends JFrame {
 
         JButton btnEstoque = new BotaoEstilizado("Estoque", COR_BOTAO_FUNDO);
         JButton btnPdv = new BotaoEstilizado("PDV", COR_BOTAO_FUNDO);
-        JButton btnFiados = new BotaoEstilizado("Fiados", COR_BOTAO_FUNDO);
+        JButton btnFiados = new BotaoEstilizado("Fiados/Clientes", COR_BOTAO_FUNDO);
         JButton btnRelatorios = new BotaoEstilizado("Relatórios", COR_BOTAO_FUNDO);
         JButton btnFluxoCaixa = new BotaoEstilizado("Fluxo de Caixa", COR_BOTAO_FUNDO);
         JButton btnSair = new BotaoEstilizado("Sair", COR_BOTAO_SAIR_FUNDO);

@@ -49,7 +49,7 @@ public class TelaFluxoCaixa extends JFrame {
     private static final Color AZUL_ACAO = new Color(0, 100, 200);
 
     // Cor usada para indicar que o botão está "desabilitado"
-    private static final Color COR_DESABILITADO = new Color(200, 190, 180); 
+    private static final Color COR_DESABILITADO = new Color(200, 190, 180);
 
     private JTable tabelaEntradas;
     private JTable tabelaSaidas;
@@ -236,13 +236,13 @@ public class TelaFluxoCaixa extends JFrame {
                 List<MovimentacaoCaixa> lista = controller.listarEntradas();
                 if (coluna == 3) {
                     MovimentacaoCaixa mov = lista.get(linha);
-                    if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
+                    if (mov.getNome().equalsIgnoreCase("Vendas do dia") || mov.getNome().toLowerCase().contains("pagamento fiado -")) {
                         TelaDetalhesVendas tela = new TelaDetalhesVendas(mov.getData());
                         tela.setVisible(true);
                     }
                 } else if (coluna == 4) {
                     MovimentacaoCaixa mov = lista.get(linha);
-                    if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
+                    if (mov.getNome().equalsIgnoreCase("Vendas do dia") || mov.getNome().toLowerCase().contains("pagamento fiado -")) {
                         return;
                     }
                     ModalEntrada modal = new ModalEntrada(TelaFluxoCaixa.this, mov, controller);
@@ -250,7 +250,7 @@ public class TelaFluxoCaixa extends JFrame {
                     atualizarTudo();
                 } else if (coluna == 5) {
                     MovimentacaoCaixa mov = lista.get(linha);
-                    if (mov.getNome().equalsIgnoreCase("Vendas do dia")) {
+                    if (mov.getNome().equalsIgnoreCase("Vendas do dia") || mov.getNome().toLowerCase().contains("pagamento fiado -")) {
                         return;
                     }
                     int confirm = JOptionPane.showConfirmDialog(
@@ -415,7 +415,7 @@ public class TelaFluxoCaixa extends JFrame {
         tabela.getColumnModel().getColumn(1).setCellRenderer(valueRenderer);
         tabela.getColumnModel().getColumn(2).setCellRenderer(dateRenderer);
 
-        tabela.getColumnModel().getColumn(0).setPreferredWidth(100); 
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(100);
         tabela.getColumnModel().getColumn(1).setPreferredWidth(110);
         tabela.getColumnModel().getColumn(2).setPreferredWidth(95);
 
@@ -469,6 +469,12 @@ public class TelaFluxoCaixa extends JFrame {
             // Se vier do PDV (Vendas do dia)
             if (m.getNome().equalsIgnoreCase("Vendas do dia")) {
                 detalhes = "Detalhes";
+                editar = "-";
+                excluir = "-";
+            }
+
+            if (m.getNome().toLowerCase().contains("pagamento fiado -")) {
+                detalhes = "-";
                 editar = "-";
                 excluir = "-";
             }
